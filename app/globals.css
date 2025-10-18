@@ -1,0 +1,235 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Updated color tokens to match enhanced design brief */
+  --background: #ffffff; /* Clean white background */
+  --foreground: #4b5563; /* Dark gray for text */
+  --card: #f9fafb; /* Soft off-white for cards */
+  --card-foreground: #4b5563; /* Dark gray card text */
+  --popover: #ffffff; /* White popover background */
+  --popover-foreground: #4b5563; /* Dark gray popover text */
+  --primary: #0891b2; /* Cyan-600 primary color */
+  --primary-foreground: #ffffff; /* White text on primary */
+  --secondary: #f9fafb; /* Light gray secondary */
+  --secondary-foreground: #4b5563; /* Dark gray secondary text */
+  --muted: #f0fdf4; /* Very light green muted */
+  --muted-foreground: #4b5563; /* Dark gray muted text */
+  --accent: #84cc16; /* Vibrant green accent */
+  --accent-foreground: #ffffff; /* White text on accent */
+  --destructive: #dc2626; /* Red for destructive actions */
+  --destructive-foreground: #ffffff; /* White destructive text */
+  --border: #e5e7eb; /* Light gray borders */
+  --input: #f9fafb; /* Light input backgrounds */
+  --ring: rgba(8, 145, 178, 0.5); /* Cyan focus ring */
+  --chart-1: #15803d; /* Green chart color */
+  --chart-2: #dc2626; /* Red chart color */
+  --chart-3: #0891b2; /* Cyan chart color */
+  --chart-4: #84cc16; /* Lime chart color */
+  --chart-5: #f59e0b; /* Amber chart color */
+  --radius: 0.5rem;
+  --sidebar: #f9fafb; /* Light sidebar */
+  --sidebar-foreground: #4b5563; /* Dark sidebar text */
+  --sidebar-primary: #0891b2; /* Cyan sidebar primary */
+  --sidebar-primary-foreground: #ffffff; /* White sidebar primary text */
+  --sidebar-accent: #84cc16; /* Green sidebar accent */
+  --sidebar-accent-foreground: #ffffff; /* White sidebar accent text */
+  --sidebar-border: #e5e7eb; /* Light sidebar borders */
+  --sidebar-ring: rgba(8, 145, 178, 0.5); /* Cyan sidebar ring */
+}
+
+.dark {
+  --background: #0f172a; /* Dark slate background */
+  --foreground: #f1f5f9; /* Light slate text */
+  --card: #1e293b; /* Dark slate card */
+  --card-foreground: #f1f5f9; /* Light card text */
+  --popover: #0f172a; /* Dark popover */
+  --popover-foreground: #f1f5f9; /* Light popover text */
+  --primary: #0ea5e9; /* Sky blue primary */
+  --primary-foreground: #0f172a; /* Dark text on primary */
+  --secondary: #334155; /* Slate secondary */
+  --secondary-foreground: #f1f5f9; /* Light secondary text */
+  --muted: #1e293b; /* Dark muted */
+  --muted-foreground: #94a3b8; /* Gray muted text */
+  --accent: #22c55e; /* Green accent */
+  --accent-foreground: #0f172a; /* Dark accent text */
+  --destructive: #ef4444; /* Red destructive */
+  --destructive-foreground: #f1f5f9; /* Light destructive text */
+  --border: #334155; /* Slate border */
+  --input: #1e293b; /* Dark input */
+  --ring: rgba(14, 165, 233, 0.5); /* Sky focus ring */
+  --chart-1: #22c55e;
+  --chart-2: #ef4444;
+  --chart-3: #0ea5e9;
+  --chart-4: #84cc16;
+  --chart-5: #f59e0b;
+  --sidebar: #1e293b;
+  --sidebar-foreground: #f1f5f9;
+  --sidebar-primary: #0ea5e9;
+  --sidebar-primary-foreground: #0f172a;
+  --sidebar-accent: #22c55e;
+  --sidebar-accent-foreground: #0f172a;
+  --sidebar-border: #334155;
+  --sidebar-ring: rgba(14, 165, 233, 0.5);
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply text-foreground;
+    /* Removed bg-background to prevent overriding splash screen background */
+  }
+  
+  /* Mobile-specific improvements */
+  /* Safe area insets for mobile devices */
+  .safe-area-inset-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  
+  .safe-area-inset-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  
+  .safe-area-inset-left {
+    padding-left: env(safe-area-inset-left, 0px);
+  }
+  
+  .safe-area-inset-right {
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+  
+  /* Improved touch targets for mobile */
+  @media (max-width: 768px) {
+    button, 
+    [role="button"], 
+    input[type="button"], 
+    input[type="submit"] {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    /* Better spacing for mobile forms */
+    .mobile-form-spacing {
+      padding: 1rem;
+    }
+    
+    /* Improved card spacing on mobile */
+    .mobile-card {
+      margin-bottom: 1rem;
+      border-radius: 0.75rem;
+    }
+    
+    /* Better text sizing for mobile */
+    .mobile-text-lg {
+      font-size: 1.125rem;
+      line-height: 1.75rem;
+    }
+    
+    .mobile-text-xl {
+      font-size: 1.25rem;
+      line-height: 1.75rem;
+    }
+    
+    .mobile-text-2xl {
+      font-size: 1.5rem;
+      line-height: 2rem;
+    }
+  }
+  
+  /* Prevent zoom on input focus for iOS */
+  @media screen and (-webkit-min-device-pixel-ratio: 0) {
+    select,
+    textarea,
+    input[type="text"],
+    input[type="password"],
+    input[type="datetime"],
+    input[type="datetime-local"],
+    input[type="date"],
+    input[type="month"],
+    input[type="time"],
+    input[type="week"],
+    input[type="number"],
+    input[type="email"],
+    input[type="url"],
+    input[type="search"],
+    input[type="tel"],
+    input[type="color"] {
+      font-size: 16px;
+    }
+  }
+}
+
+/* Added custom animations for splash screen */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(8, 145, 178, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(8, 145, 178, 0.6);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
