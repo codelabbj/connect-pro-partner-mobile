@@ -1,6 +1,7 @@
 // Betting platform API functions
 
 import { authService } from './auth';
+import { formatApiErrorMessage } from './utils'
 import {
   BettingPlatform,
   BettingPlatformsResponse,
@@ -39,7 +40,7 @@ class BettingService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to fetch platforms');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       return await response.json();
@@ -62,7 +63,7 @@ class BettingService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to fetch platform detail');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       return await response.json();
@@ -85,7 +86,7 @@ class BettingService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to fetch platforms with permissions');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       return await response.json();
@@ -108,7 +109,7 @@ class BettingService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to fetch platforms with stats');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       return await response.json();
@@ -147,7 +148,7 @@ class BettingService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to fetch betting transactions');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       return await response.json();
@@ -171,7 +172,7 @@ class BettingService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to verify user ID');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       return await response.json();
@@ -195,7 +196,7 @@ class BettingService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to create deposit');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       return await response.json();
@@ -219,7 +220,7 @@ class BettingService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to create withdrawal');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       return await response.json();
@@ -252,7 +253,7 @@ class BettingService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to fetch commission stats');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       return await response.json();
@@ -275,7 +276,7 @@ class BettingService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to fetch unpaid commissions');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       return await response.json();
@@ -298,7 +299,7 @@ class BettingService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to fetch commission rates');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       return await response.json();
@@ -321,7 +322,7 @@ class BettingService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to fetch payment history');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       return await response.json();

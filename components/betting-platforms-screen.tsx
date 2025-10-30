@@ -35,13 +35,19 @@ interface BettingPlatformsScreenProps {
   onNavigateToPlatformDetail: (platformUid: string) => void
   onNavigateToBettingTransactions: () => void
   onNavigateToBettingCommissions: () => void
+  intendedTransactionType?: "deposit" | "withdraw"
+  onNavigateToDeposit?: (platformUid: string) => void
+  onNavigateToWithdraw?: (platformUid: string) => void
 }
 
 export function BettingPlatformsScreen({ 
   onNavigateBack, 
   onNavigateToPlatformDetail, 
   onNavigateToBettingTransactions,
-  onNavigateToBettingCommissions 
+  onNavigateToBettingCommissions,
+  intendedTransactionType,
+  onNavigateToDeposit,
+  onNavigateToWithdraw,
 }: BettingPlatformsScreenProps) {
   const [platformsData, setPlatformsData] = useState<BettingPlatformsWithStatsResponse | null>(null)
   const [loading, setLoading] = useState(true)
@@ -59,11 +65,11 @@ export function BettingPlatformsScreen({
     try {
       const data = await bettingService.getPlatformsWithStats()
       setPlatformsData(data)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load platforms:', error)
       toast({
-        title: "Error",
-        description: "Failed to load betting platforms",
+        title: t("betting.platforms.errorTitle"),
+        description: String(error?.message || 'Failed to load betting platforms'),
         variant: "destructive",
       })
     } finally {
@@ -77,8 +83,8 @@ export function BettingPlatformsScreen({
     try {
       await loadPlatforms()
       toast({
-        title: "Success",
-        description: "Platforms data refreshed",
+        title: t("betting.platforms.successTitle"),
+        description: t("betting.platforms.refreshed"),
       })
     } catch (error) {
       console.error('Failed to refresh platforms:', error)
@@ -127,9 +133,9 @@ export function BettingPlatformsScreen({
 
   // Get status text
   const getStatusText = (isActive: boolean, permissionActive?: boolean) => {
-    if (!isActive) return "Inactive"
-    if (permissionActive === false) return "No Permission"
-    return "Active"
+    if (!isActive) return t("betting.platforms.status.inactive")
+    if (permissionActive === false) return t("betting.platforms.status.noPermission")
+    return t("betting.platforms.status.active")
   }
 
   if (loading) {
@@ -139,7 +145,7 @@ export function BettingPlatformsScreen({
       }`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-sm opacity-70">Loading platforms...</p>
+          <p className="text-sm opacity-70">{t("betting.platforms.loading")}</p>
         </div>
       </div>
     )
@@ -150,34 +156,34 @@ export function BettingPlatformsScreen({
       theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
     }`}>
       {/* Header */}
-      <div className="px-4 pt-16 pb-6 safe-area-inset-top">
-        <div className="flex items-center justify-between mb-6">
+      <div className="px-4 pt-14 sm:pt-16 pb-6 safe-area-inset-top">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
               size="sm"
-              className={`h-12 w-12 p-0 rounded-full ${
+              className={`h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-full ${
                 theme === "dark" 
                   ? "text-gray-300 hover:bg-gray-700/50" 
                   : "text-gray-600 hover:bg-gray-100/50"
               }`}
               onClick={onNavigateBack}
             >
-              <ArrowLeft className="w-6 h-6" />
+              <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
             <div>
-              <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-                Betting Platforms
+              <h1 className={`text-lg sm:text-2xl font-bold leading-tight ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                {t("betting.platforms.title")}
               </h1>
-              <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                Manage your betting platform access
+              <p className={`text-xs sm:text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                {t("betting.platforms.subtitle")}
               </p>
             </div>
           </div>
           <Button
             variant="ghost"
             size="sm"
-            className={`h-12 w-12 p-0 rounded-full ${
+            className={`h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-full ${
               theme === "dark" 
                 ? "text-gray-300 hover:bg-gray-700/50" 
                 : "text-gray-600 hover:bg-gray-100/50"
@@ -185,26 +191,26 @@ export function BettingPlatformsScreen({
             onClick={handleRefresh}
             disabled={refreshing}
           >
-            <RefreshCw className={`w-6 h-6 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-5 h-5 sm:w-6 sm:h-6 ${refreshing ? 'animate-spin' : ''}`} />
           </Button>
         </div>
 
         {/* Summary Cards */}
         {platformsData && (
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
             <Card className={`border-0 shadow-lg ${
               theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
             }`}>
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
                     <ShieldCheck className="w-5 h-5 text-green-500" />
                   </div>
                   <div>
-                    <p className={`text-sm font-medium ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                      Authorized
+                    <p className={`text-xs sm:text-sm font-medium ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                      {t("betting.platforms.summary.authorized")}
                     </p>
-                    <p className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                    <p className={`text-base sm:text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                       {platformsData.summary.authorized_count}
                     </p>
                   </div>
@@ -215,16 +221,16 @@ export function BettingPlatformsScreen({
             <Card className={`border-0 shadow-lg ${
               theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
             }`}>
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
                     <Activity className="w-5 h-5 text-blue-500" />
                   </div>
                   <div>
-                    <p className={`text-sm font-medium ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                      With Transactions
+                    <p className={`text-xs sm:text-sm font-medium ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                      {t("betting.platforms.summary.withTransactions")}
                     </p>
-                    <p className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                    <p className={`text-base sm:text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                       {platformsData.summary.platforms_with_transactions}
                     </p>
                   </div>
@@ -235,16 +241,16 @@ export function BettingPlatformsScreen({
         )}
 
         {/* Search and Filter */}
-        <div className="flex gap-3 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="flex-1 relative">
             <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${
               theme === "dark" ? "text-gray-400" : "text-gray-500"
             }`} />
             <Input
-              placeholder="Search platforms..."
+              placeholder={t("betting.platforms.searchPlaceholder") as string}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`pl-10 ${
+              className={`pl-10 h-11 sm:h-10 ${
                 theme === "dark" 
                   ? "bg-gray-800 border-gray-700 text-white" 
                   : "bg-white border-gray-200 text-gray-900"
@@ -252,7 +258,7 @@ export function BettingPlatformsScreen({
             />
           </div>
           <Select value={filterType} onValueChange={(value: any) => setFilterType(value)}>
-            <SelectTrigger className={`w-32 ${
+            <SelectTrigger className={`w-full sm:w-44 h-11 sm:h-10 ${
               theme === "dark" 
                 ? "bg-gray-800 border-gray-700 text-white" 
                 : "bg-white border-gray-200 text-gray-900"
@@ -260,9 +266,9 @@ export function BettingPlatformsScreen({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="authorized">Authorized</SelectItem>
-              <SelectItem value="unauthorized">Unauthorized</SelectItem>
+              <SelectItem value="all">{t("betting.platforms.filters.all")}</SelectItem>
+              <SelectItem value="authorized">{t("betting.platforms.filters.authorized")}</SelectItem>
+              <SelectItem value="unauthorized">{t("betting.platforms.filters.unauthorized")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -271,42 +277,52 @@ export function BettingPlatformsScreen({
       {/* Tabs */}
       <div className="px-4">
         <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
-          <TabsList className={`grid w-full grid-cols-3 ${
+          <TabsList className={`${
             theme === "dark" ? "bg-gray-800" : "bg-gray-100"
-          }`}>
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="authorized">Authorized</TabsTrigger>
-            <TabsTrigger value="unauthorized">Unauthorized</TabsTrigger>
+          } overflow-x-auto flex gap-2 rounded-lg p-1`}>
+            <TabsTrigger className="whitespace-nowrap flex-shrink-0 px-3 py-2" value="overview">{t("betting.platforms.tabs.overview")}</TabsTrigger>
+            <TabsTrigger className="whitespace-nowrap flex-shrink-0 px-3 py-2" value="authorized">{t("betting.platforms.tabs.authorized")}</TabsTrigger>
+            <TabsTrigger className="whitespace-nowrap flex-shrink-0 px-3 py-2" value="unauthorized">{t("betting.platforms.tabs.unauthorized")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4 max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto">
               {getFilteredPlatforms().map((platform) => (
                 <Card
                   key={platform.uid}
                   className={`border-0 shadow-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] ${
                     theme === "dark" ? "bg-gray-800/95 hover:bg-gray-700/95" : "bg-white/95 hover:bg-gray-50/95"
                   }`}
-                  onClick={() => onNavigateToPlatformDetail(platform.uid)}
+                  onClick={() => {
+                    if (intendedTransactionType === "deposit" && onNavigateToDeposit) {
+                      onNavigateToDeposit(platform.uid)
+                      return
+                    }
+                    if (intendedTransactionType === "withdraw" && onNavigateToWithdraw) {
+                      onNavigateToWithdraw(platform.uid)
+                      return
+                    }
+                    onNavigateToPlatformDetail(platform.uid)
+                  }}
                 >
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center">
+                      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center flex-shrink-0">
                           {platform.logo ? (
-                            <img src={platform.logo} alt={platform.name} className="w-10 h-10 rounded-lg" />
+                            <img src={platform.logo} alt={platform.name} className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg object-contain" />
                           ) : (
-                            <BarChart3 className="w-7 h-7 text-blue-500" />
+                            <BarChart3 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-500" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className={`font-bold text-lg ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                          <h3 className={`font-bold text-base sm:text-lg ${theme === "dark" ? "text-white" : "text-gray-900"} truncate`}>
                             {platform.name}
                           </h3>
-                          <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"} truncate`}>
-                            {platform.description || "No description available"}
+                          <p className={`text-xs sm:text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"} truncate`}>
+                            {platform.description || t("betting.platforms.descriptionFallback")}
                           </p>
-                          <div className="flex items-center gap-2 mt-2">
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
                             <Badge 
                               variant="secondary" 
                               className={`text-xs ${
@@ -321,20 +337,20 @@ export function BettingPlatformsScreen({
                             </Badge>
                             {platform.my_stats && platform.my_stats.total_transactions > 0 && (
                               <Badge variant="outline" className="text-xs">
-                                {platform.my_stats.total_transactions} transactions
+                                {t("betting.platforms.transactionsCount", { count: platform.my_stats.total_transactions })}
                               </Badge>
                             )}
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex-shrink-0">
                         {platform.my_stats && (
                           <div className="space-y-1">
-                            <p className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                            <p className={`text-sm font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                               {formatCurrency(platform.my_stats.total_amount.toString())} FCFA
                             </p>
                             <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                              Commission: {formatCurrency(platform.my_stats.total_commission.toString())} FCFA
+                              {t("betting.platforms.commissionLabel")}: {formatCurrency(platform.my_stats.total_commission.toString())} FCFA
                             </p>
                           </div>
                         )}
@@ -350,7 +366,7 @@ export function BettingPlatformsScreen({
           </TabsContent>
 
           <TabsContent value="authorized" className="mt-6">
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4 max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto">
               {platformsData?.authorized_platforms.map((platform) => (
                 <Card
                   key={platform.uid}
@@ -359,34 +375,34 @@ export function BettingPlatformsScreen({
                   }`}
                   onClick={() => onNavigateToPlatformDetail(platform.uid)}
                 >
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center">
+                      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center flex-shrink-0">
                           {platform.logo ? (
                             <img src={platform.logo} alt={platform.name} className="w-8 h-8 rounded-lg" />
                           ) : (
                             <ShieldCheck className="w-6 h-6 text-green-500" />
                           )}
                         </div>
-                        <div>
-                          <h3 className={`font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                        <div className="min-w-0">
+                          <h3 className={`font-bold text-base sm:text-lg ${theme === "dark" ? "text-white" : "text-gray-900"} truncate`}>
                             {platform.name}
                           </h3>
                           <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                            Granted by: {platform.granted_by_name}
+                            {t("betting.platforms.grantedBy", { name: platform.granted_by_name })}
                           </p>
                           <div className="flex items-center gap-2 mt-1">
                             <Badge variant="secondary" className="text-xs bg-green-500/20 text-green-500">
-                              Can Deposit: {platform.can_deposit ? "Yes" : "No"}
+                              {t("betting.platforms.canDeposit", { value: platform.can_deposit ? t("betting.platforms.yes") : t("betting.platforms.no") })}
                             </Badge>
                             <Badge variant="secondary" className="text-xs bg-green-500/20 text-green-500">
-                              Can Withdraw: {platform.can_withdraw ? "Yes" : "No"}
+                              {t("betting.platforms.canWithdraw", { value: platform.can_withdraw ? t("betting.platforms.yes") : t("betting.platforms.no") })}
                             </Badge>
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex-shrink-0">
                         {platform.my_stats && (
                           <div className="space-y-1">
                             <p className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
@@ -407,7 +423,7 @@ export function BettingPlatformsScreen({
           </TabsContent>
 
           <TabsContent value="unauthorized" className="mt-6">
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4 max-w-xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl mx-auto">
               {platformsData?.unauthorized_platforms.map((platform) => (
                 <Card
                   key={platform.uid}
@@ -416,31 +432,31 @@ export function BettingPlatformsScreen({
                   }`}
                   onClick={() => onNavigateToPlatformDetail(platform.uid)}
                 >
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 flex items-center justify-center">
+                      <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                        <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 flex items-center justify-center flex-shrink-0">
                           {platform.logo ? (
                             <img src={platform.logo} alt={platform.name} className="w-8 h-8 rounded-lg" />
                           ) : (
                             <Shield className="w-6 h-6 text-red-500" />
                           )}
                         </div>
-                        <div>
-                          <h3 className={`font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                        <div className="min-w-0">
+                          <h3 className={`font-bold text-base sm:text-lg ${theme === "dark" ? "text-white" : "text-gray-900"} truncate`}>
                             {platform.name}
                           </h3>
                           <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                            No permission granted
+                            {t("betting.platforms.noPermissionGranted")}
                           </p>
                           <div className="flex items-center gap-2 mt-1">
                             <Badge variant="secondary" className="text-xs bg-red-500/20 text-red-500">
-                              No Access
+                              {t("betting.platforms.noAccess")}
                             </Badge>
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right flex-shrink-0">
                         <div className="w-2 h-2 rounded-full mt-2 ml-auto bg-red-500"></div>
                       </div>
                     </div>
@@ -454,28 +470,28 @@ export function BettingPlatformsScreen({
 
       {/* Quick Actions */}
       <div className="px-4 pb-8 pt-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           <Button
             onClick={onNavigateToBettingTransactions}
-            className={`h-14 border-0 text-base ${
+            className={`h-12 sm:h-14 border-0 text-sm sm:text-base w-full ${
               theme === "dark" 
                 ? "bg-blue-500/20 hover:bg-blue-500/30 text-blue-400" 
                 : "bg-blue-500/20 hover:bg-blue-500/30 text-blue-600"
             }`}
           >
-            <TrendingUp className="w-6 h-6 mr-3" />
-            Transactions
+            <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
+            {t("betting.platforms.quickActions.transactions")}
           </Button>
           <Button
             onClick={onNavigateToBettingCommissions}
-            className={`h-14 border-0 text-base ${
+            className={`h-12 sm:h-14 border-0 text-sm sm:text-base w-full ${
               theme === "dark" 
                 ? "bg-green-500/20 hover:bg-green-500/30 text-green-400" 
                 : "bg-green-500/20 hover:bg-green-500/30 text-green-600"
             }`}
           >
-            <DollarSign className="w-6 h-6 mr-3" />
-            Commissions
+            <DollarSign className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3" />
+            {t("betting.platforms.quickActions.commissions")}
           </Button>
         </div>
       </div>

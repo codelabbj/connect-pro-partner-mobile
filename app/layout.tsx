@@ -39,6 +39,20 @@ export default function RootLayout({
             </AuthProvider>
           </LanguageProvider>
         </ThemeProvider>
+        {/* Inline script to capture Android hardware back events and map to a custom event */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                function emit(){ try{ window.dispatchEvent(new Event('hardwareBack')); }catch(e){} }
+                // Capacitor/Cordova style event
+                document.addEventListener('backbutton', function(ev){ ev.preventDefault && ev.preventDefault(); emit(); }, false);
+                // Browser navigation
+                window.addEventListener('popstate', function(){ emit(); }, false);
+              })();
+            `,
+          }}
+        />
         <Analytics />
       </body>
     </html>

@@ -1,4 +1,5 @@
 // Transactions service for handling transaction history
+import { formatApiErrorMessage } from './utils'
 
 export interface Transaction {
   uid: string;
@@ -64,7 +65,7 @@ class TransactionsService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to get transactions');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       const data: TransactionsResponse = await response.json();

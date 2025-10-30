@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { SplashScreen } from "@/components/splash-screen"
 import { LoginScreen } from "@/components/login-screen"
 import { DashboardScreen } from "@/components/dashboard-screen"
@@ -21,14 +21,72 @@ import { ErrorBoundary } from "@/components/error-boundary"
 import { Sidebar, SidebarToggle } from "@/components/sidebar"
 import { useTheme } from "@/lib/contexts"
 import { useAuth } from "@/lib/contexts"
+import { registerHardwareBackHandler, unregisterHardwareBackHandler } from "@/lib/mobile-back-button"
+import { PermissionDeniedScreen } from "@/components/permission-denied-screen"
+import { TransferScreen } from "@/components/transfer-screen"
+import { TransferHistoryScreen } from "@/components/transfer-history-screen"
+import { NotificationScreen } from "@/components/notification-screen"
+import { TransactionTypeSelectionScreen } from "@/components/transaction-type-selection-screen"
 
 export default function Home() {
-  const [currentScreen, setCurrentScreen] = useState<"splash" | "login" | "dashboard" | "deposit" | "withdraw" | "recharge" | "settings" | "profile" | "transaction-history" | "recharge-history" | "betting-platforms" | "platform-detail" | "betting-transactions" | "betting-commissions" | "betting-deposit" | "betting-withdrawal">("splash")
+  const [currentScreen, setCurrentScreen] = useState<
+    | "splash"
+    | "login"
+    | "dashboard"
+    | "deposit"
+    | "withdraw"
+    | "recharge"
+    | "settings"
+    | "profile"
+    | "transaction-history"
+    | "recharge-history"
+    | "transfer"
+    | "transfer-history"
+    | "notifications"
+    | "permission-denied"
+    | "transaction-type-select"
+    | "betting-platforms"
+    | "platform-detail"
+    | "betting-transactions"
+    | "betting-commissions"
+    | "betting-deposit"
+    | "betting-withdrawal"
+  >("splash")
+  const [navigationHistory, setNavigationHistory] = useState<string[]>([])
   const [selectedPlatformUid, setSelectedPlatformUid] = useState<string>("")
+  const [bettingTransactionType, setBettingTransactionType] = useState<"deposit" | "withdraw">("deposit")
   const [splashCompleted, setSplashCompleted] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { theme } = useTheme()
-  const { isAuthenticated, isLoading, logout } = useAuth()
+  const { isAuthenticated, isLoading, logout, user } = useAuth()
+
+  const canProcessUssd = useMemo(() => {
+    return Boolean((user as any)?.can_process_ussd_transaction)
+  }, [user])
+  const canUseMomo = useMemo(() => {
+    return ((user as any)?.can_use_momo_pay !== false) && canProcessUssd
+  }, [user, canProcessUssd])
+  const canUseBetting = useMemo(() => {
+    return (user as any)?.can_use_mobcash_betting !== false
+  }, [user])
+
+  const navigateTo = (screen: typeof currentScreen) => {
+    setNavigationHistory((prev) => [...prev, String(currentScreen)])
+    setCurrentScreen(screen)
+  }
+
+  const navigateBack = () => {
+    setNavigationHistory((prev) => {
+      if (prev.length === 0) {
+        setCurrentScreen(isAuthenticated ? "dashboard" : "login")
+        return prev
+      }
+      const next = [...prev]
+      const last = next.pop() as string | undefined
+      if (last) setCurrentScreen(last as any)
+      return next
+    })
+  }
 
   const handleSplashComplete = () => {
     setSplashCompleted(true)
@@ -36,11 +94,13 @@ export default function Home() {
 
   const handleLogin = () => {
     setCurrentScreen("dashboard")
+    setNavigationHistory([])
   }
 
   const handleLogout = () => {
     logout()
     setCurrentScreen("login")
+    setNavigationHistory([])
   }
 
   // Handle authentication state changes
@@ -48,11 +108,23 @@ export default function Home() {
     if (!isLoading && splashCompleted) {
       if (isAuthenticated) {
         setCurrentScreen("dashboard")
+        setNavigationHistory([])
       } else {
         setCurrentScreen("login")
+        setNavigationHistory([])
       }
     }
   }, [isAuthenticated, isLoading, splashCompleted])
+
+  // Register hardware back handling
+  useEffect(() => {
+    registerHardwareBackHandler(() => {
+      navigateBack()
+    })
+    return () => {
+      unregisterHardwareBackHandler()
+    }
+  }, [isAuthenticated, currentScreen])
 
   // Show splash screen until it's completed
   if (currentScreen === "splash") {
@@ -87,7 +159,7 @@ export default function Home() {
         {isAuthenticated && !["splash", "login"].includes(currentScreen) && (
           <Sidebar
             currentScreen={currentScreen}
-            onNavigate={(screen) => setCurrentScreen(screen as any)}
+            onNavigate={(screen) => navigateTo(screen as any)}
             onLogout={handleLogout}
             isOpen={sidebarOpen}
             onToggle={() => setSidebarOpen(!sidebarOpen)}
@@ -102,76 +174,122 @@ export default function Home() {
         }`}>
         {currentScreen === "dashboard" && (
           <DashboardScreen 
-            onNavigateToDeposit={() => setCurrentScreen("deposit")}
-            onNavigateToWithdraw={() => setCurrentScreen("withdraw")}
+            onNavigateToDeposit={() => {
+              setBettingTransactionType("deposit")
+              // If neither option available, show permission denied
+              if (!canUseMomo && !canUseBetting) {
+                navigateTo("permission-denied")
+                return
+              }
+              navigateTo("transaction-type-select")
+            }}
+            onNavigateToWithdraw={() => {
+              setBettingTransactionType("withdraw")
+              if (!canUseMomo && !canUseBetting) {
+                navigateTo("permission-denied")
+                return
+              }
+              navigateTo("transaction-type-select")
+            }}
+            onNavigateToSettings={() => navigateTo("settings")}
+            onNavigateToNotifications={() => navigateTo("notifications")}
           />
         )}
         {currentScreen === "deposit" && (
-          <DepositScreen onNavigateBack={() => setCurrentScreen("dashboard")} />
+          <DepositScreen onNavigateBack={navigateBack} />
         )}
         {currentScreen === "withdraw" && (
-          <WithdrawScreen onNavigateBack={() => setCurrentScreen("dashboard")} />
+          <WithdrawScreen onNavigateBack={navigateBack} />
         )}
         {currentScreen === "recharge" && (
-          <RechargeScreen onNavigateBack={() => setCurrentScreen("dashboard")} />
+          <RechargeScreen onNavigateBack={navigateBack} />
+        )}
+        {currentScreen === "transfer" && (
+          <TransferScreen onNavigateBack={navigateBack} />
+        )}
+        {currentScreen === "transfer-history" && (
+          <TransferHistoryScreen onNavigateBack={navigateBack} />
+        )}
+        {currentScreen === "notifications" && (
+          <NotificationScreen onNavigateBack={navigateBack} />
+        )}
+        {currentScreen === "permission-denied" && (
+          <PermissionDeniedScreen onNavigateBack={() => setCurrentScreen("dashboard")} />
+        )}
+        {currentScreen === "transaction-type-select" && (
+          <TransactionTypeSelectionScreen
+            transactionType={bettingTransactionType}
+            onNavigateBack={navigateBack}
+            onSelectMobileMoney={() => navigateTo(bettingTransactionType === "deposit" ? "deposit" : "withdraw")}
+            onSelectBetting={() => navigateTo("betting-platforms")}
+          />
         )}
         {currentScreen === "settings" && (
           <SettingsScreen 
-            onNavigateBack={() => setCurrentScreen("dashboard")} 
+            onNavigateBack={navigateBack} 
             onNavigateToProfile={() => setCurrentScreen("profile")}
             onLogout={handleLogout} 
           />
         )}
         {currentScreen === "profile" && (
-          <ProfileScreen onNavigateBack={() => setCurrentScreen("settings")} />
+          <ProfileScreen onNavigateBack={navigateBack} />
         )}
         {currentScreen === "transaction-history" && (
-          <TransactionHistoryScreen onNavigateBack={() => setCurrentScreen("dashboard")} />
+          <TransactionHistoryScreen onNavigateBack={navigateBack} />
         )}
         {currentScreen === "recharge-history" && (
-          <RechargeHistoryScreen onNavigateBack={() => setCurrentScreen("dashboard")} />
+          <RechargeHistoryScreen onNavigateBack={navigateBack} />
         )}
         {currentScreen === "betting-platforms" && (
           <BettingPlatformsScreen 
-            onNavigateBack={() => setCurrentScreen("dashboard")}
+            onNavigateBack={navigateBack}
             onNavigateToPlatformDetail={(platformUid) => {
               setSelectedPlatformUid(platformUid)
-              setCurrentScreen("platform-detail")
+              navigateTo("platform-detail")
             }}
-            onNavigateToBettingTransactions={() => setCurrentScreen("betting-transactions")}
-            onNavigateToBettingCommissions={() => setCurrentScreen("betting-commissions")}
+            onNavigateToBettingTransactions={() => navigateTo("betting-transactions")}
+            onNavigateToBettingCommissions={() => navigateTo("betting-commissions")}
+            intendedTransactionType={bettingTransactionType}
+            onNavigateToDeposit={(platformUid) => {
+              setSelectedPlatformUid(platformUid)
+              navigateTo("betting-deposit")
+            }}
+            onNavigateToWithdraw={(platformUid) => {
+              setSelectedPlatformUid(platformUid)
+              navigateTo("betting-withdrawal")
+            }}
           />
         )}
         {currentScreen === "platform-detail" && (
           <PlatformDetailScreen 
             platformUid={selectedPlatformUid}
-            onNavigateBack={() => setCurrentScreen("betting-platforms")}
+            onNavigateBack={navigateBack}
             onNavigateToDeposit={(platformUid) => {
               setSelectedPlatformUid(platformUid)
-              setCurrentScreen("betting-deposit")
+              navigateTo("betting-deposit")
             }}
             onNavigateToWithdraw={(platformUid) => {
               setSelectedPlatformUid(platformUid)
-              setCurrentScreen("betting-withdrawal")
+              navigateTo("betting-withdrawal")
             }}
           />
         )}
         {currentScreen === "betting-transactions" && (
-          <BettingTransactionsScreen onNavigateBack={() => setCurrentScreen("dashboard")} />
+          <BettingTransactionsScreen onNavigateBack={navigateBack} />
         )}
         {currentScreen === "betting-commissions" && (
-          <BettingCommissionsScreen onNavigateBack={() => setCurrentScreen("dashboard")} />
+          <BettingCommissionsScreen onNavigateBack={navigateBack} />
         )}
         {currentScreen === "betting-deposit" && (
           <BettingDepositScreen 
             platformUid={selectedPlatformUid}
-            onNavigateBack={() => setCurrentScreen("platform-detail")}
+            onNavigateBack={navigateBack}
           />
         )}
         {currentScreen === "betting-withdrawal" && (
           <BettingWithdrawalScreen 
             platformUid={selectedPlatformUid}
-            onNavigateBack={() => setCurrentScreen("platform-detail")}
+            onNavigateBack={navigateBack}
           />
         )}
         </div>

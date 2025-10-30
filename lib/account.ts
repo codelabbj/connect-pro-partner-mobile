@@ -1,4 +1,5 @@
 // Account service for handling user account data
+import { formatApiErrorMessage } from './utils'
 
 export interface AccountData {
   uid: string;
@@ -39,7 +40,7 @@ class AccountService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to get account data');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       const data: AccountData = await response.json();

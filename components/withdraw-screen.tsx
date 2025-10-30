@@ -9,7 +9,7 @@ import { useTheme } from "@/lib/contexts"
 import { useTranslation } from "@/lib/contexts"
 import { useAuth } from "@/lib/contexts"
 import { formatAmount } from "@/lib/utils"
-import { ConfirmationModal } from "@/components/confirmation-modal"
+import { TransactionConfirmationModal } from "@/components/ui/transaction-confirmation-modal"
 
 interface WithdrawScreenProps {
   onNavigateBack: () => void
@@ -298,12 +298,12 @@ export function WithdrawScreen({ onNavigateBack }: WithdrawScreenProps) {
       </div>
 
       {/* Confirmation Modal */}
-      <ConfirmationModal
+      <TransactionConfirmationModal
         isOpen={showConfirmation}
         onClose={() => setShowConfirmation(false)}
         onConfirm={handleConfirmWithdraw}
-        data={{
-          type: "withdraw",
+        transactionData={{
+          type: "withdrawal",
           amount: amount,
           recipientPhone: recipientPhone,
           selectedNetwork: availableNetworks.find(network => network.uid === selectedNetwork)

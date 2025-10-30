@@ -1,5 +1,7 @@
 // Authentication service for handling login, token management, and refresh
 
+import { formatApiErrorMessage } from './utils'
+
 export interface User {
   uid: string;
   email: string;
@@ -74,7 +76,7 @@ class AuthService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Login failed');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       const data: AuthResponse = await response.json();
@@ -108,7 +110,7 @@ class AuthService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Token refresh failed');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       const data: RefreshResponse = await response.json();
@@ -141,7 +143,7 @@ class AuthService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to get user profile');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       const user: User = await response.json();

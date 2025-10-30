@@ -48,11 +48,11 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
     try {
       const data = await bettingService.getPlatformDetail(platformUid)
       setPlatform(data)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load platform:', error)
       toast({
         title: "Error",
-        description: "Failed to load platform details",
+        description: String(error?.message || 'Failed to load platform details'),
         variant: "destructive",
       })
     } finally {
@@ -64,8 +64,8 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
   const verifyUserId = async () => {
     if (!bettingUserId.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter a betting user ID",
+        title: t("common.error"),
+        description: t("betting.withdraw.errors.enterUserId"),
         variant: "destructive",
       })
       return
@@ -80,23 +80,23 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
       
       if (response.UserId === 0) {
         toast({
-          title: "Invalid User ID",
-          description: "The betting user ID is not valid for this platform",
+          title: t("betting.withdraw.invalidUserIdTitle"),
+          description: t("betting.withdraw.invalidUserIdDesc"),
           variant: "destructive",
         })
         setVerifiedUser(null)
       } else {
         setVerifiedUser(response)
         toast({
-          title: "User Verified",
-          description: `User: ${response.Name}`,
+          title: t("betting.withdraw.userVerifiedTitle"),
+          description: t("betting.withdraw.userVerifiedDesc", { name: response.Name }),
         })
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to verify user ID:', error)
       toast({
-        title: "Error",
-        description: "Failed to verify betting user ID",
+        title: t("common.error"),
+        description: String(error?.message || t("betting.withdraw.errors.verifyFailed")),
         variant: "destructive",
       })
       setVerifiedUser(null)
@@ -109,8 +109,8 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
   const submitWithdrawal = async () => {
     if (!verifiedUser) {
       toast({
-        title: "Error",
-        description: "Please verify the betting user ID first",
+        title: t("common.error"),
+        description: t("betting.withdraw.errors.verifyFirst"),
         variant: "destructive",
       })
       return
@@ -118,8 +118,8 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
 
     if (!withdrawalCode.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter a withdrawal code",
+        title: t("common.error"),
+        description: t("betting.withdraw.errors.enterWithdrawalCode"),
         variant: "destructive",
       })
       return
@@ -134,7 +134,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
       })
 
       toast({
-        title: "Success",
+        title: t("common.success"),
         description: response.message,
       })
 
@@ -142,11 +142,16 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
       setBettingUserId("")
       setWithdrawalCode("")
       setVerifiedUser(null)
-    } catch (error) {
+
+      // Navigate back after short delay
+      setTimeout(() => {
+        onNavigateBack()
+      }, 2500)
+    } catch (error: any) {
       console.error('Failed to create withdrawal:', error)
       toast({
-        title: "Error",
-        description: "Failed to create withdrawal transaction",
+        title: t("common.error"),
+        description: String(error?.message || t("betting.withdraw.errors.createFailed")),
         variant: "destructive",
       })
     } finally {
@@ -170,7 +175,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
       }`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-sm opacity-70">Loading platform details...</p>
+          <p className="text-sm opacity-70">{t("betting.withdraw.loadingPlatform")}</p>
         </div>
       </div>
     )
@@ -183,9 +188,9 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
       }`}>
         <div className="text-center">
           <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold mb-2">Platform Not Found</h2>
-          <p className="text-sm opacity-70 mb-4">The requested platform could not be found.</p>
-          <Button onClick={onNavigateBack}>Go Back</Button>
+          <h2 className="text-xl font-bold mb-2">{t("betting.withdraw.notFoundTitle")}</h2>
+          <p className="text-sm opacity-70 mb-4">{t("betting.withdraw.notFoundDesc")}</p>
+          <Button onClick={onNavigateBack}>{t("common.back")}</Button>
         </div>
       </div>
     )
@@ -212,10 +217,10 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
           </Button>
           <div>
             <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-              Withdraw from {platform.name}
+              {t("betting.withdraw.title", { name: platform.name })}
             </h1>
             <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-              Create a withdrawal transaction
+              {t("betting.withdraw.subtitle")}
             </p>
           </div>
         </div>
@@ -234,7 +239,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
                   {platform.name}
                 </h3>
                 <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                  Withdrawal Limits: {formatCurrency(platform.min_withdrawal_amount)} - {formatCurrency(platform.max_withdrawal_amount)} FCFA
+                  {t("betting.withdraw.platformInfo", { min: formatCurrency(platform.min_withdrawal_amount), max: formatCurrency(platform.max_withdrawal_amount) })}
                 </p>
               </div>
             </div>
@@ -258,13 +263,13 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
               <Label htmlFor="userId" className={`text-sm font-medium ${
                 theme === "dark" ? "text-gray-300" : "text-gray-700"
               }`}>
-                Betting User ID
+                {t("betting.withdraw.userIdLabel")}
               </Label>
               <div className="flex gap-3">
                 <Input
                   id="userId"
                   type="number"
-                  placeholder="Enter betting user ID"
+                  placeholder={t("betting.withdraw.userIdPlaceholder") as string}
                   value={bettingUserId}
                   onChange={(e) => setBettingUserId(e.target.value)}
                   className={`flex-1 h-12 text-base ${
@@ -281,7 +286,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
                   {verifying ? (
                     <RefreshCw className="w-5 h-5 animate-spin" />
                   ) : (
-                    "Verify"
+                    t("betting.withdraw.verify")
                   )}
                 </Button>
               </div>
@@ -294,7 +299,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
               }`}>
                 <CheckCircle className="h-4 w-4 text-green-500" />
                 <AlertDescription className="text-green-700 dark:text-green-300">
-                  <strong>User Verified:</strong> {verifiedUser.Name} (ID: {verifiedUser.UserId})
+                  <strong>{t("betting.withdraw.userVerifiedTitle")}:</strong> {verifiedUser.Name} (ID: {verifiedUser.UserId})
                 </AlertDescription>
               </Alert>
             )}
@@ -304,13 +309,13 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
               <Label htmlFor="withdrawalCode" className={`text-sm font-medium ${
                 theme === "dark" ? "text-gray-300" : "text-gray-700"
               }`}>
-                Withdrawal Code
+                {t("betting.withdraw.withdrawalCodeLabel")}
               </Label>
               <div className="relative">
                 <Input
                   id="withdrawalCode"
                   type={showCode ? "text" : "password"}
-                  placeholder="Enter withdrawal code"
+                  placeholder={t("betting.withdraw.withdrawalCodePlaceholder") as string}
                   value={withdrawalCode}
                   onChange={(e) => setWithdrawalCode(e.target.value)}
                   className={`pr-12 h-12 text-base ${
@@ -329,7 +334,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
                 </Button>
               </div>
               <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                Enter the withdrawal code provided by the betting platform
+                {t("betting.withdraw.withdrawalCodeHint")}
               </p>
             </div>
 
@@ -352,12 +357,12 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
               {submitting ? (
                 <>
                   <RefreshCw className="w-5 h-5 mr-3 animate-spin" />
-                  Creating Withdrawal...
+                  {t("betting.withdraw.creating")}
                 </>
               ) : (
                 <>
                   <TrendingDown className="w-5 h-5 mr-3" />
-                  Create Withdrawal
+                  {t("betting.withdraw.createButton")}
                 </>
               )}
             </Button>

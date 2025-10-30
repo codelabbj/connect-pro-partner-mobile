@@ -50,11 +50,11 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
     try {
       const data = await bettingService.getPlatformDetail(platformUid)
       setPlatform(data)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load platform:', error)
       toast({
         title: "Error",
-        description: "Failed to load platform details",
+        description: String(error?.message || 'Failed to load platform details'),
         variant: "destructive",
       })
     } finally {
@@ -66,8 +66,8 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
   const verifyUserId = async () => {
     if (!bettingUserId.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter a betting user ID",
+        title: t("common.error"),
+        description: t("betting.deposit.errors.enterUserId"),
         variant: "destructive",
       })
       return
@@ -82,23 +82,23 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
       
       if (response.UserId === 0) {
         toast({
-          title: "Invalid User ID",
-          description: "The betting user ID is not valid for this platform",
+          title: t("betting.deposit.invalidUserIdTitle"),
+          description: t("betting.deposit.invalidUserIdDesc"),
           variant: "destructive",
         })
         setVerifiedUser(null)
       } else {
         setVerifiedUser(response)
         toast({
-          title: "User Verified",
-          description: `User: ${response.Name}`,
+          title: t("betting.deposit.userVerifiedTitle"),
+          description: t("betting.deposit.userVerifiedDesc", { name: response.Name }),
         })
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to verify user ID:', error)
       toast({
-        title: "Error",
-        description: "Failed to verify betting user ID",
+        title: t("common.error"),
+        description: String(error?.message || t("betting.deposit.errors.verifyFailed")),
         variant: "destructive",
       })
       setVerifiedUser(null)
@@ -111,8 +111,8 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
   const submitDeposit = async () => {
     if (!verifiedUser) {
       toast({
-        title: "Error",
-        description: "Please verify the betting user ID first",
+        title: t("common.error"),
+        description: t("betting.deposit.errors.verifyFirst"),
         variant: "destructive",
       })
       return
@@ -120,8 +120,8 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
 
     if (!amount.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter an amount",
+        title: t("common.error"),
+        description: t("betting.deposit.errors.enterAmount"),
         variant: "destructive",
       })
       return
@@ -130,8 +130,8 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
     const amountNum = parseFloat(amount)
     if (amountNum < parseFloat(platform!.min_deposit_amount)) {
       toast({
-        title: "Error",
-        description: `Minimum deposit amount is ${parseFloat(platform!.min_deposit_amount).toLocaleString()} FCFA`,
+        title: t("common.error"),
+        description: t("betting.deposit.errors.minAmount", { min: parseFloat(platform!.min_deposit_amount).toLocaleString() }),
         variant: "destructive",
       })
       return
@@ -139,8 +139,8 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
 
     if (amountNum > parseFloat(platform!.max_deposit_amount)) {
       toast({
-        title: "Error",
-        description: `Maximum deposit amount is ${parseFloat(platform!.max_deposit_amount).toLocaleString()} FCFA`,
+        title: t("common.error"),
+        description: t("betting.deposit.errors.maxAmount", { max: parseFloat(platform!.max_deposit_amount).toLocaleString() }),
         variant: "destructive",
       })
       return
@@ -155,7 +155,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
       })
 
       toast({
-        title: "Success",
+        title: t("common.success"),
         description: response.message,
       })
 
@@ -163,11 +163,16 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
       setBettingUserId("")
       setAmount("")
       setVerifiedUser(null)
-    } catch (error) {
+
+      // Navigate back after short delay
+      setTimeout(() => {
+        onNavigateBack()
+      }, 2500)
+    } catch (error: any) {
       console.error('Failed to create deposit:', error)
       toast({
-        title: "Error",
-        description: "Failed to create deposit transaction",
+        title: t("common.error"),
+        description: String(error?.message || t("betting.deposit.errors.createFailed")),
         variant: "destructive",
       })
     } finally {
@@ -191,7 +196,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
       }`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-sm opacity-70">Loading platform details...</p>
+          <p className="text-sm opacity-70">{t("betting.deposit.loadingPlatform")}</p>
         </div>
       </div>
     )
@@ -204,9 +209,9 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
       }`}>
         <div className="text-center">
           <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold mb-2">Platform Not Found</h2>
-          <p className="text-sm opacity-70 mb-4">The requested platform could not be found.</p>
-          <Button onClick={onNavigateBack}>Go Back</Button>
+          <h2 className="text-xl font-bold mb-2">{t("betting.deposit.notFoundTitle")}</h2>
+          <p className="text-sm opacity-70 mb-4">{t("betting.deposit.notFoundDesc")}</p>
+          <Button onClick={onNavigateBack}>{t("common.back")}</Button>
         </div>
       </div>
     )
@@ -233,10 +238,10 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
           </Button>
           <div>
             <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-              Deposit to {platform.name}
+              {t("betting.deposit.title", { name: platform.name })}
             </h1>
             <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-              Create a deposit transaction
+              {t("betting.deposit.subtitle")}
             </p>
           </div>
         </div>
@@ -255,7 +260,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
                   {platform.name}
                 </h3>
                 <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                  Deposit Limits: {formatCurrency(platform.min_deposit_amount)} - {formatCurrency(platform.max_deposit_amount)} FCFA
+                  {t("betting.deposit.platformInfo", { min: formatCurrency(platform.min_deposit_amount), max: formatCurrency(platform.max_deposit_amount) })}
                 </p>
               </div>
             </div>
@@ -279,13 +284,13 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
               <Label htmlFor="userId" className={`text-sm font-medium ${
                 theme === "dark" ? "text-gray-300" : "text-gray-700"
               }`}>
-                Betting User ID
+                {t("betting.deposit.userIdLabel")}
               </Label>
               <div className="flex gap-3">
                 <Input
                   id="userId"
                   type="number"
-                  placeholder="Enter betting user ID"
+                  placeholder={t("betting.deposit.userIdPlaceholder") as string}
                   value={bettingUserId}
                   onChange={(e) => setBettingUserId(e.target.value)}
                   className={`flex-1 h-12 text-base ${
@@ -302,7 +307,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
                   {verifying ? (
                     <RefreshCw className="w-5 h-5 animate-spin" />
                   ) : (
-                    "Verify"
+                    t("betting.deposit.verify")
                   )}
                 </Button>
               </div>
@@ -315,7 +320,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
               }`}>
                 <CheckCircle className="h-4 w-4 text-green-500" />
                 <AlertDescription className="text-green-700 dark:text-green-300">
-                  <strong>User Verified:</strong> {verifiedUser.Name} (ID: {verifiedUser.UserId})
+                  <strong>{t("betting.deposit.userVerifiedTitle")}:</strong> {verifiedUser.Name} (ID: {verifiedUser.UserId})
                 </AlertDescription>
               </Alert>
             )}
@@ -325,13 +330,13 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
               <Label htmlFor="amount" className={`text-sm font-medium ${
                 theme === "dark" ? "text-gray-300" : "text-gray-700"
               }`}>
-                Deposit Amount (FCFA)
+                {t("betting.deposit.amountLabel")}
               </Label>
               <div className="relative">
                 <Input
                   id="amount"
                   type="number"
-                  placeholder="Enter amount"
+                  placeholder={t("betting.deposit.amountPlaceholder") as string}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   className={`pr-12 h-12 text-base ${
@@ -350,7 +355,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
                 </Button>
               </div>
               <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                Min: {formatCurrency(platform.min_deposit_amount)} FCFA | Max: {formatCurrency(platform.max_deposit_amount)} FCFA
+                {t("betting.deposit.minMaxHint", { min: formatCurrency(platform.min_deposit_amount), max: formatCurrency(platform.max_deposit_amount) })}
               </p>
             </div>
 
@@ -362,7 +367,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
                 <p className={`text-sm font-medium ${
                   theme === "dark" ? "text-blue-300" : "text-blue-700"
                 }`}>
-                  Deposit Amount: {parseFloat(amount).toLocaleString()} FCFA
+                  {t("betting.deposit.amountPreview", { amount: parseFloat(amount).toLocaleString() })}
                 </p>
               </div>
             )}
@@ -376,12 +381,12 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
               {submitting ? (
                 <>
                   <RefreshCw className="w-5 h-5 mr-3 animate-spin" />
-                  Creating Deposit...
+                  {t("betting.deposit.creating")}
                 </>
               ) : (
                 <>
                   <TrendingUp className="w-5 h-5 mr-3" />
-                  Create Deposit
+                  {t("betting.deposit.createButton")}
                 </>
               )}
             </Button>

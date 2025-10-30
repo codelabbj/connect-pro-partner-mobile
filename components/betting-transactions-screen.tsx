@@ -30,6 +30,7 @@ import { useTranslation } from "@/lib/contexts"
 import { useToast } from "@/hooks/use-toast"
 import { bettingService } from "@/lib/betting-api"
 import { BettingTransaction, BettingTransactionsResponse } from "@/lib/betting"
+import { TransactionDetailsModal } from "@/components/transaction-details-modal"
 
 interface BettingTransactionsScreenProps {
   onNavigateBack: () => void
@@ -44,6 +45,8 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
   const [typeFilter, setTypeFilter] = useState<string>("all")
   const [platformFilter, setPlatformFilter] = useState<string>("all")
   const [activeTab, setActiveTab] = useState<"all" | "deposits" | "withdrawals">("all")
+  const [detailsOpen, setDetailsOpen] = useState(false)
+  const [selectedTransaction, setSelectedTransaction] = useState<BettingTransaction | null>(null)
   
   const { theme } = useTheme()
   const { t } = useTranslation()
@@ -62,11 +65,11 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
 
       const data = await bettingService.getBettingTransactions(params)
       setTransactionsData(data)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load transactions:', error)
       toast({
-        title: "Error",
-        description: "Failed to load betting transactions",
+        title: t("betting.transactions.errorTitle"),
+        description: String(error?.message || 'Failed to load betting transactions'),
         variant: "destructive",
       })
     } finally {
@@ -80,8 +83,8 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
     try {
       await loadTransactions()
       toast({
-        title: "Success",
-        description: "Transactions data refreshed",
+        title: t("betting.transactions.successTitle"),
+        description: t("betting.transactions.refreshed"),
       })
     } catch (error) {
       console.error('Failed to refresh transactions:', error)
@@ -130,14 +133,10 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
     const now = new Date()
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
     
-    if (diffInHours < 1) {
-      return "Just now"
-    } else if (diffInHours < 24) {
-      return `${diffInHours}h ago`
-    } else {
+    if (diffInHours < 1) return t("dashboard.transactions.time.justNow")
+    if (diffInHours < 24) return t("dashboard.transactions.time.hours", { count: diffInHours })
       const diffInDays = Math.floor(diffInHours / 24)
-      return `${diffInDays}d ago`
-    }
+    return t("dashboard.transactions.time.days", { count: diffInDays })
   }
 
   // Get status color
@@ -160,13 +159,13 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
   const getStatusText = (status: string) => {
     switch (status) {
       case "success":
-        return "Success"
+        return t("betting.transactions.filters.success")
       case "pending":
-        return "Pending"
+        return t("betting.transactions.filters.pending")
       case "failed":
-        return "Failed"
+        return t("betting.transactions.filters.failed")
       case "cancelled":
-        return "Cancelled"
+        return t("betting.transactions.filters.cancelled")
       default:
         return status
     }
@@ -193,14 +192,14 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
     try {
       await navigator.clipboard.writeText(reference)
       toast({
-        title: "Copied",
-        description: `Reference copied: ${reference}`,
+        title: t("betting.transactions.copy.copiedTitle"),
+        description: t("betting.transactions.copy.copiedDesc", { ref: reference }),
       })
     } catch (error) {
       console.error('Failed to copy reference:', error)
       toast({
-        title: "Error",
-        description: "Failed to copy reference",
+        title: t("betting.transactions.copy.errorTitle"),
+        description: t("betting.transactions.copy.errorDesc"),
         variant: "destructive",
       })
     }
@@ -213,7 +212,7 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
       }`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-sm opacity-70">Loading transactions...</p>
+          <p className="text-sm opacity-70">{t("betting.transactions.loading")}</p>
         </div>
       </div>
     )
@@ -240,11 +239,11 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-                Betting Transactions
+              <h1 className={`text-lg sm:text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                {t("betting.transactions.title")}
               </h1>
-              <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                View all your betting transactions
+              <p className={`text-xs sm:text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                {t("betting.transactions.subtitle")}
               </p>
             </div>
           </div>
@@ -265,7 +264,7 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
 
         {/* Summary Cards */}
         {transactionsData && (
-          <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
             <Card className={`border-0 shadow-lg ${
               theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
             }`}>
@@ -276,7 +275,7 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
                   </div>
                   <div>
                     <p className={`text-sm font-medium ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                      Total Transactions
+                      {t("betting.transactions.summary.total")}
                     </p>
                     <p className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                       {transactionsData.count}
@@ -296,7 +295,7 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
                   </div>
                   <div>
                     <p className={`text-sm font-medium ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                      Successful
+                      {t("betting.transactions.summary.successful")}
                     </p>
                     <p className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                       {transactionsData.results.filter(t => t.status === "success").length}
@@ -315,7 +314,7 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
               theme === "dark" ? "text-gray-400" : "text-gray-500"
             }`} />
             <Input
-              placeholder="Search transactions..."
+              placeholder={t("betting.transactions.searchPlaceholder") as string}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`pl-10 ${
@@ -326,21 +325,21 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
             />
           </div>
           
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className={`${
                 theme === "dark" 
                   ? "bg-gray-800 border-gray-700 text-white" 
                   : "bg-white border-gray-200 text-gray-900"
               }`}>
-                <SelectValue placeholder="Status" />
+                <SelectValue placeholder={t("betting.transactions.filters.statusPlaceholder") as string} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="success">Success</SelectItem>
-                <SelectItem value="pending">Pending</SelectItem>
-                <SelectItem value="failed">Failed</SelectItem>
-                <SelectItem value="cancelled">Cancelled</SelectItem>
+                <SelectItem value="all">{t("betting.transactions.filters.allStatus")}</SelectItem>
+                <SelectItem value="success">{t("betting.transactions.filters.success")}</SelectItem>
+                <SelectItem value="pending">{t("betting.transactions.filters.pending")}</SelectItem>
+                <SelectItem value="failed">{t("betting.transactions.filters.failed")}</SelectItem>
+                <SelectItem value="cancelled">{t("betting.transactions.filters.cancelled")}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -350,12 +349,12 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
                   ? "bg-gray-800 border-gray-700 text-white" 
                   : "bg-white border-gray-200 text-gray-900"
               }`}>
-                <SelectValue placeholder="Type" />
+                <SelectValue placeholder={t("betting.transactions.filters.typePlaceholder") as string} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                <SelectItem value="deposit">Deposit</SelectItem>
-                <SelectItem value="withdrawal">Withdrawal</SelectItem>
+                <SelectItem value="all">{t("betting.transactions.filters.allTypes")}</SelectItem>
+                <SelectItem value="deposit">{t("betting.transactions.filters.deposit")}</SelectItem>
+                <SelectItem value="withdrawal">{t("betting.transactions.filters.withdrawal")}</SelectItem>
               </SelectContent>
             </Select>
 
@@ -365,10 +364,10 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
                   ? "bg-gray-800 border-gray-700 text-white" 
                   : "bg-white border-gray-200 text-gray-900"
               }`}>
-                <SelectValue placeholder="Platform" />
+                <SelectValue placeholder={t("betting.transactions.filters.platformPlaceholder") as string} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Platforms</SelectItem>
+                <SelectItem value="all">{t("betting.transactions.filters.allPlatforms")}</SelectItem>
                 {transactionsData?.results && Array.from(new Set(transactionsData.results.map(t => t.platform_name))).map(platform => (
                   <SelectItem key={platform} value={platform}>{platform}</SelectItem>
                 ))}
@@ -381,12 +380,12 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
       {/* Tabs */}
       <div className="px-4">
         <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
-          <TabsList className={`grid w-full grid-cols-3 ${
+          <TabsList className={`${
             theme === "dark" ? "bg-gray-800" : "bg-gray-100"
-          }`}>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="deposits">Deposits</TabsTrigger>
-            <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
+          } overflow-x-auto flex gap-2 rounded-lg p-1`}>
+            <TabsTrigger className="whitespace-nowrap flex-shrink-0" value="all">{t("betting.transactions.tabs.all")}</TabsTrigger>
+            <TabsTrigger className="whitespace-nowrap flex-shrink-0" value="deposits">{t("betting.transactions.tabs.deposits")}</TabsTrigger>
+            <TabsTrigger className="whitespace-nowrap flex-shrink-0" value="withdrawals">{t("betting.transactions.tabs.withdrawals")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value={activeTab} className="mt-6">
@@ -394,11 +393,17 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
               {getFilteredTransactions().map((transaction) => (
                 <Card
                   key={transaction.uid}
-                  className={`border-0 shadow-lg ${
+                  className={`border-0 shadow-lg h-full ${
                     theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
                   }`}
+                  onClick={() => {
+                    setSelectedTransaction(transaction)
+                    setDetailsOpen(true)
+                  }}
+                  role="button"
+                  tabIndex={0}
                 >
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6 h-full">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
@@ -417,7 +422,7 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
                             {transaction.platform_name}
                           </h3>
                           <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                            {transaction.transaction_type === "deposit" ? "Deposit" : "Withdrawal"}
+                          {transaction.transaction_type === "deposit" ? t("betting.transactions.filters.deposit") : t("betting.transactions.filters.withdrawal")}
                           </p>
                         </div>
                       </div>
@@ -452,7 +457,7 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
                         <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                          Reference
+                          {t("betting.transactions.fields.reference")}
                         </span>
                         <div className="flex items-center gap-2">
                           <span className={`font-mono text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
@@ -465,7 +470,7 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
                                 ? "hover:bg-gray-600/50 text-gray-400 hover:text-gray-300" 
                                 : "hover:bg-gray-200/50 text-gray-500 hover:text-gray-700"
                             }`}
-                            title="Copy reference"
+                            title={t("common.copy") as string}
                           >
                             <Copy className="w-3 h-3" />
                           </button>
@@ -474,7 +479,7 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
 
                       <div className="flex justify-between items-center">
                         <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                          Betting User ID
+                          {t("betting.transactions.fields.bettingUserId")}
                         </span>
                         <span className={`font-mono text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                           {transaction.betting_user_id}
@@ -484,7 +489,7 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
                       {transaction.withdrawal_code && (
                         <div className="flex justify-between items-center">
                           <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                            Withdrawal Code
+                            {t("betting.transactions.fields.withdrawalCode")}
                           </span>
                           <span className={`font-mono text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                             {transaction.withdrawal_code}
@@ -494,21 +499,21 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
 
                       <div className="flex justify-between items-center">
                         <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                          Commission
+                          {t("betting.transactions.fields.commission")}
                         </span>
                         <div className="text-right">
                           <span className={`font-bold text-sm ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                             {formatCurrency(transaction.commission_amount)} FCFA
                           </span>
                           <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                            Rate: {transaction.commission_rate}%
+                            {t("betting.transactions.fields.rate")}: {transaction.commission_rate}%
                           </p>
                         </div>
                       </div>
 
                       <div className="flex justify-between items-center">
                         <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                          Date
+                          {t("betting.transactions.fields.date")}
                         </span>
                         <span className={`text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                           {formatDate(transaction.created_at)}
@@ -518,10 +523,10 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
                       {transaction.commission_paid && (
                         <div className="flex justify-between items-center">
                           <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                            Commission Status
+                            {t("betting.transactions.fields.commissionStatus")}
                           </span>
                           <Badge variant="secondary" className="text-xs bg-green-500/20 text-green-500">
-                            Paid
+                            {t("betting.transactions.fields.paid")}
                           </Badge>
                         </div>
                       )}
@@ -534,12 +539,12 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
                 <div className="text-center py-8">
                   <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className={`text-lg font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"} mb-2`}>
-                    No Transactions Found
+                    {t("betting.transactions.empty.title")}
                   </h3>
                   <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                    {searchTerm || statusFilter || typeFilter || platformFilter
-                      ? "Try adjusting your filters to see more results"
-                      : "You haven't made any betting transactions yet"
+                    {(searchTerm && searchTerm.length > 0) || statusFilter !== "all" || typeFilter !== "all" || platformFilter !== "all"
+                      ? t("betting.transactions.empty.filterHint")
+                      : t("betting.transactions.empty.noneYet")
                     }
                   </p>
                 </div>
@@ -548,6 +553,463 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
           </TabsContent>
         </Tabs>
       </div>
+      {/* Details Modal */}
+      <TransactionDetailsModal
+        open={detailsOpen}
+        onOpenChange={(open) => setDetailsOpen(open)}
+        transaction={selectedTransaction ? {
+          historyType: "betting",
+          reference: selectedTransaction.reference,
+          amount: selectedTransaction.amount,
+          status: selectedTransaction.status,
+          created_at: selectedTransaction.created_at,
+          betting: {
+            transaction_type: selectedTransaction.transaction_type,
+            betting_user_id: selectedTransaction.betting_user_id,
+            withdrawal_code: selectedTransaction.withdrawal_code,
+            external_transaction_id: selectedTransaction.external_transaction_id,
+            commission_rate: selectedTransaction.commission_rate,
+            commission_amount: selectedTransaction.commission_amount,
+            commission_paid: selectedTransaction.commission_paid,
+            commission_paid_at: selectedTransaction.commission_paid_at,
+            partner_balance_before: selectedTransaction.partner_balance_before,
+            partner_balance_after: selectedTransaction.partner_balance_after,
+            cancellation_requested_at: selectedTransaction.cancellation_requested_at,
+            cancelled_at: selectedTransaction.cancelled_at,
+          },
+        } as any : undefined}
+      />
     </div>
   )
 }
+
+
+//                 <SelectItem value="success">Success</SelectItem>
+
+//                 <SelectItem value="pending">Pending</SelectItem>
+
+//                 <SelectItem value="failed">Failed</SelectItem>
+
+//                 <SelectItem value="cancelled">Cancelled</SelectItem>
+
+//               </SelectContent>
+
+//             </Select>
+
+
+
+//             <Select value={typeFilter} onValueChange={setTypeFilter}>
+
+//               <SelectTrigger className={`${
+
+//                 theme === "dark" 
+
+//                   ? "bg-gray-800 border-gray-700 text-white" 
+
+//                   : "bg-white border-gray-200 text-gray-900"
+
+//               }`}>
+
+//                 <SelectValue placeholder="Type" />
+
+//               </SelectTrigger>
+
+//               <SelectContent>
+
+//                 <SelectItem value="all">All Types</SelectItem>
+
+//                 <SelectItem value="deposit">Deposit</SelectItem>
+
+//                 <SelectItem value="withdrawal">Withdrawal</SelectItem>
+
+//               </SelectContent>
+
+//             </Select>
+
+
+
+//             <Select value={platformFilter} onValueChange={setPlatformFilter}>
+
+//               <SelectTrigger className={`${
+
+//                 theme === "dark" 
+
+//                   ? "bg-gray-800 border-gray-700 text-white" 
+
+//                   : "bg-white border-gray-200 text-gray-900"
+
+//               }`}>
+
+//                 <SelectValue placeholder="Platform" />
+
+//               </SelectTrigger>
+
+//               <SelectContent>
+
+//                 <SelectItem value="all">All Platforms</SelectItem>
+
+//                 {transactionsData?.results && Array.from(new Set(transactionsData.results.map(t => t.platform_name))).map(platform => (
+
+//                   <SelectItem key={platform} value={platform}>{platform}</SelectItem>
+
+//                 ))}
+
+//               </SelectContent>
+
+//             </Select>
+
+//           </div>
+
+//         </div>
+
+//       </div>
+
+
+
+//       {/* Tabs */}
+
+//       <div className="px-4">
+
+//         <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
+
+//           <TabsList className={`grid w-full grid-cols-3 ${
+
+//             theme === "dark" ? "bg-gray-800" : "bg-gray-100"
+
+//           }`}>
+
+//             <TabsTrigger value="all">All</TabsTrigger>
+
+//             <TabsTrigger value="deposits">Deposits</TabsTrigger>
+
+//             <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
+
+//           </TabsList>
+
+
+
+//           <TabsContent value={activeTab} className="mt-6">
+
+//             <div className="space-y-4">
+
+//               {getFilteredTransactions().map((transaction) => (
+
+//                 <Card
+
+//                   key={transaction.uid}
+
+//                   className={`border-0 shadow-lg ${
+
+//                     theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+
+//                   }`}
+
+//                 >
+
+//                   <CardContent className="p-6">
+
+//                     <div className="flex items-center justify-between mb-4">
+
+//                       <div className="flex items-center gap-3">
+
+//                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+
+//                           transaction.transaction_type === "deposit"
+
+//                             ? "bg-green-500/20 text-green-500"
+
+//                             : "bg-red-500/20 text-red-500"
+
+//                         }`}>
+
+//                           {transaction.transaction_type === "deposit" ? (
+
+//                             <TrendingUp className="w-5 h-5" />
+
+//                           ) : (
+
+//                             <TrendingDown className="w-5 h-5" />
+
+//                           )}
+
+//                         </div>
+
+//                         <div>
+
+//                           <h3 className={`font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+
+//                             {transaction.platform_name}
+
+//                           </h3>
+
+//                           <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+
+//                             {transaction.transaction_type === "deposit" ? "Deposit" : "Withdrawal"}
+
+//                           </p>
+
+//                         </div>
+
+//                       </div>
+
+//                       <div className="text-right">
+
+//                         <p className={`text-lg font-bold ${
+
+//                           transaction.transaction_type === "deposit"
+
+//                             ? "text-green-500"
+
+//                             : "text-red-500"
+
+//                         }`}>
+
+//                           {transaction.transaction_type === "deposit" ? "+" : "-"}{formatCurrency(transaction.amount)} FCFA
+
+//                         </p>
+
+//                         <div className="flex items-center gap-2 mt-1">
+
+//                           {getStatusIcon(transaction.status)}
+
+//                           <Badge 
+
+//                             variant="secondary" 
+
+//                             className={`text-xs ${
+
+//                               transaction.status === "success"
+
+//                                 ? "bg-green-500/20 text-green-500"
+
+//                                 : transaction.status === "pending"
+
+//                                 ? "bg-yellow-500/20 text-yellow-500"
+
+//                                 : transaction.status === "failed"
+
+//                                 ? "bg-red-500/20 text-red-500"
+
+//                                 : "bg-gray-500/20 text-gray-500"
+
+//                             }`}
+
+//                           >
+
+//                             {getStatusText(transaction.status)}
+
+//                           </Badge>
+
+//                         </div>
+
+//                       </div>
+
+//                     </div>
+
+
+
+//                     <div className="space-y-3">
+
+//                       <div className="flex justify-between items-center">
+
+//                         <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+
+//                           Reference
+
+//                         </span>
+
+//                         <div className="flex items-center gap-2">
+
+//                           <span className={`font-mono text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+
+//                             {transaction.reference}
+
+//                           </span>
+
+//                           <button
+
+//                             onClick={() => copyReference(transaction.reference)}
+
+//                             className={`p-1 rounded transition-colors duration-200 ${
+
+//                               theme === "dark" 
+
+//                                 ? "hover:bg-gray-600/50 text-gray-400 hover:text-gray-300" 
+
+//                                 : "hover:bg-gray-200/50 text-gray-500 hover:text-gray-700"
+
+//                             }`}
+
+//                             title="Copy reference"
+
+//                           >
+
+//                             <Copy className="w-3 h-3" />
+
+//                           </button>
+
+//                         </div>
+
+//                       </div>
+
+
+
+//                       <div className="flex justify-between items-center">
+
+//                         <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+
+//                           Betting User ID
+
+//                         </span>
+
+//                         <span className={`font-mono text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+
+//                           {transaction.betting_user_id}
+
+//                         </span>
+
+//                       </div>
+
+
+
+//                       {transaction.withdrawal_code && (
+
+//                         <div className="flex justify-between items-center">
+
+//                           <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+
+//                             Withdrawal Code
+
+//                           </span>
+
+//                           <span className={`font-mono text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+
+//                             {transaction.withdrawal_code}
+
+//                           </span>
+
+//                         </div>
+
+//                       )}
+
+
+
+//                       <div className="flex justify-between items-center">
+
+//                         <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+
+//                           Commission
+
+//                         </span>
+
+//                         <div className="text-right">
+
+//                           <span className={`font-bold text-sm ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+
+//                             {formatCurrency(transaction.commission_amount)} FCFA
+
+//                           </span>
+
+//                           <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+
+//                             Rate: {transaction.commission_rate}%
+
+//                           </p>
+
+//                         </div>
+
+//                       </div>
+
+
+
+//                       <div className="flex justify-between items-center">
+
+//                         <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+
+//                           Date
+
+//                         </span>
+
+//                         <span className={`text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+
+//                           {formatDate(transaction.created_at)}
+
+//                         </span>
+
+//                       </div>
+
+
+
+//                       {transaction.commission_paid && (
+
+//                         <div className="flex justify-between items-center">
+
+//                           <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+
+//                             Commission Status
+
+//                           </span>
+
+//                           <Badge variant="secondary" className="text-xs bg-green-500/20 text-green-500">
+
+//                             Paid
+
+//                           </Badge>
+
+//                         </div>
+
+//                       )}
+
+//                     </div>
+
+//                   </CardContent>
+
+//                 </Card>
+
+//               ))}
+
+
+
+//               {getFilteredTransactions().length === 0 && (
+
+//                 <div className="text-center py-8">
+
+//                   <Activity className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+
+//                   <h3 className={`text-lg font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"} mb-2`}>
+
+//                     No Transactions Found
+
+//                   </h3>
+
+//                   <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+
+//                     {searchTerm || statusFilter || typeFilter || platformFilter
+
+//                       ? "Try adjusting your filters to see more results"
+
+//                       : "You haven't made any betting transactions yet"
+
+//                     }
+
+//                   </p>
+
+//                 </div>
+
+//               )}
+
+//             </div>
+
+//           </TabsContent>
+
+//         </Tabs>
+
+//       </div>
+
+//     </div>
+
+//   )
+
+// }
+
+

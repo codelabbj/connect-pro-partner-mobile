@@ -1,4 +1,5 @@
 // Recharge service for handling recharge operations
+import { formatApiErrorMessage } from './utils'
 
 export interface RechargeData {
   uid: string;
@@ -57,7 +58,7 @@ class RechargeService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Failed to get recharges');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       const data: RechargesResponse = await response.json();
@@ -93,11 +94,7 @@ class RechargeService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        // If it's a validation error with field-specific messages, stringify it
-        if (errorData && typeof errorData === 'object') {
-          throw new Error(JSON.stringify(errorData));
-        }
-        throw new Error(errorData.detail || 'Failed to create recharge');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       const data: RechargeData = await response.json();

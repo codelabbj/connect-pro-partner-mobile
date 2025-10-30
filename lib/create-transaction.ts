@@ -1,4 +1,5 @@
 // Transaction creation service
+import { formatApiErrorMessage } from './utils'
 
 export interface CreateTransactionPayload {
   type: "deposit" | "withdrawal";
@@ -43,11 +44,7 @@ class CreateTransactionService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        // If it's a validation error with field-specific messages, stringify it
-        if (errorData && typeof errorData === 'object') {
-          throw new Error(JSON.stringify(errorData));
-        }
-        throw new Error(errorData.detail || 'Failed to create transaction');
+        throw new Error(formatApiErrorMessage(errorData));
       }
 
       const data: CreateTransactionResponse = await response.json();

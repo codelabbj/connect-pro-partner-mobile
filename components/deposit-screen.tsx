@@ -9,7 +9,7 @@ import { useTheme } from "@/lib/contexts"
 import { useTranslation } from "@/lib/contexts"
 import { useAuth } from "@/lib/contexts"
 import { formatAmount } from "@/lib/utils"
-import { ConfirmationModal } from "@/components/confirmation-modal"
+import { TransactionConfirmationModal } from "@/components/ui/transaction-confirmation-modal"
 
 interface DepositScreenProps {
   onNavigateBack: () => void
@@ -283,11 +283,11 @@ export function DepositScreen({ onNavigateBack }: DepositScreenProps) {
       </div>
 
       {/* Confirmation Modal */}
-      <ConfirmationModal
+      <TransactionConfirmationModal
         isOpen={showConfirmation}
         onClose={() => setShowConfirmation(false)}
         onConfirm={handleConfirmDeposit}
-        data={{
+        transactionData={{
           type: "deposit",
           amount: amount,
           recipientPhone: recipientPhone,

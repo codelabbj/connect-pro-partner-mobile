@@ -3,6 +3,12 @@
 import React from "react"
 import { AlertTriangle, RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/lib/contexts"
+
+function LangText({ k }: { k: string }) {
+  const { t } = useLanguage()
+  return <>{t(k)}</>
+}
 
 interface ErrorBoundaryState {
   hasError: boolean
@@ -46,20 +52,20 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
               <AlertTriangle className="w-8 h-8 text-red-600 dark:text-red-400" />
             </div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              Something went wrong
+              <LangText k="common.error" />
             </h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              We encountered an unexpected error. Please try refreshing the page.
+              <LangText k="common.retry" />
             </p>
             <Button onClick={this.resetError} className="mr-3">
               <RefreshCw className="w-4 h-4 mr-2" />
-              Try Again
+              <LangText k="common.retry" />
             </Button>
             <Button 
               variant="outline" 
               onClick={() => window.location.reload()}
             >
-              Refresh Page
+              <LangText k="common.refresh" />
             </Button>
             {process.env.NODE_ENV === "development" && this.state.error && (
               <details className="mt-4 text-left">

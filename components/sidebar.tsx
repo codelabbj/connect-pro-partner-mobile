@@ -39,70 +39,70 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
   const navigationItems = [
     {
       id: "dashboard",
-      label: "Dashboard",
+      label: t("nav.dashboard"),
       icon: Home,
       color: "text-blue-500",
       hoverColor: "hover:bg-blue-500/10"
     },
     {
       id: "deposit",
-      label: "Deposit",
+      label: t("nav.deposit"),
       icon: TrendingUp,
       color: "text-green-500",
       hoverColor: "hover:bg-green-500/10"
     },
     {
       id: "withdraw",
-      label: "Withdraw",
+      label: t("nav.withdraw"),
       icon: TrendingDown,
       color: "text-red-500",
       hoverColor: "hover:bg-red-500/10"
     },
     {
       id: "recharge",
-      label: "Recharge",
+      label: t("nav.recharge"),
       icon: Zap,
       color: "text-purple-500",
       hoverColor: "hover:bg-purple-500/10"
     },
     {
       id: "transaction-history",
-      label: "Transaction History",
+      label: t("nav.transactionHistory"),
       icon: History,
       color: "text-gray-500",
       hoverColor: "hover:bg-gray-500/10"
     },
     {
       id: "recharge-history",
-      label: "Recharge History",
+      label: t("nav.rechargeHistory"),
       icon: Battery,
       color: "text-orange-500",
       hoverColor: "hover:bg-orange-500/10"
     },
     {
       id: "betting-platforms",
-      label: "Betting Platforms",
+      label: t("nav.bettingPlatforms"),
       icon: BarChart3,
       color: "text-blue-500",
       hoverColor: "hover:bg-blue-500/10"
     },
     {
       id: "betting-transactions",
-      label: "Betting Transactions",
+      label: t("nav.bettingTransactions"),
       icon: Activity,
       color: "text-green-500",
       hoverColor: "hover:bg-green-500/10"
     },
     {
       id: "betting-commissions",
-      label: "Betting Commissions",
+      label: t("nav.bettingCommissions"),
       icon: DollarSign,
       color: "text-yellow-500",
       hoverColor: "hover:bg-yellow-500/10"
     },
     {
       id: "settings",
-      label: "Settings",
+      label: t("nav.settings"),
       icon: Settings,
       color: "text-gray-500",
       hoverColor: "hover:bg-gray-500/10"
@@ -126,7 +126,7 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
         theme === "dark" ? "bg-gray-900" : "bg-white"
       } border-r ${
         theme === "dark" ? "border-gray-700" : "border-gray-200"
-      } shadow-xl lg:shadow-none`}>
+      } shadow-xl lg:shadow-none overflow-y-auto flex flex-col`}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
@@ -135,10 +135,10 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
             </div>
             <div>
               <h2 className={`font-bold text-lg ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-                Connect Pro
+                {t("app.name")}
               </h2>
               <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                Partners
+                {t("app.subtitle")}
               </p>
             </div>
           </div>
@@ -217,7 +217,7 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
             onClick={onLogout}
           >
             <LogOut className="w-6 h-6 mr-4" />
-            <span className="font-medium">Logout</span>
+            <span className="font-medium">{t("nav.logout")}</span>
           </Button>
         </div>
       </div>

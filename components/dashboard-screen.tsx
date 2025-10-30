@@ -9,6 +9,8 @@ import {
   EyeOff,
   RefreshCw,
   Copy,
+  Bell,
+  Settings,
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { useTheme } from "@/lib/contexts"
@@ -20,9 +22,11 @@ import { useAuth } from "@/lib/contexts"
 interface DashboardScreenProps {
   onNavigateToDeposit: () => void
   onNavigateToWithdraw: () => void
+  onNavigateToSettings: () => void
+  onNavigateToNotifications: () => void
 }
 
-export function DashboardScreen({ onNavigateToDeposit, onNavigateToWithdraw }: DashboardScreenProps) {
+export function DashboardScreen({ onNavigateToDeposit, onNavigateToWithdraw, onNavigateToSettings, onNavigateToNotifications }: DashboardScreenProps) {
   const [showBalance, setShowBalance] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   
@@ -76,15 +80,10 @@ export function DashboardScreen({ onNavigateToDeposit, onNavigateToWithdraw }: D
     const date = new Date(dateString)
     const now = new Date()
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
-    
-    if (diffInHours < 1) {
-      return "À l'instant"
-    } else if (diffInHours < 24) {
-      return `Il y a ${diffInHours} heure${diffInHours > 1 ? 's' : ''}`
-    } else {
+    if (diffInHours < 1) return t("dashboard.transactions.time.justNow")
+    if (diffInHours < 24) return t("dashboard.transactions.time.hours", { count: diffInHours })
       const diffInDays = Math.floor(diffInHours / 24)
-      return `Il y a ${diffInDays} jour${diffInDays > 1 ? 's' : ''}`
-    }
+    return t("dashboard.transactions.time.days", { count: diffInDays })
   }
 
   // Helper function to format transaction amount
@@ -126,7 +125,24 @@ export function DashboardScreen({ onNavigateToDeposit, onNavigateToWithdraw }: D
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {/* Settings button moved to sidebar */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-10 w-10 p-0 rounded-full ${theme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"}`}
+              onClick={onNavigateToNotifications}
+              title={t("dashboard.notifications")}
+            >
+              <Bell className="w-5 h-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              className={`h-10 w-10 p-0 rounded-full ${theme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"}`}
+              onClick={onNavigateToSettings}
+              title={t("dashboard.settings")}
+            >
+              <Settings className="w-5 h-5" />
+            </Button>
           </div>
         </div>
 
@@ -194,7 +210,7 @@ export function DashboardScreen({ onNavigateToDeposit, onNavigateToWithdraw }: D
 
       {/* Action Buttons */}
       <div className="px-4 -mt-6 relative z-10">
-        <div className="grid grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-2 gap-4 sm:gap-6 mb-8">
           {/* Deposit Button */}
           <Button
             onClick={onNavigateToDeposit}

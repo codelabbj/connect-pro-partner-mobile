@@ -54,11 +54,11 @@ export function PlatformDetailScreen({
     try {
       const data = await bettingService.getPlatformDetail(platformUid)
       setPlatform(data)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to load platform detail:', error)
       toast({
         title: "Error",
-        description: "Failed to load platform details",
+        description: String(error?.message || 'Failed to load platform details'),
         variant: "destructive",
       })
     } finally {
