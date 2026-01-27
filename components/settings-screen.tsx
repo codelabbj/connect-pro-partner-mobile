@@ -26,10 +26,11 @@ import { useTheme } from "@/lib/contexts"
 interface SettingsScreenProps {
   onNavigateBack: () => void
   onNavigateToProfile: () => void
+  onNavigateToChangePassword: () => void
   onLogout: () => void
 }
 
-export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onLogout }: SettingsScreenProps) {
+export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onNavigateToChangePassword, onLogout }: SettingsScreenProps) {
   const { t, language, setLanguage } = useTranslation()
   const { theme, setTheme } = useTheme()
 
@@ -65,7 +66,7 @@ export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onLogout }
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>{t("settings.title")}</h1>
+          <h1 className={`text-3xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>{t("settings.title")}</h1>
         </div>
       </div>
 
@@ -77,18 +78,25 @@ export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onLogout }
           }`}
         >
           <CardContent className="p-0">
-            <div className={`p-6 border-b ${theme === "dark" ? "border-gray-700/50" : "border-border/50"}`}>
-              <h2 className={`font-bold text-lg mb-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}>{t("settings.account.title")}</h2>
-              <p className={`text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>{t("settings.account.subtitle")}</p>
+            <div className={`p-8 border-b ${theme === "dark" ? "border-gray-700/50" : "border-border/50"}`}>
+              <h2 className={`font-bold text-xl mb-3 ${theme === "dark" ? "text-white" : "text-gray-900"}`}>{t("settings.account.title")}</h2>
+              <p className={`text-base ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>{t("settings.account.subtitle")}</p>
             </div>
 
             <div className="space-y-0">
               <SettingsItem
-                icon={<User className="w-5 h-5" />}
+                icon={<User className="w-6 h-6" />}
                 title={t("settings.account.profile")}
                 subtitle={t("settings.account.profileSubtitle")}
                 showChevron
                 onClick={onNavigateToProfile}
+              />
+              <SettingsItem
+                icon={<Lock className="w-6 h-6" />}
+                title={t("settings.account.changePassword")}
+                subtitle={t("settings.account.changePasswordSubtitle")}
+                showChevron
+                onClick={onNavigateToChangePassword}
               />
               {/* <SettingsItem
                 icon={<CreditCard className="w-5 h-5" />}
@@ -98,7 +106,7 @@ export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onLogout }
               /> */}
               
               <SettingsItem
-                icon={<Languages className="w-5 h-5" />}
+                icon={<Languages className="w-6 h-6" />}
                 title={t("settings.account.language")}
                 subtitle={language === "en" ? "English" : "Français"}
                 showButton
@@ -106,7 +114,7 @@ export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onLogout }
                 onButtonClick={handleLanguageToggle}
               />
               <SettingsItem
-                icon={<Palette className="w-5 h-5" />}
+                icon={<Palette className="w-6 h-6" />}
                 title={t("settings.account.theme")}
                 subtitle={theme === "light" ? t("settings.account.lightTheme") : t("settings.account.darkTheme")}
                 showButton
@@ -249,28 +257,28 @@ function SettingsItem({
   
   return (
     /* Enhanced settings item with better hover effects and spacing */
-    <div 
-      className={`flex items-center justify-between p-6 transition-all duration-200 min-h-[80px] border-b last:border-b-0 ${
-        theme === "dark" 
-          ? "hover:bg-gray-700/30 border-gray-700/50" 
+    <div
+      className={`flex items-center justify-between p-8 transition-all duration-200 min-h-[100px] border-b last:border-b-0 ${
+        theme === "dark"
+          ? "hover:bg-gray-700/30 border-gray-700/50"
           : "hover:bg-gray-100/30 border-border/30"
       } ${onClick ? "cursor-pointer" : ""}`}
       onClick={onClick}
     >
-      <div className="flex items-center gap-4 flex-1">
-        <div className={`p-2 rounded-xl ${
-          theme === "dark" 
-            ? "text-gray-300 bg-gray-700/50" 
+      <div className="flex items-center gap-5 flex-1">
+        <div className={`p-3 rounded-xl ${
+          theme === "dark"
+            ? "text-gray-300 bg-gray-700/50"
             : "text-muted-foreground bg-muted/50"
         }`}>{icon}</div>
         <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <p className={`font-semibold ${
+          <div className="flex items-center gap-3">
+            <p className={`font-semibold text-lg ${
               theme === "dark" ? "text-white" : "text-gray-900"
             }`}>{title}</p>
             {showBadge && <div className="w-2 h-2 bg-accent rounded-full"></div>}
           </div>
-          <p className={`text-sm mt-1 ${
+          <p className={`text-base mt-1 ${
             theme === "dark" ? "text-gray-400" : "text-gray-600"
           }`}>{subtitle}</p>
         </div>
@@ -282,7 +290,7 @@ function SettingsItem({
           <Button
             variant="outline"
             size="sm"
-            className={`h-8 px-3 text-xs font-medium ${
+            className={`h-10 px-4 text-sm font-medium ${
               theme === "dark" 
                 ? "bg-transparent border-gray-600 text-gray-300 hover:bg-gray-700" 
                 : "bg-transparent"

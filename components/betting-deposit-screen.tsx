@@ -23,8 +23,10 @@ import {
 import { useTheme } from "@/lib/contexts"
 import { useTranslation } from "@/lib/contexts"
 import { useToast } from "@/hooks/use-toast"
+import { useAuth } from "@/lib/contexts"
 import { bettingService } from "@/lib/betting-api"
 import { BettingPlatform, VerifyUserIdResponse } from "@/lib/betting"
+import { Gamepad2 } from "lucide-react"
 
 interface BettingDepositScreenProps {
   platformUid: string
@@ -44,12 +46,48 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { toast } = useToast()
+  const { refreshAccountData, refreshTransactions } = useAuth()
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+
+  // Get platform image URL with priority resolution
+  const getPlatformImageUrl = (platform: BettingPlatform | null) => {
+    if (!platform) return null
+    if (platform.external_image) {
+      return platform.external_image
+    }
+    if (platform.logo) {
+      if (platform.logo.startsWith('http://') || platform.logo.startsWith('https://')) {
+        return platform.logo
+      }
+      return `${baseUrl}${platform.logo.startsWith('/') ? '' : '/'}${platform.logo}`
+    }
+    return null
+  }
 
   // Load platform details
   const loadPlatform = async () => {
     try {
       const data = await bettingService.getPlatformDetail(platformUid)
-      setPlatform(data)
+      
+      // Merge external data
+      try {
+        const externalData = await bettingService.getExternalPlatformData()
+        const external = externalData.find(item => item.id === data.external_id)
+        if (external) {
+          const merged = {
+            ...data,
+            external_image: external.image,
+            city: external.city,
+            street: external.street,
+          }
+          setPlatform(merged)
+        } else {
+          setPlatform(data)
+        }
+      } catch (error) {
+        console.warn('Failed to merge external data:', error)
+        setPlatform(data)
+      }
     } catch (error: any) {
       console.error('Failed to load platform:', error)
       toast({
@@ -159,6 +197,12 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
         description: response.message,
       })
 
+      // Refresh dashboard data after successful transaction
+      await Promise.all([
+        refreshAccountData(),
+        refreshTransactions(),
+      ])
+
       // Reset form
       setBettingUserId("")
       setAmount("")
@@ -253,15 +297,33 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-green-500" />
+                {getPlatformImageUrl(platform) ? (
+                  <img src={getPlatformImageUrl(platform)!} alt={platform.name} className="w-8 h-8 rounded-lg object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                ) : (
+                  <Gamepad2 className="w-5 h-5 text-green-500" />
+                )}
               </div>
-              <div>
+              <div className="flex-1">
                 <h3 className={`font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                   {platform.name}
                 </h3>
                 <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   {t("betting.deposit.platformInfo", { min: formatCurrency(platform.min_deposit_amount), max: formatCurrency(platform.max_deposit_amount) })}
                 </p>
+                {(platform.city || platform.street) && (
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {platform.city && (
+                      <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        {t("betting.platforms.address.city", { city: platform.city })}
+                      </span>
+                    )}
+                    {platform.street && (
+                      <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        {t("betting.platforms.address.street", { street: platform.street })}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </CardContent>

@@ -23,6 +23,7 @@ import {
   Activity,
   Calendar,
   BarChart3,
+  Gamepad2,
 } from "lucide-react"
 import { useTheme } from "@/lib/contexts"
 import { useTranslation } from "@/lib/contexts"
@@ -59,12 +60,59 @@ export function BettingPlatformsScreen({
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { toast } = useToast()
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
+
+  // Merge external data with platforms
+  const mergeExternalData = async (data: BettingPlatformsWithStatsResponse) => {
+    try {
+      const externalData = await bettingService.getExternalPlatformData()
+      const externalMap = new Map(externalData.map(item => [item.id, item]))
+
+      const mergePlatform = (platform: BettingPlatformWithStats) => {
+        const external = externalMap.get(platform.external_id)
+        if (external) {
+          return {
+            ...platform,
+            external_image: external.image,
+            city: external.city,
+            street: external.street,
+          }
+        }
+        return platform
+      }
+
+      return {
+        ...data,
+        authorized_platforms: data.authorized_platforms.map(mergePlatform),
+        unauthorized_platforms: data.unauthorized_platforms.map(mergePlatform),
+      }
+    } catch (error) {
+      console.warn('Failed to merge external data:', error)
+      return data
+    }
+  }
+
+  // Get platform image URL with priority resolution
+  const getPlatformImageUrl = (platform: BettingPlatformWithStats) => {
+    if (platform.external_image) {
+      return platform.external_image
+    }
+    if (platform.logo) {
+      // Check if logo is already a full URL
+      if (platform.logo.startsWith('http://') || platform.logo.startsWith('https://')) {
+        return platform.logo
+      }
+      return `${baseUrl}${platform.logo.startsWith('/') ? '' : '/'}${platform.logo}`
+    }
+    return null
+  }
 
   // Load platforms data
   const loadPlatforms = async () => {
     try {
       const data = await bettingService.getPlatformsWithStats()
-      setPlatformsData(data)
+      const mergedData = await mergeExternalData(data)
+      setPlatformsData(mergedData)
     } catch (error: any) {
       console.error('Failed to load platforms:', error)
       toast({
@@ -309,10 +357,10 @@ export function BettingPlatformsScreen({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                         <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center flex-shrink-0">
-                          {platform.logo ? (
-                            <img src={platform.logo} alt={platform.name} className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg object-contain" />
+                          {getPlatformImageUrl(platform) ? (
+                            <img src={getPlatformImageUrl(platform)!} alt={platform.name} className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                           ) : (
-                            <BarChart3 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-500" />
+                            <Gamepad2 className="w-6 h-6 sm:w-7 sm:h-7 text-blue-500" />
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -322,6 +370,20 @@ export function BettingPlatformsScreen({
                           <p className={`text-xs sm:text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"} truncate`}>
                             {platform.description || t("betting.platforms.descriptionFallback")}
                           </p>
+                          {(platform.city || platform.street) && (
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              {platform.city && (
+                                <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                                  {t("betting.platforms.address.city", { city: platform.city })}
+                                </span>
+                              )}
+                              {platform.street && (
+                                <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                                  {t("betting.platforms.address.street", { street: platform.street })}
+                                </span>
+                              )}
+                            </div>
+                          )}
                           <div className="flex flex-wrap items-center gap-2 mt-2">
                             <Badge 
                               variant="secondary" 
@@ -379,10 +441,10 @@ export function BettingPlatformsScreen({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                         <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                          {platform.logo ? (
-                            <img src={platform.logo} alt={platform.name} className="w-8 h-8 rounded-lg" />
+                          {getPlatformImageUrl(platform) ? (
+                            <img src={getPlatformImageUrl(platform)!} alt={platform.name} className="w-8 h-8 rounded-lg object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                           ) : (
-                            <ShieldCheck className="w-6 h-6 text-green-500" />
+                            <Gamepad2 className="w-6 h-6 text-green-500" />
                           )}
                         </div>
                         <div className="min-w-0">
@@ -392,6 +454,20 @@ export function BettingPlatformsScreen({
                           <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                             {t("betting.platforms.grantedBy", { name: platform.granted_by_name })}
                           </p>
+                          {(platform.city || platform.street) && (
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              {platform.city && (
+                                <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                                  {t("betting.platforms.address.city", { city: platform.city })}
+                                </span>
+                              )}
+                              {platform.street && (
+                                <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                                  {t("betting.platforms.address.street", { street: platform.street })}
+                                </span>
+                              )}
+                            </div>
+                          )}
                           <div className="flex items-center gap-2 mt-1">
                             <Badge variant="secondary" className="text-xs bg-green-500/20 text-green-500">
                               {t("betting.platforms.canDeposit", { value: platform.can_deposit ? t("betting.platforms.yes") : t("betting.platforms.no") })}
@@ -436,10 +512,10 @@ export function BettingPlatformsScreen({
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                         <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 flex items-center justify-center flex-shrink-0">
-                          {platform.logo ? (
-                            <img src={platform.logo} alt={platform.name} className="w-8 h-8 rounded-lg" />
+                          {getPlatformImageUrl(platform) ? (
+                            <img src={getPlatformImageUrl(platform)!} alt={platform.name} className="w-8 h-8 rounded-lg object-contain" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                           ) : (
-                            <Shield className="w-6 h-6 text-red-500" />
+                            <Gamepad2 className="w-6 h-6 text-red-500" />
                           )}
                         </div>
                         <div className="min-w-0">
@@ -449,6 +525,20 @@ export function BettingPlatformsScreen({
                           <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                             {t("betting.platforms.noPermissionGranted")}
                           </p>
+                          {(platform.city || platform.street) && (
+                            <div className="flex flex-wrap gap-2 mt-1">
+                              {platform.city && (
+                                <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                                  {t("betting.platforms.address.city", { city: platform.city })}
+                                </span>
+                              )}
+                              {platform.street && (
+                                <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                                  {t("betting.platforms.address.street", { street: platform.street })}
+                                </span>
+                              )}
+                            </div>
+                          )}
                           <div className="flex items-center gap-2 mt-1">
                             <Badge variant="secondary" className="text-xs bg-red-500/20 text-red-500">
                               {t("betting.platforms.noAccess")}

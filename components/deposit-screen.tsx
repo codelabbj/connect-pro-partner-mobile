@@ -3,8 +3,8 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, CreditCard, Building2, Smartphone, AlertCircle } from "lucide-react"
-import { useState } from "react"
+import { ArrowLeft, CreditCard, Building2, Smartphone, AlertCircle, RefreshCw } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
 import { useTheme } from "@/lib/contexts"
 import { useTranslation } from "@/lib/contexts"
 import { useAuth } from "@/lib/contexts"
@@ -23,9 +23,104 @@ export function DepositScreen({ onNavigateBack }: DepositScreenProps) {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
+  
+  // Pull-to-refresh state (visual only)
+  const [pullToRefreshState, setPullToRefreshState] = useState({
+    isPulling: false,
+    pullDistance: 0,
+    isRefreshing: false,
+    startY: 0,
+    currentY: 0,
+    canPull: true,
+  })
+  const containerRef = useRef<HTMLDivElement>(null)
+  
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { networks, createTransaction } = useAuth()
+
+  // Pull-to-refresh constants
+  const refreshThreshold = 80
+  const maxPullDistance = 120
+  const pullingThreshold = 10
+
+  // Pull-to-refresh handler (visual only, placeholder)
+  const handlePullToRefresh = async () => {
+    setPullToRefreshState(prev => ({ ...prev, isRefreshing: true }))
+    try {
+      // Placeholder: 1 second timeout (ready for API integration)
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    } catch (error) {
+      console.error('Pull-to-refresh error:', error)
+    } finally {
+      setPullToRefreshState(prev => ({ ...prev, isRefreshing: false, pullDistance: 0 }))
+    }
+  }
+
+  // Pull-to-refresh: Touch start handler
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!pullToRefreshState.canPull || window.scrollY > 0) return
+    setPullToRefreshState({
+      isPulling: false,
+      pullDistance: 0,
+      isRefreshing: false,
+      startY: e.touches[0].clientY,
+      currentY: e.touches[0].clientY,
+      canPull: true,
+    })
+  }
+
+  // Pull-to-refresh: Touch move handler
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (window.scrollY > 0 || pullToRefreshState.isRefreshing) {
+      setPullToRefreshState(prev => ({ ...prev, canPull: false }))
+      return
+    }
+
+    const currentY = e.touches[0].clientY
+    const distance = Math.max(0, currentY - pullToRefreshState.startY)
+    const limitedDistance = Math.min(distance, maxPullDistance)
+
+    if (limitedDistance > pullingThreshold) {
+      e.preventDefault()
+      setPullToRefreshState(prev => ({
+        ...prev,
+        isPulling: true,
+        pullDistance: limitedDistance,
+        currentY,
+      }))
+    }
+  }
+
+  // Pull-to-refresh: Touch end handler
+  const handleTouchEnd = () => {
+    if (pullToRefreshState.pullDistance >= refreshThreshold && !pullToRefreshState.isRefreshing) {
+      handlePullToRefresh()
+    } else {
+      setPullToRefreshState({
+        isPulling: false,
+        pullDistance: 0,
+        isRefreshing: false,
+        startY: 0,
+        currentY: 0,
+        canPull: true,
+      })
+    }
+  }
+
+  // Scroll detection for pull-to-refresh
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY === 0) {
+        setPullToRefreshState(prev => ({ ...prev, canPull: true }))
+      } else {
+        setPullToRefreshState(prev => ({ ...prev, canPull: false, isPulling: false, pullDistance: 0 }))
+      }
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleDeposit = () => {
     if (!amount || !recipientPhone || !selectedNetwork) {
@@ -90,12 +185,30 @@ export function DepositScreen({ onNavigateBack }: DepositScreenProps) {
 
   return (
     <div
+      ref={containerRef}
       className={`min-h-screen transition-colors duration-300 ${
         theme === "dark"
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
           : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
       }`}
+      style={{
+        transform: `translateY(${pullToRefreshState.pullDistance}px)`,
+        transition: pullToRefreshState.isPulling ? 'none' : 'transform 0.3s ease-out',
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
+      {/* Pull-to-refresh indicator */}
+      {(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${
+          theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+        }`}>
+          <RefreshCw className={`w-5 h-5 ${
+            pullToRefreshState.isRefreshing ? 'animate-spin' : ''
+          } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
+        </div>
+      )}
       {/* Header */}
       <div className="px-4 pt-12 pb-8 safe-area-inset-top">
         <div className="flex items-center gap-4 mb-8">
@@ -112,10 +225,10 @@ export function DepositScreen({ onNavigateBack }: DepositScreenProps) {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+            <h1 className={`text-3xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
               {t("deposit.title")}
             </h1>
-            <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+            <p className={`text-base ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
               {t("deposit.subtitle")}
             </p>
           </div>
@@ -124,8 +237,8 @@ export function DepositScreen({ onNavigateBack }: DepositScreenProps) {
         {/* Deposit Form */}
         <div className="space-y-6">
             {/* Recipient Phone Input */}
-            <div className="space-y-2">
-              <Label htmlFor="phone" className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+            <div className="space-y-3">
+              <Label htmlFor="phone" className={`text-base font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                 {t("deposit.recipientPhone")}
               </Label>
               <Input
@@ -134,7 +247,7 @@ export function DepositScreen({ onNavigateBack }: DepositScreenProps) {
                 placeholder={t("deposit.phonePlaceholder")}
                 value={recipientPhone}
                 onChange={(e) => setRecipientPhone(e.target.value.replace(/\s/g, ''))}
-                className={`h-12 text-lg font-semibold ${
+                className={`h-16 text-lg font-semibold ${
                   theme === "dark" 
                     ? "bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400" 
                     : "bg-gray-50/50 border-gray-200 text-gray-900 placeholder:text-gray-500"
@@ -143,8 +256,8 @@ export function DepositScreen({ onNavigateBack }: DepositScreenProps) {
             </div>
 
             {/* Quick Amount Buttons */}
-            <div className="space-y-2">
-              <Label className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+            <div className="space-y-3">
+              <Label className={`text-base font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                 {t("deposit.quickAmount")}
               </Label>
               <div className="grid grid-cols-3 gap-2">
@@ -167,12 +280,12 @@ export function DepositScreen({ onNavigateBack }: DepositScreenProps) {
             </div>
 
             {/* Amount Input */}
-            <div className="space-y-2">
-              <Label htmlFor="amount" className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+            <div className="space-y-3">
+              <Label htmlFor="amount" className={`text-base font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                 {t("deposit.amount")}
               </Label>
               <div className="relative">
-                <span className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-sm font-bold ${
+                <span className={`absolute left-4 top-1/2 transform -translate-y-1/2 text-base font-bold ${
                   theme === "dark" ? "text-gray-400" : "text-gray-500"
                 }`}>
                   FCFA
@@ -183,7 +296,7 @@ export function DepositScreen({ onNavigateBack }: DepositScreenProps) {
                   placeholder={t("deposit.amountPlaceholder")}
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className={`pl-12 h-12 text-lg font-semibold ${
+                  className={`pl-16 h-16 text-lg font-semibold ${
                     theme === "dark" 
                       ? "bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400" 
                       : "bg-gray-50/50 border-gray-200 text-gray-900 placeholder:text-gray-500"
@@ -193,16 +306,16 @@ export function DepositScreen({ onNavigateBack }: DepositScreenProps) {
             </div>
 
             {/* Network Selection */}
-            <div className="space-y-3">
-              <Label className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+            <div className="space-y-4">
+              <Label className={`text-base font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                 {t("deposit.selectNetwork")}
               </Label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 {availableNetworks.map((network) => (
                   <button
                     key={network.uid}
                     onClick={() => setSelectedNetwork(network.uid)}
-                    className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                    className={`p-5 rounded-xl border-2 transition-all duration-200 ${
                       selectedNetwork === network.uid
                         ? theme === "dark"
                           ? "border-blue-500 bg-blue-500/10"
@@ -223,12 +336,12 @@ export function DepositScreen({ onNavigateBack }: DepositScreenProps) {
                         <Smartphone className="w-6 h-6" />
                       </div> */}
                       <div className="text-center">
-                        <p className={`font-semibold text-sm ${
+                        <p className={`font-semibold text-base ${
                           theme === "dark" ? "text-white" : "text-gray-900"
                         }`}>
                           {network.nom}
                         </p>
-                        <p className={`text-xs ${
+                        <p className={`text-sm ${
                           theme === "dark" ? "text-gray-400" : "text-gray-500"
                         }`}>
                           {network.code}
@@ -242,21 +355,21 @@ export function DepositScreen({ onNavigateBack }: DepositScreenProps) {
 
             {/* Error Message */}
             {error && (
-              <div className={`flex items-center gap-2 p-3 rounded-lg ${
+              <div className={`flex items-center gap-3 p-4 rounded-lg ${
                 theme === "dark" ? "bg-red-900/20 border border-red-800" : "bg-red-50 border border-red-200"
               }`}>
-                <AlertCircle className="w-4 h-4 text-red-500" />
-                <span className="text-sm text-red-600">{error}</span>
+                <AlertCircle className="w-5 h-5 text-red-500" />
+                <span className="text-base text-red-600">{error}</span>
               </div>
             )}
 
             {/* Success Message */}
             {success && (
-              <div className={`flex items-center gap-2 p-3 rounded-lg ${
+              <div className={`flex items-center gap-3 p-4 rounded-lg ${
                 theme === "dark" ? "bg-green-900/20 border border-green-800" : "bg-green-50 border border-green-200"
               }`}>
-                <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-                <span className="text-sm text-green-600">{t("deposit.successMessage")}</span>
+                <div className="w-5 h-5 bg-green-500 rounded-full"></div>
+                <span className="text-base text-green-600">{t("deposit.successMessage")}</span>
               </div>
             )}
 
@@ -264,7 +377,7 @@ export function DepositScreen({ onNavigateBack }: DepositScreenProps) {
             <Button
               onClick={handleDeposit}
               disabled={!amount || !recipientPhone || !selectedNetwork || isProcessing}
-              className={`w-full h-12 text-lg font-semibold transition-all duration-300 ${
+              className={`w-full h-16 text-lg font-semibold transition-all duration-300 ${
                 !amount || !recipientPhone || !selectedNetwork || isProcessing
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 hover:scale-[1.02] active:scale-[0.98]"

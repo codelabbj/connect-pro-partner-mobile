@@ -18,6 +18,7 @@ import {
   X,
   User,
   LogOut,
+  Smartphone,
 } from "lucide-react"
 import { useTheme } from "@/lib/contexts"
 import { useTranslation } from "@/lib/contexts"
@@ -80,6 +81,20 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
       hoverColor: "hover:bg-orange-500/10"
     },
     {
+      id: "auto-recharge",
+      label: t("nav.autoRecharge"),
+      icon: Smartphone,
+      color: "text-purple-500",
+      hoverColor: "hover:bg-purple-500/10"
+    },
+    {
+      id: "auto-recharge-transactions",
+      label: t("nav.autoRechargeHistory"),
+      icon: History,
+      color: "text-indigo-500",
+      hoverColor: "hover:bg-indigo-500/10"
+    },
+    {
       id: "betting-platforms",
       label: t("nav.bettingPlatforms"),
       icon: BarChart3,
@@ -130,14 +145,14 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">CP</span>
+            <div className="w-10 h-10 rounded-lg bg-white p-1 flex items-center justify-center flex-shrink-0">
+              <img src="/logo.png" alt="Connect Pro Logo" className="w-full h-full object-contain" />
             </div>
-            <div>
-              <h2 className={`font-bold text-lg ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+            <div className="min-w-0">
+              <h2 className={`font-bold text-lg truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                 {t("app.name")}
               </h2>
-              <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-sm truncate ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 {t("app.subtitle")}
               </p>
             </div>
@@ -145,7 +160,7 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
           <Button
             variant="ghost"
             size="sm"
-            className="lg:hidden h-10 w-10 p-0"
+            className="lg:hidden h-10 w-10 p-0 flex-shrink-0"
             onClick={onToggle}
           >
             <X className="w-5 h-5" />

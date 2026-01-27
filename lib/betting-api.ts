@@ -18,6 +18,7 @@ import {
   UnpaidCommissionsResponse,
   CommissionRates,
   PaymentHistoryResponse,
+  ExternalPlatformData,
 } from './betting';
 
 class BettingService {
@@ -329,6 +330,32 @@ class BettingService {
     } catch (error) {
       console.error('Get payment history error:', error);
       throw error;
+    }
+  }
+
+  // Get external platform data (public, no auth required)
+  async getExternalPlatformData(): Promise<ExternalPlatformData[]> {
+    try {
+      const response = await fetch('https://api.blaffa.net/blaffa/app_name', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        // Non-blocking: return empty array on failure
+        console.warn('Failed to fetch external platform data:', response.status);
+        return [];
+      }
+
+      const data = await response.json();
+      // Handle both array and object responses
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      // Non-blocking: return empty array on error
+      console.warn('Error fetching external platform data:', error);
+      return [];
     }
   }
 }

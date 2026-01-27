@@ -6,9 +6,10 @@ import { Label } from "@/components/ui/label"
 import { 
   ArrowLeft, 
   Upload,
-  AlertCircle
+  AlertCircle,
+  RefreshCw
 } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useTheme } from "@/lib/contexts"
 import { useTranslation } from "@/lib/contexts"
 import { useAuth } from "@/lib/contexts"
@@ -27,9 +28,96 @@ export function RechargeScreen({ onNavigateBack }: RechargeScreenProps) {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
   const [showConfirmation, setShowConfirmation] = useState(false)
+  
+  // Pull-to-refresh state (visual only)
+  const [pullToRefreshState, setPullToRefreshState] = useState({
+    isPulling: false,
+    pullDistance: 0,
+    isRefreshing: false,
+    startY: 0,
+    currentY: 0,
+    canPull: true,
+  })
+  const containerRef = useRef<HTMLDivElement>(null)
+  
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { createRecharge, accountData } = useAuth()
+
+  // Pull-to-refresh constants
+  const refreshThreshold = 80
+  const maxPullDistance = 120
+  const pullingThreshold = 10
+
+  // Pull-to-refresh handler (visual only, placeholder)
+  const handlePullToRefresh = async () => {
+    setPullToRefreshState(prev => ({ ...prev, isRefreshing: true }))
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000))
+    } catch (error) {
+      console.error('Pull-to-refresh error:', error)
+    } finally {
+      setPullToRefreshState(prev => ({ ...prev, isRefreshing: false, pullDistance: 0 }))
+    }
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!pullToRefreshState.canPull || window.scrollY > 0) return
+    setPullToRefreshState({
+      isPulling: false,
+      pullDistance: 0,
+      isRefreshing: false,
+      startY: e.touches[0].clientY,
+      currentY: e.touches[0].clientY,
+      canPull: true,
+    })
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (window.scrollY > 0 || pullToRefreshState.isRefreshing) {
+      setPullToRefreshState(prev => ({ ...prev, canPull: false }))
+      return
+    }
+    const currentY = e.touches[0].clientY
+    const distance = Math.max(0, currentY - pullToRefreshState.startY)
+    const limitedDistance = Math.min(distance, maxPullDistance)
+    if (limitedDistance > pullingThreshold) {
+      e.preventDefault()
+      setPullToRefreshState(prev => ({
+        ...prev,
+        isPulling: true,
+        pullDistance: limitedDistance,
+        currentY,
+      }))
+    }
+  }
+
+  const handleTouchEnd = () => {
+    if (pullToRefreshState.pullDistance >= refreshThreshold && !pullToRefreshState.isRefreshing) {
+      handlePullToRefresh()
+    } else {
+      setPullToRefreshState({
+        isPulling: false,
+        pullDistance: 0,
+        isRefreshing: false,
+        startY: 0,
+        currentY: 0,
+        canPull: true,
+      })
+    }
+  }
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY === 0) {
+        setPullToRefreshState(prev => ({ ...prev, canPull: true }))
+      } else {
+        setPullToRefreshState(prev => ({ ...prev, canPull: false, isPulling: false, pullDistance: 0 }))
+      }
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleRecharge = () => {
     if (!amount) {
@@ -91,12 +179,30 @@ export function RechargeScreen({ onNavigateBack }: RechargeScreenProps) {
 
   return (
     <div
+      ref={containerRef}
       className={`min-h-screen transition-colors duration-300 ${
         theme === "dark"
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
           : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
       }`}
+      style={{
+        transform: `translateY(${pullToRefreshState.pullDistance}px)`,
+        transition: pullToRefreshState.isPulling ? 'none' : 'transform 0.3s ease-out',
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
     >
+      {/* Pull-to-refresh indicator */}
+      {(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${
+          theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+        }`}>
+          <RefreshCw className={`w-5 h-5 ${
+            pullToRefreshState.isRefreshing ? 'animate-spin' : ''
+          } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
+        </div>
+      )}
       {/* Header */}
       <div className="px-4 pt-12 pb-8 safe-area-inset-top">
         <div className="flex items-center gap-4 mb-8">
@@ -113,10 +219,10 @@ export function RechargeScreen({ onNavigateBack }: RechargeScreenProps) {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+            <h1 className={`text-3xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
               {t("recharge.title")}
             </h1>
-            <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+            <p className={`text-base ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
               {t("recharge.subtitle")}
             </p>
           </div>

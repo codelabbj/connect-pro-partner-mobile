@@ -16,6 +16,10 @@ export interface BettingPlatform {
   permission_is_active?: boolean;
   granted_by_name?: string;
   permission_granted_at?: string;
+  // Merged from external API
+  city?: string;
+  street?: string;
+  external_image?: string;
 }
 
 export interface BettingPlatformWithStats extends BettingPlatform {
@@ -173,6 +177,17 @@ export interface PaymentHistoryResponse {
   payment_count: number;
   total_paid_amount: number;
   payments: CommissionPayment[];
+}
+
+export interface ExternalPlatformData {
+  id: string;
+  image?: string;
+  city?: string;
+  street?: string;
+  name?: string;
+  public_name?: string;
+  deposit_tuto_content?: string;
+  [key: string]: any;
 }
 
 

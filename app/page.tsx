@@ -27,6 +27,11 @@ import { TransferScreen } from "@/components/transfer-screen"
 import { TransferHistoryScreen } from "@/components/transfer-history-screen"
 import { NotificationScreen } from "@/components/notification-screen"
 import { TransactionTypeSelectionScreen } from "@/components/transaction-type-selection-screen"
+import { AutoRechargeScreen } from "@/components/auto-recharge-screen"
+import { AutoRechargeTransactionsScreen } from "@/components/auto-recharge-transactions-screen"
+import { AutoRechargeTransactionDetailScreen } from "@/components/auto-recharge-transaction-detail-screen"
+import { AccountHistoryScreen } from "@/components/account-history-screen"
+import { ChangePasswordScreen } from "@/components/change-password-screen"
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<
@@ -38,7 +43,9 @@ export default function Home() {
     | "recharge"
     | "settings"
     | "profile"
+    | "change-password"
     | "transaction-history"
+    | "account-history"
     | "recharge-history"
     | "transfer"
     | "transfer-history"
@@ -51,9 +58,13 @@ export default function Home() {
     | "betting-commissions"
     | "betting-deposit"
     | "betting-withdrawal"
+    | "auto-recharge"
+    | "auto-recharge-transactions"
+    | "auto-recharge-transaction-detail"
   >("splash")
   const [navigationHistory, setNavigationHistory] = useState<string[]>([])
   const [selectedPlatformUid, setSelectedPlatformUid] = useState<string>("")
+  const [selectedAutoRechargeTransactionUid, setSelectedAutoRechargeTransactionUid] = useState<string>("")
   const [bettingTransactionType, setBettingTransactionType] = useState<"deposit" | "withdraw">("deposit")
   const [splashCompleted, setSplashCompleted] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -193,6 +204,14 @@ export default function Home() {
             }}
             onNavigateToSettings={() => navigateTo("settings")}
             onNavigateToNotifications={() => navigateTo("notifications")}
+            onNavigateToTransactionHistory={() => navigateTo("transaction-history")}
+            onNavigateToAccountHistory={() => navigateTo("account-history")}
+            onNavigateToRechargeHistory={() => navigateTo("recharge-history")}
+            onNavigateToTransferHistory={() => navigateTo("transfer-history")}
+            onNavigateToBettingTransactions={() => navigateTo("betting-transactions")}
+            onNavigateToAutoRecharge={() => navigateTo("auto-recharge")}
+            onNavigateToAutoRechargeTransactions={() => navigateTo("auto-recharge-transactions")}
+            onNavigateToRecharge={() => navigateTo("recharge")}
           />
         )}
         {currentScreen === "deposit" && (
@@ -225,17 +244,24 @@ export default function Home() {
           />
         )}
         {currentScreen === "settings" && (
-          <SettingsScreen 
-            onNavigateBack={navigateBack} 
+          <SettingsScreen
+            onNavigateBack={navigateBack}
             onNavigateToProfile={() => setCurrentScreen("profile")}
-            onLogout={handleLogout} 
+            onNavigateToChangePassword={() => setCurrentScreen("change-password")}
+            onLogout={handleLogout}
           />
         )}
         {currentScreen === "profile" && (
           <ProfileScreen onNavigateBack={navigateBack} />
         )}
+        {currentScreen === "change-password" && (
+          <ChangePasswordScreen onNavigateBack={navigateBack} />
+        )}
         {currentScreen === "transaction-history" && (
           <TransactionHistoryScreen onNavigateBack={navigateBack} />
+        )}
+        {currentScreen === "account-history" && (
+          <AccountHistoryScreen onNavigateBack={navigateBack} />
         )}
         {currentScreen === "recharge-history" && (
           <RechargeHistoryScreen onNavigateBack={navigateBack} />
@@ -289,6 +315,24 @@ export default function Home() {
         {currentScreen === "betting-withdrawal" && (
           <BettingWithdrawalScreen 
             platformUid={selectedPlatformUid}
+            onNavigateBack={navigateBack}
+          />
+        )}
+        {currentScreen === "auto-recharge" && (
+          <AutoRechargeScreen onNavigateBack={navigateBack} />
+        )}
+        {currentScreen === "auto-recharge-transactions" && (
+          <AutoRechargeTransactionsScreen 
+            onNavigateBack={navigateBack}
+            onNavigateToDetail={(transactionUid) => {
+              setSelectedAutoRechargeTransactionUid(transactionUid)
+              navigateTo("auto-recharge-transaction-detail")
+            }}
+          />
+        )}
+        {currentScreen === "auto-recharge-transaction-detail" && (
+          <AutoRechargeTransactionDetailScreen 
+            transactionUid={selectedAutoRechargeTransactionUid}
             onNavigateBack={navigateBack}
           />
         )}
