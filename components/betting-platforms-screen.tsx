@@ -57,7 +57,7 @@ export function BettingPlatformsScreen({
   const [filterType, setFilterType] = useState<"all" | "authorized" | "unauthorized">("all")
   const [activeTab, setActiveTab] = useState<"overview" | "authorized" | "unauthorized">("overview")
   
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { toast } = useToast()
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000'
@@ -189,7 +189,7 @@ export function BettingPlatformsScreen({
   if (loading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+        resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
       }`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -201,7 +201,7 @@ export function BettingPlatformsScreen({
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
-      theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+      resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
     }`}>
       {/* Header */}
       <div className="px-4 pt-14 sm:pt-16 pb-6 safe-area-inset-top">
@@ -211,7 +211,7 @@ export function BettingPlatformsScreen({
               variant="ghost"
               size="sm"
               className={`h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-full ${
-                theme === "dark" 
+                resolvedTheme === "dark" 
                   ? "text-gray-300 hover:bg-gray-700/50" 
                   : "text-gray-600 hover:bg-gray-100/50"
               }`}
@@ -220,10 +220,10 @@ export function BettingPlatformsScreen({
               <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             </Button>
             <div>
-              <h1 className={`text-lg sm:text-2xl font-bold leading-tight ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+              <h1 className={`text-lg sm:text-2xl font-bold leading-tight ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                 {t("betting.platforms.title")}
               </h1>
-              <p className={`text-xs sm:text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-xs sm:text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 {t("betting.platforms.subtitle")}
               </p>
             </div>
@@ -232,7 +232,7 @@ export function BettingPlatformsScreen({
             variant="ghost"
             size="sm"
             className={`h-10 w-10 sm:h-12 sm:w-12 p-0 rounded-full ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "text-gray-300 hover:bg-gray-700/50" 
                 : "text-gray-600 hover:bg-gray-100/50"
             }`}
@@ -247,7 +247,7 @@ export function BettingPlatformsScreen({
         {platformsData && (
           <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
             <Card className={`border-0 shadow-lg ${
-              theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+              resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
             }`}>
               <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center gap-3">
@@ -255,10 +255,10 @@ export function BettingPlatformsScreen({
                     <ShieldCheck className="w-5 h-5 text-green-500" />
                   </div>
                   <div>
-                    <p className={`text-xs sm:text-sm font-medium ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                    <p className={`text-xs sm:text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                       {t("betting.platforms.summary.authorized")}
                     </p>
-                    <p className={`text-base sm:text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                    <p className={`text-base sm:text-xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                       {platformsData.summary.authorized_count}
                     </p>
                   </div>
@@ -267,7 +267,7 @@ export function BettingPlatformsScreen({
             </Card>
 
             <Card className={`border-0 shadow-lg ${
-              theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+              resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
             }`}>
               <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center gap-3">
@@ -275,10 +275,10 @@ export function BettingPlatformsScreen({
                     <Activity className="w-5 h-5 text-blue-500" />
                   </div>
                   <div>
-                    <p className={`text-xs sm:text-sm font-medium ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                    <p className={`text-xs sm:text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                       {t("betting.platforms.summary.withTransactions")}
                     </p>
-                    <p className={`text-base sm:text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                    <p className={`text-base sm:text-xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                       {platformsData.summary.platforms_with_transactions}
                     </p>
                   </div>
@@ -292,14 +292,14 @@ export function BettingPlatformsScreen({
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
           <div className="flex-1 relative">
             <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${
-              theme === "dark" ? "text-gray-400" : "text-gray-500"
+              resolvedTheme === "dark" ? "text-gray-400" : "text-gray-500"
             }`} />
             <Input
               placeholder={t("betting.platforms.searchPlaceholder") as string}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`pl-10 h-11 sm:h-10 ${
-                theme === "dark" 
+                resolvedTheme === "dark" 
                   ? "bg-gray-800 border-gray-700 text-white" 
                   : "bg-white border-gray-200 text-gray-900"
               }`}
@@ -307,7 +307,7 @@ export function BettingPlatformsScreen({
           </div>
           <Select value={filterType} onValueChange={(value: any) => setFilterType(value)}>
             <SelectTrigger className={`w-full sm:w-44 h-11 sm:h-10 ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "bg-gray-800 border-gray-700 text-white" 
                 : "bg-white border-gray-200 text-gray-900"
             }`}>
@@ -326,7 +326,7 @@ export function BettingPlatformsScreen({
       <div className="px-4">
         <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
           <TabsList className={`${
-            theme === "dark" ? "bg-gray-800" : "bg-gray-100"
+            resolvedTheme === "dark" ? "bg-gray-800" : "bg-gray-100"
           } overflow-x-auto flex gap-2 rounded-lg p-1`}>
             <TabsTrigger className="whitespace-nowrap flex-shrink-0 px-3 py-2" value="overview">{t("betting.platforms.tabs.overview")}</TabsTrigger>
             <TabsTrigger className="whitespace-nowrap flex-shrink-0 px-3 py-2" value="authorized">{t("betting.platforms.tabs.authorized")}</TabsTrigger>
@@ -339,7 +339,7 @@ export function BettingPlatformsScreen({
                 <Card
                   key={platform.uid}
                   className={`border-0 shadow-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] ${
-                    theme === "dark" ? "bg-gray-800/95 hover:bg-gray-700/95" : "bg-white/95 hover:bg-gray-50/95"
+                    resolvedTheme === "dark" ? "bg-gray-800/95 hover:bg-gray-700/95" : "bg-white/95 hover:bg-gray-50/95"
                   }`}
                   onClick={() => {
                     if (intendedTransactionType === "deposit" && onNavigateToDeposit) {
@@ -364,21 +364,21 @@ export function BettingPlatformsScreen({
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className={`font-bold text-base sm:text-lg ${theme === "dark" ? "text-white" : "text-gray-900"} truncate`}>
+                          <h3 className={`font-bold text-base sm:text-lg ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"} truncate`}>
                             {platform.name}
                           </h3>
-                          <p className={`text-xs sm:text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"} truncate`}>
+                          <p className={`text-xs sm:text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"} truncate`}>
                             {platform.description || t("betting.platforms.descriptionFallback")}
                           </p>
                           {(platform.city || platform.street) && (
                             <div className="flex flex-wrap gap-2 mt-1">
                               {platform.city && (
-                                <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                                <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                                   {t("betting.platforms.address.city", { city: platform.city })}
                                 </span>
                               )}
                               {platform.street && (
-                                <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                                <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                                   {t("betting.platforms.address.street", { street: platform.street })}
                                 </span>
                               )}
@@ -408,10 +408,10 @@ export function BettingPlatformsScreen({
                       <div className="text-right flex-shrink-0">
                         {platform.my_stats && (
                           <div className="space-y-1">
-                            <p className={`text-sm font-semibold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                            <p className={`text-sm font-semibold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                               {formatCurrency(platform.my_stats.total_amount.toString())} FCFA
                             </p>
-                            <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                            <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                               {t("betting.platforms.commissionLabel")}: {formatCurrency(platform.my_stats.total_commission.toString())} FCFA
                             </p>
                           </div>
@@ -433,7 +433,7 @@ export function BettingPlatformsScreen({
                 <Card
                   key={platform.uid}
                   className={`border-0 shadow-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] ${
-                    theme === "dark" ? "bg-gray-800/95 hover:bg-gray-700/95" : "bg-white/95 hover:bg-gray-50/95"
+                    resolvedTheme === "dark" ? "bg-gray-800/95 hover:bg-gray-700/95" : "bg-white/95 hover:bg-gray-50/95"
                   }`}
                   onClick={() => onNavigateToPlatformDetail(platform.uid)}
                 >
@@ -448,21 +448,21 @@ export function BettingPlatformsScreen({
                           )}
                         </div>
                         <div className="min-w-0">
-                          <h3 className={`font-bold text-base sm:text-lg ${theme === "dark" ? "text-white" : "text-gray-900"} truncate`}>
+                          <h3 className={`font-bold text-base sm:text-lg ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"} truncate`}>
                             {platform.name}
                           </h3>
-                          <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                          <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                             {t("betting.platforms.grantedBy", { name: platform.granted_by_name })}
                           </p>
                           {(platform.city || platform.street) && (
                             <div className="flex flex-wrap gap-2 mt-1">
                               {platform.city && (
-                                <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                                <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                                   {t("betting.platforms.address.city", { city: platform.city })}
                                 </span>
                               )}
                               {platform.street && (
-                                <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                                <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                                   {t("betting.platforms.address.street", { street: platform.street })}
                                 </span>
                               )}
@@ -481,10 +481,10 @@ export function BettingPlatformsScreen({
                       <div className="text-right flex-shrink-0">
                         {platform.my_stats && (
                           <div className="space-y-1">
-                            <p className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                            <p className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                               {formatCurrency(platform.my_stats.total_amount.toString())} FCFA
                             </p>
-                            <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                            <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                               Commission: {formatCurrency(platform.my_stats.total_commission.toString())} FCFA
                             </p>
                           </div>
@@ -504,7 +504,7 @@ export function BettingPlatformsScreen({
                 <Card
                   key={platform.uid}
                   className={`border-0 shadow-lg cursor-pointer transition-all duration-300 hover:scale-[1.02] ${
-                    theme === "dark" ? "bg-gray-800/95 hover:bg-gray-700/95" : "bg-white/95 hover:bg-gray-50/95"
+                    resolvedTheme === "dark" ? "bg-gray-800/95 hover:bg-gray-700/95" : "bg-white/95 hover:bg-gray-50/95"
                   }`}
                   onClick={() => onNavigateToPlatformDetail(platform.uid)}
                 >
@@ -519,21 +519,21 @@ export function BettingPlatformsScreen({
                           )}
                         </div>
                         <div className="min-w-0">
-                          <h3 className={`font-bold text-base sm:text-lg ${theme === "dark" ? "text-white" : "text-gray-900"} truncate`}>
+                          <h3 className={`font-bold text-base sm:text-lg ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"} truncate`}>
                             {platform.name}
                           </h3>
-                          <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                          <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                             {t("betting.platforms.noPermissionGranted")}
                           </p>
                           {(platform.city || platform.street) && (
                             <div className="flex flex-wrap gap-2 mt-1">
                               {platform.city && (
-                                <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                                <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                                   {t("betting.platforms.address.city", { city: platform.city })}
                                 </span>
                               )}
                               {platform.street && (
-                                <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                                <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                                   {t("betting.platforms.address.street", { street: platform.street })}
                                 </span>
                               )}
@@ -564,7 +564,7 @@ export function BettingPlatformsScreen({
           <Button
             onClick={onNavigateToBettingTransactions}
             className={`h-12 sm:h-14 border-0 text-sm sm:text-base w-full ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "bg-blue-500/20 hover:bg-blue-500/30 text-blue-400" 
                 : "bg-blue-500/20 hover:bg-blue-500/30 text-blue-600"
             }`}
@@ -575,7 +575,7 @@ export function BettingPlatformsScreen({
           <Button
             onClick={onNavigateToBettingCommissions}
             className={`h-12 sm:h-14 border-0 text-sm sm:text-base w-full ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "bg-green-500/20 hover:bg-green-500/30 text-green-400" 
                 : "bg-green-500/20 hover:bg-green-500/30 text-green-600"
             }`}

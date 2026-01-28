@@ -32,7 +32,7 @@ interface SettingsScreenProps {
 
 export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onNavigateToChangePassword, onLogout }: SettingsScreenProps) {
   const { t, language, setLanguage } = useTranslation()
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme, resolvedTheme } = useTheme()
 
   const handleLanguageToggle = () => {
     setLanguage(language === "en" ? "fr" : "en")
@@ -46,7 +46,7 @@ export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onNavigate
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
           : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
       }`}
@@ -58,7 +58,7 @@ export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onNavigate
             variant="ghost"
             size="sm"
             className={`h-11 w-11 p-0 rounded-full ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "text-gray-300 hover:bg-gray-700/50" 
                 : "text-gray-600 hover:bg-gray-100/50"
             }`}
@@ -66,7 +66,7 @@ export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onNavigate
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
-          <h1 className={`text-3xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>{t("settings.title")}</h1>
+          <h1 className={`text-3xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>{t("settings.title")}</h1>
         </div>
       </div>
 
@@ -74,13 +74,13 @@ export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onNavigate
         {/* Account Section */}
         <Card
           className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
           }`}
         >
           <CardContent className="p-0">
-            <div className={`p-8 border-b ${theme === "dark" ? "border-gray-700/50" : "border-border/50"}`}>
-              <h2 className={`font-bold text-xl mb-3 ${theme === "dark" ? "text-white" : "text-gray-900"}`}>{t("settings.account.title")}</h2>
-              <p className={`text-base ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>{t("settings.account.subtitle")}</p>
+            <div className={`p-8 border-b ${resolvedTheme === "dark" ? "border-gray-700/50" : "border-border/50"}`}>
+              <h2 className={`font-bold text-xl mb-3 ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>{t("settings.account.title")}</h2>
+              <p className={`text-base ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-600"}`}>{t("settings.account.subtitle")}</p>
             </div>
 
             <div className="space-y-0">
@@ -128,13 +128,13 @@ export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onNavigate
         {/* Security Section */}
         {/* <Card
           className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
           }`}
         >
           <CardContent className="p-0">
-            <div className={`p-6 border-b ${theme === "dark" ? "border-gray-700/50" : "border-border/50"}`}>
-              <h2 className={`font-bold text-lg mb-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}>{t("settings.security.title")}</h2>
-              <p className={`text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>{t("settings.security.subtitle")}</p>
+            <div className={`p-6 border-b ${resolvedTheme === "dark" ? "border-gray-700/50" : "border-border/50"}`}>
+              <h2 className={`font-bold text-lg mb-2 ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>{t("settings.security.title")}</h2>
+              <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-600"}`}>{t("settings.security.subtitle")}</p>
             </div>
 
             <div className="space-y-0">
@@ -166,13 +166,13 @@ export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onNavigate
         {/* Notifications Section */}
         {/* <Card
           className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
           }`}
         >
           <CardContent className="p-0">
-            <div className={`p-6 border-b ${theme === "dark" ? "border-gray-700/50" : "border-border/50"}`}>
-              <h2 className={`font-bold text-lg mb-2 ${theme === "dark" ? "text-white" : "text-gray-900"}`}>{t("settings.notifications.title")}</h2>
-              <p className={`text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>{t("settings.notifications.subtitle")}</p>
+            <div className={`p-6 border-b ${resolvedTheme === "dark" ? "border-gray-700/50" : "border-border/50"}`}>
+              <h2 className={`font-bold text-lg mb-2 ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>{t("settings.notifications.title")}</h2>
+              <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-600"}`}>{t("settings.notifications.subtitle")}</p>
             </div>
 
             <div className="space-y-0">
@@ -197,7 +197,7 @@ export function SettingsScreen({ onNavigateBack, onNavigateToProfile, onNavigate
         {/* Support Section */}
         {/* <Card
           className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
           }`}
         >
           <CardContent className="p-0">
@@ -253,13 +253,13 @@ function SettingsItem({
   onButtonClick,
   onClick,
 }: SettingsItemProps) {
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   
   return (
     /* Enhanced settings item with better hover effects and spacing */
     <div
       className={`flex items-center justify-between p-8 transition-all duration-200 min-h-[100px] border-b last:border-b-0 ${
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "hover:bg-gray-700/30 border-gray-700/50"
           : "hover:bg-gray-100/30 border-border/30"
       } ${onClick ? "cursor-pointer" : ""}`}
@@ -267,19 +267,19 @@ function SettingsItem({
     >
       <div className="flex items-center gap-5 flex-1">
         <div className={`p-3 rounded-xl ${
-          theme === "dark"
+          resolvedTheme === "dark"
             ? "text-gray-300 bg-gray-700/50"
             : "text-muted-foreground bg-muted/50"
         }`}>{icon}</div>
         <div className="flex-1">
           <div className="flex items-center gap-3">
             <p className={`font-semibold text-lg ${
-              theme === "dark" ? "text-white" : "text-gray-900"
+              resolvedTheme === "dark" ? "text-white" : "text-gray-900"
             }`}>{title}</p>
             {showBadge && <div className="w-2 h-2 bg-accent rounded-full"></div>}
           </div>
           <p className={`text-base mt-1 ${
-            theme === "dark" ? "text-gray-400" : "text-gray-600"
+            resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"
           }`}>{subtitle}</p>
         </div>
       </div>
@@ -291,7 +291,7 @@ function SettingsItem({
             variant="outline"
             size="sm"
             className={`h-10 px-4 text-sm font-medium ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "bg-transparent border-gray-600 text-gray-300 hover:bg-gray-700" 
                 : "bg-transparent"
             }`}
@@ -301,7 +301,7 @@ function SettingsItem({
           </Button>
         )}
         {showChevron && <ChevronRight className={`w-5 h-5 ${
-          theme === "dark" ? "text-gray-400" : "text-muted-foreground"
+          resolvedTheme === "dark" ? "text-gray-400" : "text-muted-foreground"
         }`} />}
       </div>
     </div>

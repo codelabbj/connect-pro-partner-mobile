@@ -51,7 +51,7 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
   })
   const containerRef = useRef<HTMLDivElement>(null)
   
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { accountData, refreshAccountData, refreshTransactions } = useAuth()
 
@@ -299,7 +299,7 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
     <div
       ref={containerRef}
       className={`min-h-screen transition-colors duration-300 ${
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
           : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
       }`}
@@ -314,11 +314,11 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
       {/* Pull-to-refresh indicator */}
       {(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${
-          theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+          resolvedTheme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
         }`}>
           <RefreshCw className={`w-5 h-5 ${
             pullToRefreshState.isRefreshing ? 'animate-spin' : ''
-          } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
+          } ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
         </div>
       )}
       
@@ -329,7 +329,7 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
             variant="ghost"
             size="sm"
             className={`h-11 w-11 p-0 rounded-full ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "text-gray-300 hover:bg-gray-700/50" 
                 : "text-gray-600 hover:bg-gray-100/50"
             }`}
@@ -338,10 +338,10 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className={`text-3xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+            <h1 className={`text-3xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
               {t("autoRecharge.title")}
             </h1>
-            <p className={`text-base ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+            <p className={`text-base ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
               {t("autoRecharge.subtitle")}
             </p>
           </div>
@@ -351,13 +351,13 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
         <div className="space-y-6">
           {/* Balance Info */}
           <div className={`p-4 rounded-xl ${
-            theme === "dark" ? "bg-gray-700/30" : "bg-gray-100/50"
+            resolvedTheme === "dark" ? "bg-gray-700/30" : "bg-gray-100/50"
           }`}>
             <div className="flex items-center justify-between">
-              <span className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+              <span className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                 {t("autoRecharge.availableBalance")}
               </span>
-              <span className={`text-lg font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+              <span className={`text-lg font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                 {accountData?.formatted_balance || t("common.loading")}
               </span>
             </div>
@@ -365,7 +365,7 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
 
           {/* Network Selection */}
           <div className="space-y-2">
-            <Label className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+            <Label className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
               {t("autoRecharge.selectNetwork")}
             </Label>
             {isLoadingNetworks ? (
@@ -380,10 +380,10 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
                     onClick={() => setSelectedNetwork(network)}
                     className={`p-4 rounded-xl border-2 transition-all duration-200 ${
                       selectedNetwork?.network.uid === network.network.uid
-                        ? theme === "dark"
+                        ? resolvedTheme === "dark"
                           ? "border-blue-500 bg-blue-500/20"
                           : "border-blue-500 bg-blue-50"
-                        : theme === "dark"
+                        : resolvedTheme === "dark"
                           ? "border-gray-600 hover:border-gray-500 bg-gray-700/30"
                           : "border-gray-200 hover:border-gray-300 bg-white/50"
                     }`}
@@ -397,18 +397,18 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
                         />
                       ) : (
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-                          theme === "dark" ? "bg-gray-600" : "bg-gray-200"
+                          resolvedTheme === "dark" ? "bg-gray-600" : "bg-gray-200"
                         }`}>
                           <Smartphone className="w-6 h-6" />
                         </div>
                       )}
                       <span className={`text-sm font-medium text-center ${
-                        theme === "dark" ? "text-white" : "text-gray-900"
+                        resolvedTheme === "dark" ? "text-white" : "text-gray-900"
                       }`}>
                         {network.network.nom}
                       </span>
                       <span className={`text-xs ${
-                        theme === "dark" ? "text-gray-400" : "text-gray-600"
+                        resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"
                       }`}>
                         {network.network.country_name}
                       </span>
@@ -418,9 +418,9 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
               </div>
             ) : (
               <div className={`p-4 rounded-xl text-center ${
-                theme === "dark" ? "bg-gray-700/30" : "bg-gray-100/50"
+                resolvedTheme === "dark" ? "bg-gray-700/30" : "bg-gray-100/50"
               }`}>
-                <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   {t("autoRecharge.noNetworksAvailable")}
                 </p>
               </div>
@@ -429,7 +429,7 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
 
           {/* Phone Number Input */}
           <div className="space-y-2">
-            <Label htmlFor="phone" className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+            <Label htmlFor="phone" className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
               {t("autoRecharge.phoneNumber")}
             </Label>
             <Input
@@ -439,7 +439,7 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               className={`h-12 text-lg font-semibold ${
-                theme === "dark" 
+                resolvedTheme === "dark" 
                   ? "bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400" 
                   : "bg-gray-50/50 border-gray-200 text-gray-900 placeholder:text-gray-500"
               }`}
@@ -449,7 +449,7 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
           {/* Quick Amount Buttons */}
           {selectedNetwork && (
             <div className="space-y-2">
-              <Label className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+              <Label className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                 {t("autoRecharge.quickAmount")}
               </Label>
               <div className="grid grid-cols-3 gap-2">
@@ -467,7 +467,7 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
                       onClick={() => setAmount(quickAmount)}
                       disabled={isDisabled}
                       className={`h-10 ${
-                        theme === "dark" 
+                        resolvedTheme === "dark" 
                           ? "border-gray-600 hover:bg-gray-700/50 text-gray-300 disabled:opacity-50" 
                           : "border-gray-200 hover:bg-gray-100/50 text-gray-600 disabled:opacity-50"
                       }`}
@@ -482,12 +482,12 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
 
           {/* Amount Input */}
           <div className="space-y-2">
-            <Label htmlFor="amount" className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+            <Label htmlFor="amount" className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
               {t("autoRecharge.amount")}
             </Label>
             <div className="relative">
               <span className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-sm font-bold ${
-                theme === "dark" ? "text-gray-400" : "text-gray-500"
+                resolvedTheme === "dark" ? "text-gray-400" : "text-gray-500"
               }`}>
                 FCFA
               </span>
@@ -498,14 +498,14 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 className={`pl-12 h-12 text-lg font-semibold ${
-                  theme === "dark" 
+                  resolvedTheme === "dark" 
                     ? "bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400" 
                     : "bg-gray-50/50 border-gray-200 text-gray-900 placeholder:text-gray-500"
                 }`}
               />
             </div>
             {selectedNetwork && (
-              <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 {t("autoRecharge.minMax", { min: formatAmount(selectedNetwork.min_amount), max: formatAmount(selectedNetwork.max_amount) })}
               </p>
             )}
@@ -514,29 +514,29 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
           {/* Fee and Total */}
           {selectedNetwork && amount && (
             <div className={`p-4 rounded-xl space-y-2 ${
-              theme === "dark" ? "bg-gray-700/30" : "bg-gray-100/50"
+              resolvedTheme === "dark" ? "bg-gray-700/30" : "bg-gray-100/50"
             }`}>
               <div className="flex items-center justify-between">
-                <span className={`text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                   Amount
                 </span>
-                <span className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                <span className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                   {formatAmount(amount)} FCFA
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className={`text-sm ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                   {t("autoRecharge.fee", { percentage: selectedNetwork.percentage_fee, fixed: formatAmount(selectedNetwork.fixed_fee) })}
                 </span>
-                <span className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                <span className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                   {formatAmount(calculateFee())} FCFA
                 </span>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-gray-300 dark:border-gray-600">
-                <span className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                <span className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                   {t("autoRecharge.total")}
                 </span>
-                <span className={`text-lg font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                <span className={`text-lg font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                   {formatAmount(calculateTotal())} FCFA
                 </span>
               </div>
@@ -546,7 +546,7 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
           {/* Error Message */}
           {error && (
             <div className={`flex items-center gap-2 p-3 rounded-lg ${
-              theme === "dark" ? "bg-red-900/20 border border-red-800" : "bg-red-50 border border-red-200"
+              resolvedTheme === "dark" ? "bg-red-900/20 border border-red-800" : "bg-red-50 border border-red-200"
             }`}>
               <AlertCircle className="w-4 h-4 text-red-500" />
               <span className="text-sm text-red-600 dark:text-red-400">{error}</span>
@@ -556,7 +556,7 @@ export function AutoRechargeScreen({ onNavigateBack }: AutoRechargeScreenProps) 
           {/* Success Message */}
           {success && (
             <div className={`flex items-center gap-2 p-3 rounded-lg ${
-              theme === "dark" ? "bg-green-900/20 border border-green-800" : "bg-green-50 border border-green-200"
+              resolvedTheme === "dark" ? "bg-green-900/20 border border-green-800" : "bg-green-50 border border-green-200"
             }`}>
               <div className="w-4 h-4 bg-green-500 rounded-full"></div>
               <span className="text-sm text-green-600 dark:text-green-400">{t("autoRecharge.successMessage")}</span>

@@ -14,12 +14,14 @@ import {
   Download,
   Copy,
   RefreshCw,
+  Smartphone,
 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useTheme } from "@/lib/contexts"
 import { useTranslation } from "@/lib/contexts"
 import { useAuth } from "@/lib/contexts"
 import { transactionsService, Transaction, TransactionsResponse } from "@/lib/transactions"
+import { formatAmount } from "@/lib/utils"
 
 interface TransactionHistoryScreenProps {
   onNavigateBack: () => void
@@ -42,7 +44,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
   })
   const containerRef = useRef<HTMLDivElement>(null)
   
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { user, transactions, isLoading, refreshTransactions } = useAuth()
 
@@ -176,7 +178,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
 
   // Helper function to format transaction amount
   const formatTransactionAmount = (amount: string, type: string) => {
-    const formattedAmount = parseFloat(amount).toLocaleString('fr-FR')
+    const formattedAmount = formatAmount(amount, { maximumFractionDigits: 0 })
     return type === "deposit" ? `+${formattedAmount}` : `-${formattedAmount}`
   }
 
@@ -220,7 +222,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
     <div
       ref={containerRef}
       className={`min-h-screen transition-colors duration-300 ${
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
           : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
       }`}
@@ -235,11 +237,11 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
       {/* Pull-to-refresh indicator */}
       {(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${
-          theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+          resolvedTheme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
         }`}>
           <RefreshCw className={`w-5 h-5 ${
             pullToRefreshState.isRefreshing ? 'animate-spin' : ''
-          } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
+          } ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
         </div>
       )}
       {/* Header */}
@@ -250,7 +252,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
               variant="ghost"
               size="sm"
               className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${
-                theme === "dark" 
+                resolvedTheme === "dark" 
                   ? "hover:bg-gray-700/50 text-gray-300" 
                   : "hover:bg-gray-100/50 text-gray-600"
               }`}
@@ -259,10 +261,10 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className={`text-3xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+              <h1 className={`text-3xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                 {t("transactionHistory.title")}
               </h1>
-              <p className={`text-base ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-base ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 {t("transactionHistory.subtitle")}
               </p>
             </div>
@@ -271,7 +273,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
             variant="ghost"
             size="sm"
             className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "hover:bg-gray-700/50 text-gray-300" 
                 : "hover:bg-gray-100/50 text-gray-600"
             }`}
@@ -287,7 +289,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
           {/* Search Bar */}
           <div className="relative">
             <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${
-              theme === "dark" ? "text-gray-400" : "text-gray-500"
+              resolvedTheme === "dark" ? "text-gray-400" : "text-gray-500"
             }`} />
             <input
               type="text"
@@ -295,7 +297,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`w-full pl-10 pr-4 py-3 rounded-xl border-0 transition-colors duration-300 ${
-                theme === "dark" 
+                resolvedTheme === "dark" 
                   ? "bg-gray-800/80 text-white placeholder-gray-400" 
                   : "bg-white/80 text-gray-900 placeholder-gray-500"
               } focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
@@ -311,7 +313,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
               className={`whitespace-nowrap ${
                 filterType === "all" 
                   ? "bg-blue-500 text-white" 
-                  : theme === "dark" 
+                  : resolvedTheme === "dark" 
                     ? "border-gray-600 text-gray-300" 
                     : "border-gray-300 text-gray-700"
               }`}
@@ -325,7 +327,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
               className={`whitespace-nowrap ${
                 filterType === "deposit" 
                   ? "bg-green-500 text-white" 
-                  : theme === "dark" 
+                  : resolvedTheme === "dark" 
                     ? "border-gray-600 text-gray-300" 
                     : "border-gray-300 text-gray-700"
               }`}
@@ -339,7 +341,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
               className={`whitespace-nowrap ${
                 filterType === "withdrawal" 
                   ? "bg-red-500 text-white" 
-                  : theme === "dark" 
+                  : resolvedTheme === "dark" 
                     ? "border-gray-600 text-gray-300" 
                     : "border-gray-300 text-gray-700"
               }`}
@@ -354,12 +356,12 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
       <div className="px-4 pb-8">
         <Card
           className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
           }`}
         >
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <CardTitle className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+              <CardTitle className={`text-xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                 Transactions ({filteredTransactions.length})
               </CardTitle>
               <div className="flex gap-2">
@@ -367,7 +369,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
                   variant="ghost"
                   size="sm"
                   className={`h-8 w-8 p-0 rounded-full transition-colors duration-300 ${
-                    theme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"
+                    resolvedTheme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"
                   }`}
                   onClick={refreshTransactions}
                 >
@@ -377,7 +379,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
                   variant="ghost"
                   size="sm"
                   className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${
-                    theme === "dark" 
+                    resolvedTheme === "dark" 
                       ? "hover:bg-gray-700/50 text-gray-300" 
                       : "hover:bg-gray-100/50 text-gray-600"
                   }`}
@@ -390,7 +392,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
                   variant="ghost"
                   size="sm"
                   className={`h-8 w-8 p-0 rounded-full transition-colors duration-300 ${
-                    theme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"
+                    resolvedTheme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"
                   }`}
                 >
                   <Download className="w-4 h-4" />
@@ -401,7 +403,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
           <CardContent className="space-y-1">
             {isLoading ? (
               <div className="text-center py-8">
-                <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   {t("transactionHistory.loading")}
                 </p>
               </div>
@@ -410,10 +412,10 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
                 <div
                   key={transaction.uid}
                   className={`py-3 px-2 rounded-lg transition-colors duration-300 ${
-                    theme === "dark" ? "hover:bg-gray-700/30" : "hover:bg-gray-100/30"
+                    resolvedTheme === "dark" ? "hover:bg-gray-700/30" : "hover:bg-gray-100/30"
                   } ${
                     index !== currentTransactions.length - 1
-                      ? theme === "dark"
+                      ? resolvedTheme === "dark"
                         ? "border-b border-gray-700/50"
                         : "border-b border-gray-200/50"
                       : ""
@@ -422,26 +424,39 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
                   {/* Header Row */}
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-3">
-                      <div
-                        className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 ${
-                          transaction.type === "deposit"
-                            ? "bg-gradient-to-br from-green-500/20 to-green-500/10 text-green-500"
-                            : theme === "dark"
-                              ? "bg-gradient-to-br from-gray-700 to-gray-600 text-gray-300"
-                              : "bg-gradient-to-br from-gray-200 to-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {transaction.type === "deposit" ? (
-                          <TrendingUp className="w-4 h-4" />
-                        ) : (
-                          <TrendingDown className="w-4 h-4" />
-                        )}
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 ${
+                            transaction.type === "deposit"
+                              ? "bg-gradient-to-br from-green-500/20 to-green-500/10 text-green-500"
+                              : resolvedTheme === "dark"
+                                ? "bg-gradient-to-br from-gray-700 to-gray-600 text-gray-300"
+                                : "bg-gradient-to-br from-gray-200 to-gray-100 text-gray-600"
+                          }`}
+                        >
+                          {transaction.type === "deposit" ? (
+                            <TrendingUp className="w-4 h-4" />
+                          ) : (
+                            <TrendingDown className="w-4 h-4" />
+                          )}
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center overflow-hidden">
+                          {transaction.network.image ? (
+                            <img
+                              src={transaction.network.image}
+                              alt={transaction.network.nom}
+                              className="w-7 h-7 object-contain"
+                            />
+                          ) : (
+                            <Smartphone className="w-4 h-4 text-gray-400" />
+                          )}
+                        </div>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={`font-medium text-base ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                        <p className={`font-medium text-base ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                           {transaction.display_recipient_name || transaction.recipient_phone}
                         </p>
-                        <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                           {formatTransactionDate(transaction.created_at)}
                         </p>
                       </div>
@@ -451,12 +466,12 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
                         className={`font-bold text-base ${
                           transaction.type === "deposit"
                             ? "text-green-500"
-                            : theme === "dark"
+                            : resolvedTheme === "dark"
                               ? "text-white"
                               : "text-gray-900"
                         }`}
                       >
-                        {transaction.type === "deposit" ? `+${transaction.formatted_amount}` : `-${transaction.formatted_amount}`}
+                        {formatTransactionAmount(transaction.amount, transaction.type)}
                       </p>
                     </div>
                   </div>
@@ -464,11 +479,11 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
                   {/* Details Row */}
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
-                      <p className={`text-sm ${theme === "dark" ? "text-gray-500" : "text-gray-500"}`}>
+                      <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-500" : "text-gray-500"}`}>
                         <span className="font-medium">{t("transactionHistory.network")}:</span> {transaction.network.nom}
                       </p>
                       <div className="flex items-center gap-2">
-                        <p className={`text-sm ${theme === "dark" ? "text-gray-500" : "text-gray-500"}`}>
+                        <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-500" : "text-gray-500"}`}>
                           <span className="font-medium">{t("transactionHistory.reference")}:</span> {transaction.reference}
                         </p>
                         <Button
@@ -498,7 +513,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
               ))
             ) : (
               <div className="text-center py-10">
-                <p className={`text-base ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                <p className={`text-base ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   {t("transactionHistory.noTransactions")}
                 </p>
               </div>
@@ -515,7 +530,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               className={`${
-                theme === "dark" 
+                resolvedTheme === "dark" 
                   ? "border-gray-600 text-gray-300 disabled:text-gray-600" 
                   : "border-gray-300 text-gray-700 disabled:text-gray-400"
               }`}
@@ -546,7 +561,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
                     className={`w-10 h-10 p-0 ${
                       currentPage === pageNum 
                         ? "bg-blue-500 text-white" 
-                        : theme === "dark" 
+                        : resolvedTheme === "dark" 
                           ? "border-gray-600 text-gray-300" 
                           : "border-gray-300 text-gray-700"
                     }`}
@@ -563,7 +578,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
               className={`${
-                theme === "dark" 
+                resolvedTheme === "dark" 
                   ? "border-gray-600 text-gray-300 disabled:text-gray-600" 
                   : "border-gray-300 text-gray-700 disabled:text-gray-400"
               }`}

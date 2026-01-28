@@ -43,7 +43,7 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
   })
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { toast } = useToast()
 
@@ -222,7 +222,7 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
   if (isLoading && currentPage === 1) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+        resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
       }`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -236,7 +236,7 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
     <div
       ref={containerRef}
       className={`min-h-screen transition-colors duration-300 ${
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
           : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
       }`}
@@ -251,11 +251,11 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
       {/* Pull-to-refresh indicator */}
       {(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${
-          theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+          resolvedTheme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
         }`}>
           <RefreshCw className={`w-5 h-5 ${
             pullToRefreshState.isRefreshing ? 'animate-spin' : ''
-          } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
+          } ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
         </div>
       )}
 
@@ -266,7 +266,7 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
             variant="ghost"
             size="sm"
             className={`h-11 w-11 p-0 rounded-full ${
-              theme === "dark"
+              resolvedTheme === "dark"
                 ? "text-gray-300 hover:bg-gray-700/50"
                 : "text-gray-600 hover:bg-gray-100/50"
             }`}
@@ -275,10 +275,10 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+            <h1 className={`text-2xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
               Account History
             </h1>
-            <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+            <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
               View your account balance changes
             </p>
           </div>
@@ -289,13 +289,13 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
       <div className="px-4 pb-6 safe-area-inset-bottom">
         <Card
           className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
           }`}
         >
           <CardHeader className="pb-3 sm:pb-4 px-3 sm:px-6 pt-4 sm:pt-6">
             <div className="flex items-center justify-between gap-2">
               <CardTitle className={`text-lg sm:text-xl font-bold truncate ${
-                theme === "dark" ? "text-white" : "text-gray-900"
+                resolvedTheme === "dark" ? "text-white" : "text-gray-900"
               }`}>
                 Balance Transactions ({totalCount})
               </CardTitle>
@@ -303,7 +303,7 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
                 variant="ghost"
                 size="sm"
                 className={`h-10 w-10 sm:h-8 sm:w-8 p-0 rounded-full transition-all duration-300 active:scale-95 touch-manipulation ${
-                  theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-600"
+                  resolvedTheme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-600"
                 }`}
                 onClick={handleRefresh}
                 disabled={isRefreshing}
@@ -316,7 +316,7 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
           <CardContent className="px-3 sm:px-6 pb-4 sm:pb-6">
             {error ? (
               <div className="text-center py-8 sm:py-10">
-                <p className={`text-sm sm:text-base ${theme === "dark" ? "text-red-400" : "text-red-600"}`}>
+                <p className={`text-sm sm:text-base ${resolvedTheme === "dark" ? "text-red-400" : "text-red-600"}`}>
                   {error}
                 </p>
                 <Button
@@ -338,10 +338,10 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
                       <div
                         key={transaction.uid}
                         className={`flex items-center justify-between py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl transition-all duration-300 ${
-                          theme === "dark" ? "hover:bg-gray-700/30" : "hover:bg-gray-100/30"
+                          resolvedTheme === "dark" ? "hover:bg-gray-700/30" : "hover:bg-gray-100/30"
                         } ${
                           index !== transactions.length - 1
-                            ? theme === "dark"
+                            ? resolvedTheme === "dark"
                               ? "border-b border-gray-700/50"
                               : "border-b border-gray-200/50"
                             : ""
@@ -360,18 +360,18 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
                           <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1 flex-wrap">
                               <p className={`font-semibold text-sm sm:text-base truncate ${
-                                theme === "dark" ? "text-white" : "text-gray-900"
+                                resolvedTheme === "dark" ? "text-white" : "text-gray-900"
                               }`}>
                                 {transaction.type_display}
                               </p>
                             </div>
                             <p className={`text-xs sm:text-sm truncate ${
-                              theme === "dark" ? "text-gray-400" : "text-gray-600"
+                              resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"
                             }`}>
                               {formatDate(transaction.created_at)}
                             </p>
                             <p className={`text-xs sm:text-sm truncate mt-0.5 ${
-                              theme === "dark" ? "text-gray-500" : "text-gray-500"
+                              resolvedTheme === "dark" ? "text-gray-500" : "text-gray-500"
                             }`}>
                               {transaction.description}
                             </p>
@@ -388,7 +388,7 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
                                       copyReference(transaction.reference)
                                     }}
                                     className={`h-7 w-7 sm:h-6 sm:w-6 p-1.5 sm:p-1 rounded transition-all duration-200 active:scale-95 touch-manipulation flex-shrink-0 ${
-                                      theme === "dark"
+                                      resolvedTheme === "dark"
                                         ? "hover:bg-gray-600/50 active:bg-gray-600/70 text-gray-400 hover:text-gray-300"
                                         : "hover:bg-gray-200/50 active:bg-gray-300/70 text-gray-500 hover:text-gray-700"
                                     }`}
@@ -408,7 +408,7 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
                           </p>
                           <div className="flex items-center gap-1 mt-1">
                             <DollarSign className="w-3 h-3 opacity-50" />
-                            <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                            <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                               {parseFloat(transaction.balance_after).toLocaleString()} FCFA
                             </p>
                           </div>
@@ -432,7 +432,7 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
                       Previous
                     </Button>
 
-                    <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                    <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                       Page {currentPage} of {totalPages}
                     </span>
 
@@ -451,7 +451,7 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
               </>
             ) : (
               <div className="text-center py-8 sm:py-10">
-                <p className={`text-sm sm:text-base ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                <p className={`text-sm sm:text-base ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   No account transactions found
                 </p>
               </div>

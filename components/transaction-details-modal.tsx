@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Copy, X } from "lucide-react"
+import { formatAmount as formatAmountUtil } from "@/lib/utils"
 
 export interface TransactionDetailsModalProps {
 	open?: boolean
@@ -19,7 +20,7 @@ export interface TransactionDetailsModalProps {
 
 export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, transaction }: TransactionDetailsModalProps) {
 	const { t } = useTranslation()
-	const { theme } = useTheme()
+	const { theme, resolvedTheme } = useTheme()
 	const { toast } = useToast()
 	const [mounted, setMounted] = useState(false)
 
@@ -64,11 +65,9 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 		}
 	}
 
-	// Format amount helper
-	const formatAmount = (amount?: string | number, type?: string) => {
-		if (!amount) return '0'
-		const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount
-		const formatted = numAmount.toLocaleString('fr-FR')
+	// Format amount helper (uses shared formatter + adds sign)
+	const formatSignedAmount = (amount?: string | number, type?: string) => {
+		const formatted = formatAmountUtil(amount ?? 0, { maximumFractionDigits: 0 })
 		if (type === 'deposit' || transaction?.historyType === 'recharge' || transaction?.historyType === 'auto-recharge') {
 			return `+${formatted}`
 		}
@@ -115,7 +114,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 			{/* Bottom Sheet */}
 			<div
 				className={`fixed bottom-0 left-0 right-0 h-[50vh] w-full rounded-t-2xl shadow-2xl z-50 transition-all duration-500 ease-out ${
-					theme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-900"
+					resolvedTheme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-900"
 				}`}
 				style={{
 					transform: effectiveOpen ? 'translateY(0)' : 'translateY(100%)',
@@ -125,23 +124,23 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 				{/* Drag Handle */}
 				<div className="flex justify-center pt-3 pb-2">
 					<div className={`w-10 h-1 rounded-full ${
-						theme === "dark" ? "bg-gray-600" : "bg-gray-300"
+						resolvedTheme === "dark" ? "bg-gray-600" : "bg-gray-300"
 					}`} />
 				</div>
 
 				{/* Header - Fixed */}
 				<div className={`px-6 pb-4 border-b ${
-					theme === "dark" ? "border-gray-700" : "border-gray-200"
+					resolvedTheme === "dark" ? "border-gray-700" : "border-gray-200"
 				}`}>
 					<div className="flex items-center justify-between">
-						<h2 className={`text-xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+						<h2 className={`text-xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
 							{t("transactionDetails.title")}
 						</h2>
 						<Button
 							variant="ghost"
 							size="icon"
 							onClick={handleClose}
-							className={`h-8 w-8 ${theme === "dark" ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"}`}
+							className={`h-8 w-8 ${resolvedTheme === "dark" ? "hover:bg-gray-700 text-gray-300" : "hover:bg-gray-100 text-gray-600"}`}
 						>
 							<X className="w-5 h-5" />
 						</Button>
@@ -155,7 +154,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 						{transaction?.reference && (
 							<div className="flex items-center justify-between">
 								<div className="flex-1">
-									<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+									<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 										{t("transactionDetails.reference")}:
 									</span>
 									<span className="ml-2 font-mono">{transaction.reference}</span>
@@ -164,7 +163,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 									variant="ghost"
 									size="icon"
 									onClick={() => copyToClipboard(transaction.reference)}
-									className={`h-8 w-8 ${theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
+									className={`h-8 w-8 ${resolvedTheme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
 								>
 									<Copy className="w-4 h-4" />
 								</Button>
@@ -174,7 +173,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 						{/* Amount */}
 						{transaction?.amount && (
 							<div>
-								<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+								<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 									{t("transactionDetails.amount")}:
 								</span>
 								<span className={`ml-2 font-semibold ${
@@ -182,9 +181,9 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 										? "text-green-500" 
 										: (transaction?.type === 'withdrawal' || transaction?.historyType === 'transfer')
 										? "text-red-500"
-										: theme === "dark" ? "text-white" : "text-gray-900"
+										: resolvedTheme === "dark" ? "text-white" : "text-gray-900"
 								}`}>
-									{formatAmount(transaction.amount, transaction?.type || transaction?.transaction_type)} FCFA
+									{formatSignedAmount(transaction.amount, transaction?.type || transaction?.transaction_type)} FCFA
 								</span>
 							</div>
 						)}
@@ -192,7 +191,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 						{/* Status */}
 						{transaction?.status && (
 							<div className="flex items-center gap-2">
-								<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+								<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 									{t("transactionDetails.status")}:
 								</span>
 								<Badge className={getStatusColor(transaction.status)}>
@@ -204,7 +203,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 						{/* Date */}
 						{transaction?.created_at && (
 							<div>
-								<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+								<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 									{t("transactionDetails.date")}:
 								</span>
 								<span className="ml-2">{formatDate(transaction.created_at)}</span>
@@ -214,7 +213,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 						{/* Recipient */}
 						{(transaction?.recipient_name || transaction?.display_recipient_name) && (
 							<div>
-								<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+								<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 									{t("transactionDetails.recipient")}:
 								</span>
 								<span className="ml-2">{transaction.display_recipient_name || transaction.recipient_name}</span>
@@ -223,7 +222,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 
 						{(transaction?.recipient_phone) && (
 							<div>
-								<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+								<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 									{t("transactionDetails.recipientPhone")}:
 								</span>
 								<span className="ml-2">{transaction.recipient_phone}</span>
@@ -232,21 +231,30 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 
 						{/* Network */}
 						{transaction?.network && (
-							<div>
-								<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+							<div className="flex items-center justify-between">
+								<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 									{t("transactionDetails.network")}:
 								</span>
-								<span className="ml-2">
-									{typeof transaction.network === 'object' ? transaction.network.nom : transaction.network} {transaction.network.code && `(${transaction.network.code})`}
-									{transaction.network.country_name && ` - ${transaction.network.country_name}`}
-								</span>
+								<div className="flex items-center gap-2">
+									{typeof transaction.network === 'object' && transaction.network.image && (
+										<img
+											src={transaction.network.image}
+											alt={transaction.network.nom}
+											className="w-6 h-6 rounded-full object-contain bg-white shadow-sm"
+										/>
+									)}
+									<span>
+										{typeof transaction.network === 'object' ? transaction.network.nom : transaction.network} {transaction.network.code && `(${transaction.network.code})`}
+										{transaction.network.country_name && ` - ${transaction.network.country_name}`}
+									</span>
+								</div>
 							</div>
 						)}
 
 						{/* Phone Number (for auto-recharge) */}
 						{transaction?.historyType === 'auto-recharge' && transaction?.phone_number && (
 							<div>
-								<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+								<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 									{t("autoRechargeTransactionDetail.phoneNumber")}:
 								</span>
 								<span className="ml-2">{transaction.phone_number}</span>
@@ -255,23 +263,23 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 
 						{/* Balance Changes */}
 						{/* {(transaction?.balance_before || transaction?.balance_after) && (
-							<div className={`pt-3 border-t ${theme === "dark" ? "border-gray-700" : "border-gray-200"}`}>
+							<div className={`pt-3 border-t ${resolvedTheme === "dark" ? "border-gray-700" : "border-gray-200"}`}>
 								<div className="font-medium mb-2">{t("transactionDetails.balanceChanges")}</div>
 								<div className="space-y-1">
 									{transaction.balance_before && (
 										<div>
-											<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+											<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 												{t("transactionDetails.balanceBefore")}:
 											</span>
-											<span className="ml-2">{parseFloat(transaction.balance_before).toLocaleString('fr-FR')} FCFA</span>
+											<span className="ml-2">{formatAmountUtil(transaction.balance_before, { maximumFractionDigits: 0 })} FCFA</span>
 										</div>
 									)}
 									{transaction.balance_after && (
 										<div>
-											<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+											<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 												{t("transactionDetails.balanceAfter")}:
 											</span>
-											<span className="ml-2">{parseFloat(transaction.balance_after).toLocaleString('fr-FR')} FCFA</span>
+											<span className="ml-2">{formatAmountUtil(transaction.balance_after, { maximumFractionDigits: 0 })} FCFA</span>
 										</div>
 									)}
 								</div>
@@ -280,14 +288,14 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 
 						{/* Betting Details */}
 						{isBetting && (
-							<div className={`pt-3 border-t ${theme === "dark" ? "border-gray-700" : "border-gray-200"}`}>
-								<div className={`font-medium mb-3 ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+							<div className={`pt-3 border-t ${resolvedTheme === "dark" ? "border-gray-700" : "border-gray-200"}`}>
+								<div className={`font-medium mb-3 ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
 									{t("transactionDetails.betting.heading")}
 								</div>
 								<div className="space-y-2">
 									{(transaction?.betting?.transaction_type || transaction?.transaction_type) && (
 										<div>
-											<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+											<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 												{t("transactionDetails.betting.type")}:
 											</span>
 											<span className="ml-2">{transaction?.betting?.transaction_type || transaction?.transaction_type}</span>
@@ -296,7 +304,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 									{(transaction?.betting?.betting_user_id || transaction?.betting_user_id) && (
 										<div className="flex items-center justify-between">
 											<div>
-												<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+												<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 													{t("transactionDetails.betting.userId")}:
 												</span>
 												<span className="ml-2 font-mono">{transaction?.betting?.betting_user_id || transaction?.betting_user_id}</span>
@@ -305,7 +313,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 												variant="ghost"
 												size="icon"
 												onClick={() => copyToClipboard(transaction?.betting?.betting_user_id || transaction?.betting_user_id)}
-												className={`h-8 w-8 ${theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
+												className={`h-8 w-8 ${resolvedTheme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
 											>
 												<Copy className="w-4 h-4" />
 											</Button>
@@ -314,7 +322,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 									{(transaction?.betting?.withdrawal_code || transaction?.withdrawal_code) && (
 										<div className="flex items-center justify-between">
 											<div>
-												<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+												<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 													{t("transactionDetails.betting.withdrawalCode")}:
 												</span>
 												<span className="ml-2 font-mono">{transaction?.betting?.withdrawal_code || transaction?.withdrawal_code}</span>
@@ -323,7 +331,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 												variant="ghost"
 												size="icon"
 												onClick={() => copyToClipboard(transaction?.betting?.withdrawal_code || transaction?.withdrawal_code)}
-												className={`h-8 w-8 ${theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
+												className={`h-8 w-8 ${resolvedTheme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
 											>
 												<Copy className="w-4 h-4" />
 											</Button>
@@ -332,7 +340,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 									{/* {(transaction?.betting?.external_transaction_id || transaction?.external_transaction_id) && (
 										<div className="flex items-center justify-between">
 											<div className="flex-1">
-												<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+												<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 													{t("transactionDetails.betting.externalId")}:
 												</span>
 												<span className="ml-2 font-mono break-all">{transaction?.betting?.external_transaction_id || transaction?.external_transaction_id}</span>
@@ -341,7 +349,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 												variant="ghost"
 												size="icon"
 												onClick={() => copyToClipboard(transaction?.betting?.external_transaction_id || transaction?.external_transaction_id)}
-												className={`h-8 w-8 flex-shrink-0 ${theme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
+												className={`h-8 w-8 flex-shrink-0 ${resolvedTheme === "dark" ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
 											>
 												<Copy className="w-4 h-4" />
 											</Button>
@@ -349,7 +357,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 									)} */}
 									{/* {(transaction?.betting?.commission_rate || transaction?.commission_rate) && (
 										<div>
-											<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+											<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 												{t("transactionDetails.betting.commissionRate")}:
 											</span>
 											<span className="ml-2">{(transaction?.betting?.commission_rate || transaction?.commission_rate)}%</span>
@@ -357,15 +365,15 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 									)}
 									{(transaction?.betting?.commission_amount || transaction?.commission_amount) && (
 										<div>
-											<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+											<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 												{t("transactionDetails.betting.commissionAmount")}:
 											</span>
-											<span className="ml-2">{parseFloat(transaction?.betting?.commission_amount || transaction?.commission_amount || '0').toLocaleString('fr-FR')} FCFA</span>
+											<span className="ml-2">{formatAmountUtil(transaction?.betting?.commission_amount || transaction?.commission_amount || '0', { maximumFractionDigits: 0 })} FCFA</span>
 										</div>
 									)}
 									{(transaction?.betting?.commission_paid_at || transaction?.commission_paid_at) && (
 										<div>
-											<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+											<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 												{t("transactionDetails.betting.commissionPaidAt")}:
 											</span>
 											<span className="ml-2">{formatDate(transaction?.betting?.commission_paid_at || transaction?.commission_paid_at)}</span>
@@ -373,23 +381,23 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 									)}
 									{(transaction?.betting?.partner_balance_before || transaction?.partner_balance_before) && (
 										<div>
-											<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+											<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 												{t("transactionDetails.betting.balanceBefore")}:
 											</span>
-											<span className="ml-2">{parseFloat(transaction?.betting?.partner_balance_before || transaction?.partner_balance_before || '0').toLocaleString('fr-FR')} FCFA</span>
+											<span className="ml-2">{formatAmountUtil(transaction?.betting?.partner_balance_before || transaction?.partner_balance_before || '0', { maximumFractionDigits: 0 })} FCFA</span>
 										</div>
 									)}
 									{(transaction?.betting?.partner_balance_after || transaction?.partner_balance_after) && (
 										<div>
-											<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+											<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 												{t("transactionDetails.betting.balanceAfter")}:
 											</span>
-											<span className="ml-2">{parseFloat(transaction?.betting?.partner_balance_after || transaction?.partner_balance_after || '0').toLocaleString('fr-FR')} FCFA</span>
+											<span className="ml-2">{formatAmountUtil(transaction?.betting?.partner_balance_after || transaction?.partner_balance_after || '0', { maximumFractionDigits: 0 })} FCFA</span>
 										</div>
 									)} */}
 									{(transaction?.betting?.cancellation_requested_at || transaction?.cancellation_requested_at) && (
 										<div>
-											<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+											<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 												{t("transactionDetails.betting.cancellationRequestedAt")}:
 											</span>
 											<span className="ml-2">{formatDate(transaction?.betting?.cancellation_requested_at || transaction?.cancellation_requested_at)}</span>
@@ -397,7 +405,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 									)}
 									{(transaction?.betting?.cancelled_at || transaction?.cancelled_at) && (
 										<div>
-											<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+											<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 												{t("transactionDetails.betting.cancelledAt")}:
 											</span>
 											<span className="ml-2">{formatDate(transaction?.betting?.cancelled_at || transaction?.cancelled_at)}</span>

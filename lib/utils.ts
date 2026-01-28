@@ -6,24 +6,60 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
- * Formats a number string with spaces as thousands separators
- * @param amount - The amount as a string (e.g., "10000", "100000")
- * @returns Formatted amount with spaces (e.g., "10 000", "100 000")
+ * Formats an amount using French grouping and a narrow no-break space (U+202F)
+ * as thousands separator (e.g., "1 234 567").
+ *
+ * Accepts strings or numbers. For string inputs, we try to preserve decimal
+ * precision (up to 6 decimals) unless overridden via options.
  */
-export function formatAmount(amount: string): string {
-  // Remove any existing spaces and non-numeric characters except decimal point
-  const cleanAmount = amount.replace(/[^\d.]/g, '')
-  
-  // Split by decimal point if exists
-  const parts = cleanAmount.split('.')
-  const integerPart = parts[0]
-  const decimalPart = parts[1]
-  
-  // Add spaces every 3 digits from the right
-  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-  
-  // Combine integer and decimal parts
-  return decimalPart ? `${formattedInteger}.${decimalPart}` : formattedInteger
+export function formatAmount(
+  amount: string | number,
+  options?: {
+    minimumFractionDigits?: number
+    maximumFractionDigits?: number
+  }
+): string {
+  if (amount === null || amount === undefined) return "0"
+
+  const raw = typeof amount === "number" ? String(amount) : String(amount)
+
+  // Keep digits, sign, dot/comma (we normalize comma to dot for parsing).
+  const cleaned = raw
+    .trim()
+    .replace(/\u202F/g, "") // narrow no-break spaces
+    .replace(/\u00A0/g, "") // no-break spaces
+    .replace(/ /g, "") // regular spaces
+    .replace(",", ".")
+    .replace(/[^\d.+-]/g, "")
+
+  const num = Number.parseFloat(cleaned)
+  if (!Number.isFinite(num)) return "0"
+
+  // Default: keep integer amounts for money; for string with decimals, preserve
+  // up to 6 digits unless overridden.
+  const inferredFractionDigits =
+    options?.maximumFractionDigits !== undefined || options?.minimumFractionDigits !== undefined
+      ? undefined
+      : (() => {
+          const dot = cleaned.indexOf(".")
+          if (dot === -1) return 0
+          const decimals = cleaned.slice(dot + 1).replace(/[^\d]/g, "")
+          return Math.min(decimals.length, 6)
+        })()
+
+  const minimumFractionDigits =
+    options?.minimumFractionDigits ?? (inferredFractionDigits ?? 0)
+  const maximumFractionDigits =
+    options?.maximumFractionDigits ?? (inferredFractionDigits ?? 0)
+
+  const formatted = new Intl.NumberFormat("fr-FR", {
+    useGrouping: true,
+    minimumFractionDigits,
+    maximumFractionDigits,
+  }).format(num)
+
+  // Ensure grouping uses narrow no-break spaces everywhere.
+  return formatted.replace(/\u00A0/g, "\u202F").replace(/ /g, "\u202F")
 }
 
 /**

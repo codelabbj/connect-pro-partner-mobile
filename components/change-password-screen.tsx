@@ -25,7 +25,7 @@ export function ChangePasswordScreen({ onNavigateBack }: ChangePasswordScreenPro
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { toast } = useToast()
 
@@ -102,7 +102,7 @@ export function ChangePasswordScreen({ onNavigateBack }: ChangePasswordScreenPro
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
           : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
       }`}
@@ -114,7 +114,7 @@ export function ChangePasswordScreen({ onNavigateBack }: ChangePasswordScreenPro
             variant="ghost"
             size="sm"
             className={`h-11 w-11 p-0 rounded-full ${
-              theme === "dark"
+              resolvedTheme === "dark"
                 ? "text-gray-300 hover:bg-gray-700/50"
                 : "text-gray-600 hover:bg-gray-100/50"
             }`}
@@ -123,10 +123,10 @@ export function ChangePasswordScreen({ onNavigateBack }: ChangePasswordScreenPro
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className={`text-3xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+            <h1 className={`text-3xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
               {t("changePassword.title")}
             </h1>
-            <p className={`text-base ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+            <p className={`text-base ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
               {t("changePassword.subtitle")}
             </p>
           </div>
@@ -137,7 +137,7 @@ export function ChangePasswordScreen({ onNavigateBack }: ChangePasswordScreenPro
       <div className="px-4 pb-6 safe-area-inset-bottom">
         <Card
           className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
           }`}
         >
           <CardHeader>

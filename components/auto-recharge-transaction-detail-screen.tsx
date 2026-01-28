@@ -45,7 +45,7 @@ export function AutoRechargeTransactionDetailScreen({
   })
   const containerRef = useRef<HTMLDivElement>(null)
   
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
 
   // Load transaction detail
@@ -241,7 +241,7 @@ export function AutoRechargeTransactionDetailScreen({
     <div
       ref={containerRef}
       className={`min-h-screen transition-colors duration-300 ${
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
           : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
       }`}
@@ -256,11 +256,11 @@ export function AutoRechargeTransactionDetailScreen({
       {/* Pull-to-refresh indicator */}
       {(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${
-          theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+          resolvedTheme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
         }`}>
           <RefreshCw className={`w-5 h-5 ${
             pullToRefreshState.isRefreshing ? 'animate-spin' : ''
-          } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
+          } ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
         </div>
       )}
       
@@ -272,7 +272,7 @@ export function AutoRechargeTransactionDetailScreen({
               variant="ghost"
               size="sm"
               className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${
-                theme === "dark" 
+                resolvedTheme === "dark" 
                   ? "hover:bg-gray-700/50 text-gray-300" 
                   : "hover:bg-gray-100/50 text-gray-600"
               }`}
@@ -281,10 +281,10 @@ export function AutoRechargeTransactionDetailScreen({
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+              <h1 className={`text-2xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                 {t("autoRechargeTransactionDetail.title")}
               </h1>
-              <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 {t("autoRechargeTransactionDetail.subtitle")}
               </p>
             </div>
@@ -293,7 +293,7 @@ export function AutoRechargeTransactionDetailScreen({
             variant="ghost"
             size="sm"
             className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "hover:bg-gray-700/50 text-gray-300" 
                 : "hover:bg-gray-100/50 text-gray-600"
             }`}
@@ -309,12 +309,12 @@ export function AutoRechargeTransactionDetailScreen({
       <div className="px-4 pb-8">
         {isLoading ? (
           <Card className={`border-0 shadow-xl backdrop-blur-sm ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
           }`}>
             <CardContent className="py-8">
               <div className="text-center">
                 <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-500" />
-                <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   {t("autoRechargeTransactionDetail.loading")}
                 </p>
               </div>
@@ -322,12 +322,12 @@ export function AutoRechargeTransactionDetailScreen({
           </Card>
         ) : error ? (
           <Card className={`border-0 shadow-xl backdrop-blur-sm ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
           }`}>
             <CardContent className="py-8">
               <div className="text-center">
                 <AlertCircle className="w-6 h-6 mx-auto mb-2 text-red-500" />
-                <p className={`text-sm ${theme === "dark" ? "text-red-400" : "text-red-600"}`}>
+                <p className={`text-sm ${resolvedTheme === "dark" ? "text-red-400" : "text-red-600"}`}>
                   {error}
                 </p>
               </div>
@@ -337,10 +337,10 @@ export function AutoRechargeTransactionDetailScreen({
           <div className="space-y-4">
             {/* Status Card */}
             <Card className={`border-0 shadow-xl backdrop-blur-sm ${
-              theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+              resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
             }`}>
               <CardHeader>
-                <CardTitle className={`text-lg font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                <CardTitle className={`text-lg font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                   {t("autoRechargeTransactionDetail.status")}
                 </CardTitle>
               </CardHeader>
@@ -358,7 +358,7 @@ export function AutoRechargeTransactionDetailScreen({
                           <p className={`font-semibold text-lg ${statusInfo.color}`}>
                             {transaction.status_display || statusInfo.text}
                           </p>
-                          <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                          <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                             {transaction.status}
                           </p>
                         </div>
@@ -371,21 +371,21 @@ export function AutoRechargeTransactionDetailScreen({
 
             {/* Transaction Details Card */}
             <Card className={`border-0 shadow-xl backdrop-blur-sm ${
-              theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+              resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
             }`}>
               <CardHeader>
-                <CardTitle className={`text-lg font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                <CardTitle className={`text-lg font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                   {t("autoRechargeTransactionDetail.transactionDetails")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Reference */}
                 <div className="flex items-center justify-between">
-                  <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                  <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                     {t("autoRechargeTransactionDetail.reference")}:
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className={`text-sm font-mono font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                    <span className={`text-sm font-mono font-medium ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                       {transaction.reference}
                     </span>
                     <Button
@@ -401,7 +401,7 @@ export function AutoRechargeTransactionDetailScreen({
 
                 {/* Network */}
                 <div className="flex items-center justify-between">
-                  <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                  <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                     {t("autoRechargeTransactionDetail.network")}:
                   </span>
                   <div className="flex items-center gap-2">
@@ -414,7 +414,7 @@ export function AutoRechargeTransactionDetailScreen({
                     ) : (
                       <Smartphone className="w-4 h-4" />
                     )}
-                    <span className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                    <span className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                       {transaction.network.nom}
                     </span>
                   </div>
@@ -422,11 +422,11 @@ export function AutoRechargeTransactionDetailScreen({
 
                 {/* Phone Number */}
                 <div className="flex items-center justify-between">
-                  <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                  <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                     {t("autoRechargeTransactionDetail.phoneNumber")}:
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                    <span className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                       {transaction.phone_number}
                     </span>
                     <Button
@@ -442,10 +442,10 @@ export function AutoRechargeTransactionDetailScreen({
 
                 {/* Amount */}
                 <div className="flex items-center justify-between">
-                  <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                  <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                     {t("autoRechargeTransactionDetail.amount")}:
                   </span>
-                  <span className={`text-lg font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                  <span className={`text-lg font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                     {formatAmount(transaction.amount)} FCFA
                   </span>
                 </div>
@@ -453,10 +453,10 @@ export function AutoRechargeTransactionDetailScreen({
                 {/* Fee */}
                 {transaction.fee && (
                   <div className="flex items-center justify-between">
-                    <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                    <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                       {t("autoRechargeTransactionDetail.fee")}:
                     </span>
-                    <span className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                    <span className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                       {formatAmount(transaction.fee)} FCFA
                     </span>
                   </div>
@@ -465,10 +465,10 @@ export function AutoRechargeTransactionDetailScreen({
                 {/* Total Amount */}
                 {transaction.total_amount && (
                   <div className="flex items-center justify-between pt-2 border-t border-gray-300 dark:border-gray-600">
-                    <span className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                    <span className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                       {t("autoRechargeTransactionDetail.total")}:
                     </span>
-                    <span className={`text-lg font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                    <span className={`text-lg font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                       {formatAmount(transaction.total_amount)} FCFA
                     </span>
                   </div>
@@ -478,33 +478,33 @@ export function AutoRechargeTransactionDetailScreen({
 
             {/* Timestamps Card */}
             <Card className={`border-0 shadow-xl backdrop-blur-sm ${
-              theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+              resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
             }`}>
               <CardHeader>
-                <CardTitle className={`text-lg font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                <CardTitle className={`text-lg font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                   {t("autoRechargeTransactionDetail.timestamps")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                  <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                     {t("autoRechargeTransactionDetail.createdAt")}:
                   </span>
-                  <span className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                  <span className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                     {formatDate(transaction.created_at)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                  <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                     {t("autoRechargeTransactionDetail.updatedAt")}:
                   </span>
-                  <span className={`text-sm font-medium ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                  <span className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                     {formatDate(transaction.updated_at)}
                   </span>
                 </div>
                 {transaction.completed_at && (
                   <div className="flex items-center justify-between">
-                    <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                    <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                       {t("autoRechargeTransactionDetail.completedAt")}:
                     </span>
                     <span className={`text-sm font-medium text-green-500`}>
@@ -514,7 +514,7 @@ export function AutoRechargeTransactionDetailScreen({
                 )}
                 {transaction.failed_at && (
                   <div className="flex items-center justify-between">
-                    <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                    <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                       {t("autoRechargeTransactionDetail.failedAt")}:
                     </span>
                     <span className={`text-sm font-medium text-red-500`}>
@@ -528,7 +528,7 @@ export function AutoRechargeTransactionDetailScreen({
             {/* Error Message */}
             {transaction.error_message && (
               <Card className={`border-0 shadow-xl backdrop-blur-sm border-red-500/20 ${
-                theme === "dark" ? "bg-red-900/10 text-white" : "bg-red-50 text-gray-900"
+                resolvedTheme === "dark" ? "bg-red-900/10 text-white" : "bg-red-50 text-gray-900"
               }`}>
                 <CardHeader>
                   <CardTitle className={`text-lg font-bold text-red-500`}>
@@ -536,7 +536,7 @@ export function AutoRechargeTransactionDetailScreen({
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className={`text-sm ${theme === "dark" ? "text-red-300" : "text-red-700"}`}>
+                  <p className={`text-sm ${resolvedTheme === "dark" ? "text-red-300" : "text-red-700"}`}>
                     {transaction.error_message}
                   </p>
                 </CardContent>

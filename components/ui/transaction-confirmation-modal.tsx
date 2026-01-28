@@ -3,6 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { useTheme } from "@/lib/contexts"
+import { formatAmount } from "@/lib/utils"
 
 type TransactionType = "deposit" | "withdrawal"
 
@@ -45,7 +46,7 @@ export function TransactionConfirmationModal({
 				</DialogHeader>
 				<div className="space-y-3 text-sm">
 					<div className="flex justify-between"><span className="opacity-70">Type</span><span className="font-medium capitalize">{transactionData.type}</span></div>
-					<div className="flex justify-between"><span className="opacity-70">Amount</span><span className="font-semibold">{transactionData.amount} FCFA</span></div>
+					<div className="flex justify-between"><span className="opacity-70">Amount</span><span className="font-semibold">{formatAmount(transactionData.amount, { maximumFractionDigits: 0 })} FCFA</span></div>
 					<div className="flex justify-between"><span className="opacity-70">Recipient</span><span className="font-medium">{transactionData.recipientPhone}</span></div>
 					{transactionData.selectedNetwork && (
 						<div className="flex justify-between"><span className="opacity-70">Network</span><span className="font-medium">{transactionData.selectedNetwork.nom || transactionData.selectedNetwork.code}</span></div>

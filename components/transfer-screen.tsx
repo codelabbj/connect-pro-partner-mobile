@@ -9,7 +9,7 @@ import { useTheme } from "@/lib/contexts"
 import { useTranslation } from "@/lib/contexts"
 
 export function TransferScreen({ onNavigateBack }: { onNavigateBack: () => void }) {
-	const { theme } = useTheme()
+	const { theme, resolvedTheme } = useTheme()
 	const { t } = useTranslation()
 	const [recipient, setRecipient] = useState("")
 	const [amount, setAmount] = useState("")
@@ -121,7 +121,7 @@ export function TransferScreen({ onNavigateBack }: { onNavigateBack: () => void 
 	return (
 		<div 
 			ref={containerRef}
-			className={`min-h-screen p-4 ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
+			className={`min-h-screen p-4 ${resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}
 			style={{
 				transform: `translateY(${pullToRefreshState.pullDistance}px)`,
 				transition: pullToRefreshState.isPulling ? 'none' : 'transform 0.3s ease-out',
@@ -133,11 +133,11 @@ export function TransferScreen({ onNavigateBack }: { onNavigateBack: () => void 
 			{/* Pull-to-refresh indicator */}
 			{(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
 				<div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${
-					theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+					resolvedTheme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
 				}`}>
 					<RefreshCw className={`w-5 h-5 ${
 						pullToRefreshState.isRefreshing ? 'animate-spin' : ''
-					} ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
+					} ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
 				</div>
 			)}
 			<div className="max-w-md mx-auto">

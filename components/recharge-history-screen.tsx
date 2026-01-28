@@ -45,7 +45,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
   })
   const containerRef = useRef<HTMLDivElement>(null)
   
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { user, recharges, isLoading, refreshRecharges } = useAuth()
 
@@ -247,7 +247,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
     <div
       ref={containerRef}
       className={`min-h-screen transition-colors duration-300 ${
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
           : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
       }`}
@@ -262,11 +262,11 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
       {/* Pull-to-refresh indicator */}
       {(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${
-          theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+          resolvedTheme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
         }`}>
           <RefreshCw className={`w-5 h-5 ${
             pullToRefreshState.isRefreshing ? 'animate-spin' : ''
-          } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
+          } ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
         </div>
       )}
       {/* Header */}
@@ -277,7 +277,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               variant="ghost"
               size="sm"
               className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${
-                theme === "dark" 
+                resolvedTheme === "dark" 
                   ? "hover:bg-gray-700/50 text-gray-300" 
                   : "hover:bg-gray-100/50 text-gray-600"
               }`}
@@ -286,10 +286,10 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+              <h1 className={`text-2xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                 {t("rechargeHistory.title")}
               </h1>
-              <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 {t("rechargeHistory.subtitle")}
               </p>
             </div>
@@ -298,7 +298,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
             variant="ghost"
             size="sm"
             className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "hover:bg-gray-700/50 text-gray-300" 
                 : "hover:bg-gray-100/50 text-gray-600"
             }`}
@@ -314,7 +314,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
           {/* Search Bar */}
           <div className="relative">
             <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${
-              theme === "dark" ? "text-gray-400" : "text-gray-500"
+              resolvedTheme === "dark" ? "text-gray-400" : "text-gray-500"
             }`} />
             <input
               type="text"
@@ -322,7 +322,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`w-full pl-10 pr-4 py-3 rounded-xl border-0 transition-colors duration-300 ${
-                theme === "dark" 
+                resolvedTheme === "dark" 
                   ? "bg-gray-800/80 text-white placeholder-gray-400" 
                   : "bg-white/80 text-gray-900 placeholder-gray-500"
               } focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
@@ -338,7 +338,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               className={`whitespace-nowrap ${
                 filterStatus === "all" 
                   ? "bg-blue-500 text-white" 
-                  : theme === "dark" 
+                  : resolvedTheme === "dark" 
                     ? "border-gray-600 text-gray-300" 
                     : "border-gray-300 text-gray-700"
               }`}
@@ -352,7 +352,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               className={`whitespace-nowrap ${
                 filterStatus === "approved" 
                   ? "bg-green-500 text-white" 
-                  : theme === "dark" 
+                  : resolvedTheme === "dark" 
                     ? "border-gray-600 text-gray-300" 
                     : "border-gray-300 text-gray-700"
               }`}
@@ -366,7 +366,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               className={`whitespace-nowrap ${
                 filterStatus === "pending" 
                   ? "bg-yellow-500 text-white" 
-                  : theme === "dark" 
+                  : resolvedTheme === "dark" 
                     ? "border-gray-600 text-gray-300" 
                     : "border-gray-300 text-gray-700"
               }`}
@@ -380,7 +380,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               className={`whitespace-nowrap ${
                 filterStatus === "rejected" 
                   ? "bg-red-500 text-white" 
-                  : theme === "dark" 
+                  : resolvedTheme === "dark" 
                     ? "border-gray-600 text-gray-300" 
                     : "border-gray-300 text-gray-700"
               }`}
@@ -394,7 +394,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               className={`whitespace-nowrap ${
                 filterStatus === "proof_submitted" 
                   ? "bg-blue-500 text-white" 
-                  : theme === "dark" 
+                  : resolvedTheme === "dark" 
                     ? "border-gray-600 text-gray-300" 
                     : "border-gray-300 text-gray-700"
               }`}
@@ -409,12 +409,12 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
       <div className="px-4 pb-8">
         <Card
           className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
           }`}
         >
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <CardTitle className={`text-lg font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+              <CardTitle className={`text-lg font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                 Recharges ({filteredRecharges.length})
               </CardTitle>
               <div className="flex gap-2">
@@ -422,7 +422,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
                   variant="ghost"
                   size="sm"
                   className={`h-8 w-8 p-0 rounded-full transition-colors duration-300 ${
-                    theme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"
+                    resolvedTheme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"
                   }`}
                   onClick={refreshRecharges}
                 >
@@ -432,7 +432,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
                   variant="ghost"
                   size="sm"
                   className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${
-                    theme === "dark" 
+                    resolvedTheme === "dark" 
                       ? "hover:bg-gray-700/50 text-gray-300" 
                       : "hover:bg-gray-100/50 text-gray-600"
                   }`}
@@ -445,7 +445,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
                   variant="ghost"
                   size="sm"
                   className={`h-8 w-8 p-0 rounded-full transition-colors duration-300 ${
-                    theme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"
+                    resolvedTheme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"
                   }`}
                 >
                   <Download className="w-4 h-4" />
@@ -456,7 +456,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
           <CardContent className="space-y-1">
             {isLoading ? (
               <div className="text-center py-8">
-                <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   {t("rechargeHistory.loading")}
                 </p>
               </div>
@@ -469,10 +469,10 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
                 <div
                   key={recharge.uid}
                   className={`py-3 px-2 rounded-lg transition-colors duration-300 ${
-                    theme === "dark" ? "hover:bg-gray-700/30" : "hover:bg-gray-100/30"
+                    resolvedTheme === "dark" ? "hover:bg-gray-700/30" : "hover:bg-gray-100/30"
                   } ${
                     index !== currentRecharges.length - 1
-                      ? theme === "dark"
+                      ? resolvedTheme === "dark"
                         ? "border-b border-gray-700/50"
                         : "border-b border-gray-200/50"
                       : ""
@@ -485,16 +485,16 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
                         <Battery className={`w-3.5 h-3.5 ${statusInfo.color}`} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={`font-medium text-sm ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                        <p className={`font-medium text-sm ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                           {recharge.formatted_amount}
                         </p>
-                        <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                           {formatRechargeDate(recharge.created_at)}
                         </p>
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <p className={`font-bold text-sm ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                      <p className={`font-bold text-sm ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                         {recharge.formatted_amount}
                       </p>
                     </div>
@@ -504,7 +504,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <p className={`text-xs ${theme === "dark" ? "text-gray-500" : "text-gray-500"}`}>
+                        <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-500" : "text-gray-500"}`}>
                           <span className="font-medium">{t("rechargeHistory.reference")}:</span> {recharge.reference}
                         </p>
                         <Button
@@ -534,7 +534,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               })
             ) : (
               <div className="text-center py-8">
-                <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   {t("rechargeHistory.noRecharges")}
                 </p>
               </div>
@@ -551,7 +551,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               className={`${
-                theme === "dark" 
+                resolvedTheme === "dark" 
                   ? "border-gray-600 text-gray-300 disabled:text-gray-600" 
                   : "border-gray-300 text-gray-700 disabled:text-gray-400"
               }`}
@@ -582,7 +582,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
                     className={`w-10 h-10 p-0 ${
                       currentPage === pageNum 
                         ? "bg-blue-500 text-white" 
-                        : theme === "dark" 
+                        : resolvedTheme === "dark" 
                           ? "border-gray-600 text-gray-300" 
                           : "border-gray-300 text-gray-700"
                     }`}
@@ -599,7 +599,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
               className={`${
-                theme === "dark" 
+                resolvedTheme === "dark" 
                   ? "border-gray-600 text-gray-300 disabled:text-gray-600" 
                   : "border-gray-300 text-gray-700 disabled:text-gray-400"
               }`}

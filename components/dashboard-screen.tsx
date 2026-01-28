@@ -30,6 +30,7 @@ import { transactionsService } from "@/lib/transactions"
 import { rechargeService } from "@/lib/recharge"
 import { transfersService } from "@/lib/transfers"
 import { autoRechargeService } from "@/lib/auto-recharge"
+import { formatAmount } from "@/lib/utils"
 import { TransactionDetailsModal } from "@/components/transaction-details-modal"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -89,7 +90,7 @@ export function DashboardScreen({
   })
   const containerRef = useRef<HTMLDivElement>(null)
   
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { user, accountData, transactions, refreshTransactions, refreshAccountData, refreshRecharges } = useAuth()
   const { toast } = useToast()
@@ -347,7 +348,7 @@ export function DashboardScreen({
 
   // Helper function to format transaction amount
   const formatTransactionAmount = (amount: string, type: string) => {
-    const formattedAmount = parseFloat(amount).toLocaleString()
+    const formattedAmount = formatAmount(amount, { maximumFractionDigits: 0 })
     return type === "deposit" ? `+${formattedAmount}` : `-${formattedAmount}`
   }
 
@@ -440,7 +441,7 @@ export function DashboardScreen({
     <div
       ref={containerRef}
       className={`min-h-screen transition-colors duration-300 ${
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
           : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
       }`}
@@ -455,19 +456,19 @@ export function DashboardScreen({
       {/* Pull-to-refresh indicator */}
       {(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
         <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${
-          theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+          resolvedTheme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
         }`}>
           <RefreshCw className={`w-5 h-5 ${
             pullToRefreshState.isRefreshing ? 'animate-spin' : ''
-          } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
+          } ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
         </div>
       )}
       {/* Header */}
       <div className="px-4 pt-16 pb-8 safe-area-inset-top">
         <div className="flex items-center justify-between mb-6">
           <div className="space-y-2">
-            <h1 className={`text-2xl font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-600"}`}>{t("dashboard.greeting")}</h1>
-            <p className={`text-4xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+            <h1 className={`text-2xl font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-600"}`}>{t("dashboard.greeting")}</h1>
+            <p className={`text-4xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
               {user ? `${user.first_name} ${user.last_name}` : t("dashboard.userName")}
             </p>
           </div>
@@ -475,7 +476,7 @@ export function DashboardScreen({
             <Button
               variant="ghost"
               size="sm"
-              className={`h-10 w-10 p-0 rounded-full ${theme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"}`}
+              className={`h-10 w-10 p-0 rounded-full ${resolvedTheme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"}`}
               onClick={onNavigateToNotifications}
               title={t("dashboard.notifications")}
             >
@@ -484,7 +485,7 @@ export function DashboardScreen({
             <Button
               variant="ghost"
               size="sm"
-              className={`h-10 w-10 p-0 rounded-full ${theme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"}`}
+              className={`h-10 w-10 p-0 rounded-full ${resolvedTheme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"}`}
               onClick={onNavigateToSettings}
               title={t("dashboard.settings")}
             >
@@ -497,7 +498,7 @@ export function DashboardScreen({
         <div className="relative">
           {/* Background Gradient */}
           <div className={`absolute inset-0 rounded-3xl transition-all duration-500 ${
-            theme === "dark" 
+            resolvedTheme === "dark" 
               ? "bg-gradient-to-br from-gray-800/80 via-gray-900/60 to-gray-800/80" 
               : "bg-gradient-to-br from-blue-50/80 via-white/60 to-purple-50/80"
           } backdrop-blur-xl`}></div>
@@ -505,12 +506,12 @@ export function DashboardScreen({
           {/* Decorative Elements */}
           <div className="absolute top-0 right-0 w-32 h-32 opacity-20">
             <div className={`w-full h-full rounded-full blur-3xl ${
-              theme === "dark" ? "bg-blue-500/30" : "bg-blue-400/20"
+              resolvedTheme === "dark" ? "bg-blue-500/30" : "bg-blue-400/20"
             }`}></div>
           </div>
           <div className="absolute bottom-0 left-0 w-24 h-24 opacity-15">
             <div className={`w-full h-full rounded-full blur-2xl ${
-              theme === "dark" ? "bg-purple-500/30" : "bg-purple-400/20"
+              resolvedTheme === "dark" ? "bg-purple-500/30" : "bg-purple-400/20"
             }`}></div>
           </div>
           
@@ -518,7 +519,7 @@ export function DashboardScreen({
           <div className="relative z-10 p-8">
             <div className="flex items-center justify-between mb-4">
               <p className={`text-base font-semibold tracking-wide uppercase ${
-                theme === "dark" ? "text-gray-400" : "text-gray-500"
+                resolvedTheme === "dark" ? "text-gray-400" : "text-gray-500"
               }`}>
                 {t("dashboard.totalBalance")}
               </p>
@@ -526,7 +527,7 @@ export function DashboardScreen({
                 variant="ghost"
                 size="sm"
                 className={`h-10 w-10 p-0 rounded-2xl transition-all duration-300 ${
-                  theme === "dark" 
+                  resolvedTheme === "dark" 
                     ? "hover:bg-gray-700/50 text-gray-300 hover:text-white" 
                     : "hover:bg-gray-100/50 text-gray-600 hover:text-gray-900"
                 } hover:scale-110`}
@@ -538,7 +539,7 @@ export function DashboardScreen({
             
             <div className="mb-8">
               <p className={`text-5xl font-black tracking-tight mb-3 ${
-                theme === "dark" ? "text-white" : "text-gray-900"
+                resolvedTheme === "dark" ? "text-white" : "text-gray-900"
               }`}>
                 {showBalance ? (accountData?.formatted_balance || "••••••") : "••••••"}
               </p>
@@ -555,7 +556,7 @@ export function DashboardScreen({
                     size="sm"
                     onClick={() => setShowRechargeModal(true)}
                     className={`h-8 px-3 text-xs font-medium rounded-full transition-all duration-300 ${
-                      theme === "dark"
+                      resolvedTheme === "dark"
                         ? "bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 hover:text-purple-200"
                         : "bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 hover:text-purple-700"
                     } hover:scale-105 active:scale-95`}
@@ -577,7 +578,7 @@ export function DashboardScreen({
           <Button
             onClick={onNavigateToDeposit}
             className={`group relative h-32 flex-col gap-4 border-0 overflow-hidden transition-all duration-500 ease-out ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "bg-transparent hover:bg-blue-500/10 text-white" 
                 : "bg-transparent hover:bg-blue-500/10 text-gray-900"
             } hover:scale-[1.03] active:scale-[0.97]`}
@@ -606,7 +607,7 @@ export function DashboardScreen({
           <Button
             onClick={onNavigateToWithdraw}
             className={`group relative h-32 flex-col gap-4 border-0 overflow-hidden transition-all duration-500 ease-out ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "bg-transparent hover:bg-green-500/10 text-white" 
                 : "bg-transparent hover:bg-green-500/10 text-gray-900"
             } hover:scale-[1.03] active:scale-[0.97]`}
@@ -636,12 +637,12 @@ export function DashboardScreen({
       <div className="px-3 sm:px-4 pb-6 sm:pb-8 safe-area-inset-bottom">
         <Card
           className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
           }`}
         >
           <CardHeader className="pb-3 sm:pb-4 px-3 sm:px-6 pt-4 sm:pt-6">
             <div className="flex items-center justify-between gap-2">
-              <CardTitle className={`text-xl sm:text-2xl font-bold truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+              <CardTitle className={`text-xl sm:text-2xl font-bold truncate ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                 {t("dashboard.recentTransactions")}
               </CardTitle>
               <div className="flex items-center gap-1.5 sm:gap-2 relative flex-shrink-0">
@@ -649,7 +650,7 @@ export function DashboardScreen({
                   variant="ghost"
                   size="sm"
                   className={`h-10 w-10 sm:h-8 sm:w-8 p-0 rounded-full transition-all duration-300 active:scale-95 touch-manipulation ${
-                    theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-600"
+                    resolvedTheme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-600"
                   }`}
                   onClick={handleRefreshTransactions}
                   disabled={isRefreshing}
@@ -662,7 +663,7 @@ export function DashboardScreen({
                       variant="ghost"
                       size="sm"
                       className={`h-10 w-10 sm:h-8 sm:w-8 p-0 rounded-full transition-all duration-300 active:scale-95 touch-manipulation ${
-                        theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-600"
+                        resolvedTheme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-600"
                       }`}
                       onClick={() => setShowDropdown(!showDropdown)}
                     >
@@ -670,14 +671,14 @@ export function DashboardScreen({
                     </Button>
                     {showDropdown && (
                       <div className={`absolute right-0 top-12 sm:top-10 z-50 w-[calc(100vw-2rem)] sm:w-64 max-w-[280px] sm:max-w-none rounded-xl sm:rounded-2xl shadow-2xl backdrop-blur-xl ${
-                        theme === "dark" ? "bg-gray-800/95 border border-gray-700" : "bg-white/95 border border-gray-200"
+                        resolvedTheme === "dark" ? "bg-gray-800/95 border border-gray-700" : "bg-white/95 border border-gray-200"
                       } overflow-hidden`}>
                         <div className="p-1.5 sm:p-2">
                           {onNavigateToTransactionHistory && (
                             <Button
                               variant="ghost"
                               className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${
-                                theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
+                                resolvedTheme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
                               }`}
                               onClick={() => {
                                 onNavigateToTransactionHistory()
@@ -692,7 +693,7 @@ export function DashboardScreen({
                             <Button
                               variant="ghost"
                               className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${
-                                theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
+                                resolvedTheme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
                               }`}
                               onClick={() => {
                                 onNavigateToAccountHistory()
@@ -707,7 +708,7 @@ export function DashboardScreen({
                             <Button
                               variant="ghost"
                               className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${
-                                theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
+                                resolvedTheme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
                               }`}
                               onClick={() => {
                                 onNavigateToRechargeHistory()
@@ -722,7 +723,7 @@ export function DashboardScreen({
                             <Button
                               variant="ghost"
                               className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${
-                                theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
+                                resolvedTheme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
                               }`}
                               onClick={() => {
                                 onNavigateToTransferHistory()
@@ -737,7 +738,7 @@ export function DashboardScreen({
                             <Button
                               variant="ghost"
                               className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${
-                                theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
+                                resolvedTheme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
                               }`}
                               onClick={() => {
                                 onNavigateToBettingTransactions()
@@ -752,7 +753,7 @@ export function DashboardScreen({
                             <Button
                               variant="ghost"
                               className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${
-                                theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
+                                resolvedTheme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
                               }`}
                               onClick={() => {
                                 onNavigateToAutoRechargeTransactions()
@@ -785,10 +786,10 @@ export function DashboardScreen({
                     key={item.uid || item.reference || index}
                     onClick={() => handleItemClick(item)}
                     className={`flex items-center justify-between py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl transition-all duration-300 cursor-pointer active:scale-[0.99] touch-manipulation ${
-                      theme === "dark" ? "hover:bg-gray-700/30 active:bg-gray-700/40" : "hover:bg-gray-100/30 active:bg-gray-100/40"
+                      resolvedTheme === "dark" ? "hover:bg-gray-700/30 active:bg-gray-700/40" : "hover:bg-gray-100/30 active:bg-gray-100/40"
                     } ${
                       index !== recentHistory.length - 1
-                        ? theme === "dark"
+                        ? resolvedTheme === "dark"
                           ? "border-b border-gray-700/50"
                           : "border-b border-gray-200/50"
                         : ""
@@ -801,7 +802,7 @@ export function DashboardScreen({
                             ? "bg-gradient-to-br from-green-500/20 to-green-500/10 text-green-500"
                             : item.historyType === 'transfer'
                             ? "bg-gradient-to-br from-blue-500/20 to-blue-500/10 text-blue-500"
-                            : theme === "dark"
+                            : resolvedTheme === "dark"
                               ? "bg-gradient-to-br from-gray-700 to-gray-600 text-gray-300"
                               : "bg-gradient-to-br from-gray-200 to-gray-100 text-gray-600"
                         }`}
@@ -810,14 +811,14 @@ export function DashboardScreen({
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2 flex-wrap">
-                          <p className={`font-semibold text-base sm:text-lg truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                          <p className={`font-semibold text-base sm:text-lg truncate ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                             {getRecipientName(item)}
                           </p>
                           <Badge variant="secondary" className="text-xs sm:text-sm px-2 sm:px-3 py-1 flex-shrink-0">
                             {getTypeBadge(item)}
                           </Badge>
                         </div>
-                        <p className={`text-sm sm:text-base truncate ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        <p className={`text-sm sm:text-base truncate ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                           {formatTransactionDate(item.created_at)}
                         </p>
                         <div className="flex items-center gap-2 sm:gap-3 flex-wrap mt-1">
@@ -834,7 +835,7 @@ export function DashboardScreen({
                                   copyReference(item.reference)
                                 }}
                                 className={`h-7 w-7 sm:h-6 sm:w-6 p-1.5 sm:p-1 rounded transition-all duration-200 active:scale-95 touch-manipulation flex-shrink-0 ${
-                                  theme === "dark" 
+                                  resolvedTheme === "dark" 
                                     ? "hover:bg-gray-600/50 active:bg-gray-600/70 text-gray-400 hover:text-gray-300" 
                                     : "hover:bg-gray-200/50 active:bg-gray-300/70 text-gray-500 hover:text-gray-700"
                                 }`}
@@ -855,7 +856,7 @@ export function DashboardScreen({
                             ? "text-green-500"
                             : item.historyType === 'transfer'
                             ? "text-blue-500"
-                            : theme === "dark"
+                            : resolvedTheme === "dark"
                               ? "text-white"
                               : "text-gray-900"
                         }`}
@@ -864,27 +865,27 @@ export function DashboardScreen({
                           {item.historyType === 'transaction'
                             ? formatTransactionAmount(item.amount, item.type)
                             : item.historyType === 'betting'
-                            ? `${item.transaction_type === 'deposit' ? '+' : '-'}${parseFloat(item.amount).toLocaleString()}`
+                            ? `${item.transaction_type === 'deposit' ? '+' : '-'}${formatAmount(item.amount, { maximumFractionDigits: 0 })}`
                             : item.historyType === 'recharge'
-                            ? `+${parseFloat(amount).toLocaleString()}`
+                            ? `+${formatAmount(amount, { maximumFractionDigits: 0 })}`
                             : item.historyType === 'auto-recharge'
-                            ? item.formatted_amount ? `+${item.formatted_amount}` : `+${parseFloat(amount).toLocaleString()}`
+                            ? item.formatted_amount ? `+${item.formatted_amount}` : `+${formatAmount(amount, { maximumFractionDigits: 0 })}`
                             : item.historyType === 'transfer'
-                            ? `-${parseFloat(amount).toLocaleString()}`
-                            : parseFloat(amount).toLocaleString()}{' '}FCFA
+                            ? `-${formatAmount(amount, { maximumFractionDigits: 0 })}`
+                            : formatAmount(amount, { maximumFractionDigits: 0 })}{' '}FCFA
                         </span>
                         <span className="sm:hidden">
                           {item.historyType === 'transaction'
                             ? formatTransactionAmount(item.amount, item.type)
                             : item.historyType === 'betting'
-                            ? `${item.transaction_type === 'deposit' ? '+' : '-'}${parseFloat(item.amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
+                            ? `${item.transaction_type === 'deposit' ? '+' : '-'}${formatAmount(item.amount, { maximumFractionDigits: 0 })}`
                             : item.historyType === 'recharge'
-                            ? `+${parseFloat(amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
+                            ? `+${formatAmount(amount, { maximumFractionDigits: 0 })}`
                             : item.historyType === 'auto-recharge'
-                            ? item.formatted_amount ? `+${item.formatted_amount}` : `+${parseFloat(amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
+                            ? item.formatted_amount ? `+${item.formatted_amount}` : `+${formatAmount(amount, { maximumFractionDigits: 0 })}`
                             : item.historyType === 'transfer'
-                            ? `-${parseFloat(amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
-                            : parseFloat(amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}{' '}FCFA
+                            ? `-${formatAmount(amount, { maximumFractionDigits: 0 })}`
+                            : formatAmount(amount, { maximumFractionDigits: 0 })}{' '}FCFA
                         </span>
                       </p>
                       <div className={`w-2 h-2 rounded-full ml-auto mt-1.5 sm:mt-2 ${
@@ -902,7 +903,7 @@ export function DashboardScreen({
               })
             ) : (
               <div className="text-center py-10 sm:py-12">
-                <p className={`text-base sm:text-lg ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                <p className={`text-base sm:text-lg ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   {t("dashboard.noTransactions")}
                 </p>
               </div>
@@ -921,18 +922,18 @@ export function DashboardScreen({
       {/* Recharge Options Modal */}
       <Dialog open={showRechargeModal} onOpenChange={setShowRechargeModal}>
         <DialogContent className={`max-w-md mx-auto ${
-          theme === "dark" 
+          resolvedTheme === "dark" 
             ? "bg-gray-800 border-gray-700" 
             : "bg-white border-gray-200"
         }`}>
           <DialogHeader>
             <DialogTitle className={`text-xl font-bold text-center ${
-              theme === "dark" ? "text-white" : "text-gray-900"
+              resolvedTheme === "dark" ? "text-white" : "text-gray-900"
             }`}>
               {t("dashboard.rechargeOptions") || "Recharge Options"}
             </DialogTitle>
             <DialogDescription className={`text-sm text-center ${
-              theme === "dark" ? "text-gray-400" : "text-gray-600"
+              resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"
             }`}>
               {t("dashboard.rechargeOptionsDesc") || "Choose your recharge method"}
             </DialogDescription>
@@ -946,7 +947,7 @@ export function DashboardScreen({
                   setShowRechargeModal(false)
                 }}
                 className={`w-full h-14 text-base font-semibold transition-all duration-300 ${
-                  theme === "dark"
+                  resolvedTheme === "dark"
                     ? "bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30"
                     : "bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 border border-purple-500/20"
                 } hover:scale-[1.02] active:scale-[0.98]`}
@@ -963,7 +964,7 @@ export function DashboardScreen({
                   setShowRechargeModal(false)
                 }}
                 className={`w-full h-14 text-base font-semibold transition-all duration-300 ${
-                  theme === "dark"
+                  resolvedTheme === "dark"
                     ? "bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30"
                     : "bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 border border-indigo-500/20"
                 } hover:scale-[1.02] active:scale-[0.98]`}

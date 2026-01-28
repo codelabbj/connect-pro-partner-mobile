@@ -52,7 +52,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
     confirm: false
   })
   
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { user, refreshToken } = useAuth()
 
@@ -219,11 +219,11 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
   if (isLoading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${
-        theme === "dark" ? "bg-gray-900" : "bg-gray-50"
+        resolvedTheme === "dark" ? "bg-gray-900" : "bg-gray-50"
       }`}>
         <div className="text-center">
           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+          <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
             {t("profile.loading")}
           </p>
         </div>
@@ -234,7 +234,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
   return (
     <div
       className={`min-h-screen transition-colors duration-300 ${
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
           : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
       }`}
@@ -246,7 +246,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
             variant="ghost"
             size="sm"
             className={`h-11 w-11 p-0 rounded-full ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "text-gray-300 hover:bg-gray-700/50" 
                 : "text-gray-600 hover:bg-gray-100/50"
             }`}
@@ -255,10 +255,10 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+            <h1 className={`text-2xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
               {t("profile.title")}
             </h1>
-            <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+            <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
               {t("profile.subtitle")}
             </p>
           </div>
@@ -267,7 +267,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
         {/* Profile Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className={`grid w-full grid-cols-2 ${
-            theme === "dark" ? "bg-gray-800" : "bg-white"
+            resolvedTheme === "dark" ? "bg-gray-800" : "bg-white"
           }`}>
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="w-4 h-4" />
@@ -284,7 +284,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
             {/* Error Message */}
             {error && (
               <div className={`flex items-center gap-2 p-3 rounded-lg ${
-                theme === "dark" ? "bg-red-900/20 border border-red-800" : "bg-red-50 border border-red-200"
+                resolvedTheme === "dark" ? "bg-red-900/20 border border-red-800" : "bg-red-50 border border-red-200"
               }`}>
                 <AlertCircle className="w-4 h-4 text-red-500" />
                 <span className="text-sm text-red-600">{error}</span>
@@ -294,7 +294,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
             {/* Success Message */}
             {success && (
               <div className={`flex items-center gap-2 p-3 rounded-lg ${
-                theme === "dark" ? "bg-green-900/20 border border-green-800" : "bg-green-50 border border-green-200"
+                resolvedTheme === "dark" ? "bg-green-900/20 border border-green-800" : "bg-green-50 border border-green-200"
               }`}>
                 <CheckCircle className="w-4 h-4 text-green-500" />
                 <span className="text-sm text-green-600">{success}</span>
@@ -305,7 +305,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
             <div className="space-y-6">
               {/* Email */}
               <div className="space-y-2">
-                <Label htmlFor="email" className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                <Label htmlFor="email" className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                   {t("profile.fields.email")}
                 </Label>
                 <div className="relative">
@@ -316,7 +316,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className={`pl-10 h-12 ${
-                      theme === "dark" 
+                      resolvedTheme === "dark" 
                         ? "bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400" 
                         : "bg-gray-50/50 border-gray-200 text-gray-900 placeholder:text-gray-500"
                     }`}
@@ -326,7 +326,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
 
               {/* Phone */}
               <div className="space-y-2">
-                <Label htmlFor="phone" className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                <Label htmlFor="phone" className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                   {t("profile.fields.phone")}
                 </Label>
                 <div className="relative">
@@ -337,7 +337,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className={`pl-10 h-12 ${
-                      theme === "dark" 
+                      resolvedTheme === "dark" 
                         ? "bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400" 
                         : "bg-gray-50/50 border-gray-200 text-gray-900 placeholder:text-gray-500"
                     }`}
@@ -347,7 +347,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
 
               {/* First Name */}
               <div className="space-y-2">
-                <Label htmlFor="firstName" className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                <Label htmlFor="firstName" className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                   {t("profile.fields.firstName")}
                 </Label>
                 <Input
@@ -356,7 +356,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   className={`h-12 ${
-                    theme === "dark" 
+                    resolvedTheme === "dark" 
                       ? "bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400" 
                       : "bg-gray-50/50 border-gray-200 text-gray-900 placeholder:text-gray-500"
                   }`}
@@ -365,7 +365,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
 
               {/* Last Name */}
               <div className="space-y-2">
-                <Label htmlFor="lastName" className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                <Label htmlFor="lastName" className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                   {t("profile.fields.lastName")}
                 </Label>
                 <Input
@@ -374,7 +374,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   className={`h-12 ${
-                    theme === "dark" 
+                    resolvedTheme === "dark" 
                       ? "bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400" 
                       : "bg-gray-50/50 border-gray-200 text-gray-900 placeholder:text-gray-500"
                   }`}
@@ -383,7 +383,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
 
               {/* Contact Method */}
               <div className="space-y-2">
-                <Label className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                <Label className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                   {t("profile.fields.contactMethod")}
                 </Label>
                 <div className="grid grid-cols-2 gap-2">
@@ -393,7 +393,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
                     className={`h-10 ${
                       contactMethod === "email"
                         ? "bg-blue-500 text-white"
-                        : theme === "dark"
+                        : resolvedTheme === "dark"
                           ? "border-gray-600 text-gray-300"
                           : "border-gray-200 text-gray-600"
                     }`}
@@ -406,7 +406,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
                     className={`h-10 ${
                       contactMethod === "phone"
                         ? "bg-blue-500 text-white"
-                        : theme === "dark"
+                        : resolvedTheme === "dark"
                           ? "border-gray-600 text-gray-300"
                           : "border-gray-200 text-gray-600"
                     }`}
@@ -446,7 +446,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
             {/* Error Message */}
             {error && (
               <div className={`flex items-center gap-2 p-3 rounded-lg ${
-                theme === "dark" ? "bg-red-900/20 border border-red-800" : "bg-red-50 border border-red-200"
+                resolvedTheme === "dark" ? "bg-red-900/20 border border-red-800" : "bg-red-50 border border-red-200"
               }`}>
                 <AlertCircle className="w-4 h-4 text-red-500" />
                 <span className="text-sm text-red-600">{error}</span>
@@ -456,7 +456,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
             {/* Success Message */}
             {success && (
               <div className={`flex items-center gap-2 p-3 rounded-lg ${
-                theme === "dark" ? "bg-green-900/20 border border-green-800" : "bg-green-50 border border-green-200"
+                resolvedTheme === "dark" ? "bg-green-900/20 border border-green-800" : "bg-green-50 border border-green-200"
               }`}>
                 <CheckCircle className="w-4 h-4 text-green-500" />
                 <span className="text-sm text-green-600">{success}</span>
@@ -467,7 +467,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
             <div className="space-y-6">
               {/* Old Password */}
               <div className="space-y-2">
-                <Label htmlFor="oldPassword" className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                <Label htmlFor="oldPassword" className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                   {t("profile.fields.currentPassword")}
                 </Label>
                 <div className="relative">
@@ -477,7 +477,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
                     value={oldPassword}
                     onChange={(e) => setOldPassword(e.target.value)}
                     className={`pr-10 h-12 ${
-                      theme === "dark" 
+                      resolvedTheme === "dark" 
                         ? "bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400" 
                         : "bg-gray-50/50 border-gray-200 text-gray-900 placeholder:text-gray-500"
                     }`}
@@ -494,7 +494,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
 
               {/* New Password */}
               <div className="space-y-2">
-                <Label htmlFor="newPassword" className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                <Label htmlFor="newPassword" className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                   {t("profile.fields.newPassword")}
                 </Label>
                 <div className="relative">
@@ -504,7 +504,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     className={`pr-10 h-12 ${
-                      theme === "dark" 
+                      resolvedTheme === "dark" 
                         ? "bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400" 
                         : "bg-gray-50/50 border-gray-200 text-gray-900 placeholder:text-gray-500"
                     }`}
@@ -521,7 +521,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
 
               {/* Confirm Password */}
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className={`text-sm font-medium ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                <Label htmlFor="confirmPassword" className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                   {t("profile.fields.confirmPassword")}
                 </Label>
                 <div className="relative">
@@ -531,7 +531,7 @@ export function ProfileScreen({ onNavigateBack }: ProfileScreenProps) {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className={`pr-10 h-12 ${
-                      theme === "dark" 
+                      resolvedTheme === "dark" 
                         ? "bg-gray-700/50 border-gray-600 text-white placeholder:text-gray-400" 
                         : "bg-gray-50/50 border-gray-200 text-gray-900 placeholder:text-gray-500"
                     }`}

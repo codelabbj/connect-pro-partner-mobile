@@ -41,7 +41,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
   const [submitting, setSubmitting] = useState(false)
   const [showCode, setShowCode] = useState(false)
   
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { toast } = useToast()
   const { refreshAccountData, refreshTransactions } = useAuth()
@@ -215,7 +215,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
   if (loading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+        resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
       }`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -228,7 +228,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
   if (!platform) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+        resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
       }`}>
         <div className="text-center">
           <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
@@ -242,7 +242,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
-      theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+      resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
     }`}>
       {/* Header */}
       <div className="px-4 pt-16 pb-6 safe-area-inset-top">
@@ -251,7 +251,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
             variant="ghost"
             size="sm"
             className={`h-12 w-12 p-0 rounded-full ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "text-gray-300 hover:bg-gray-700/50" 
                 : "text-gray-600 hover:bg-gray-100/50"
             }`}
@@ -260,10 +260,10 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
             <ArrowLeft className="w-6 h-6" />
           </Button>
           <div>
-            <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+            <h1 className={`text-2xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
               {t("betting.withdraw.title", { name: platform.name })}
             </h1>
-            <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+            <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
               {t("betting.withdraw.subtitle")}
             </p>
           </div>
@@ -271,7 +271,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
 
         {/* Platform Info */}
         <Card className={`border-0 shadow-lg mb-6 ${
-          theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+          resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
         }`}>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -283,21 +283,21 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
                 )}
               </div>
               <div className="flex-1">
-                <h3 className={`font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                <h3 className={`font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                   {platform.name}
                 </h3>
-                <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   {t("betting.withdraw.platformInfo", { min: formatCurrency(platform.min_withdrawal_amount), max: formatCurrency(platform.max_withdrawal_amount) })}
                 </p>
                 {(platform.city || platform.street) && (
                   <div className="flex flex-wrap gap-2 mt-1">
                     {platform.city && (
-                      <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                      <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                         {t("betting.platforms.address.city", { city: platform.city })}
                       </span>
                     )}
                     {platform.street && (
-                      <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                      <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                         {t("betting.platforms.address.street", { street: platform.street })}
                       </span>
                     )}
@@ -312,10 +312,10 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
       {/* Form */}
       <div className="px-4">
         <Card className={`border-0 shadow-lg ${
-          theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+          resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
         }`}>
           <CardHeader className="pb-3">
-            <CardTitle className={`text-lg ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+            <CardTitle className={`text-lg ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
               Withdrawal Details
             </CardTitle>
           </CardHeader>
@@ -323,7 +323,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
             {/* Betting User ID */}
             <div className="space-y-2">
               <Label htmlFor="userId" className={`text-sm font-medium ${
-                theme === "dark" ? "text-gray-300" : "text-gray-700"
+                resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"
               }`}>
                 {t("betting.withdraw.userIdLabel")}
               </Label>
@@ -335,7 +335,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
                   value={bettingUserId}
                   onChange={(e) => setBettingUserId(e.target.value)}
                   className={`flex-1 h-12 text-base ${
-                    theme === "dark" 
+                    resolvedTheme === "dark" 
                       ? "bg-gray-700 border-gray-600 text-white" 
                       : "bg-white border-gray-200 text-gray-900"
                   }`}
@@ -357,7 +357,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
             {/* User Verification Status */}
             {verifiedUser && (
               <Alert className={`${
-                theme === "dark" ? "bg-green-500/10 border-green-500/20" : "bg-green-50 border-green-200"
+                resolvedTheme === "dark" ? "bg-green-500/10 border-green-500/20" : "bg-green-50 border-green-200"
               }`}>
                 <CheckCircle className="h-4 w-4 text-green-500" />
                 <AlertDescription className="text-green-700 dark:text-green-300">
@@ -369,7 +369,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
             {/* Withdrawal Code */}
             <div className="space-y-2">
               <Label htmlFor="withdrawalCode" className={`text-sm font-medium ${
-                theme === "dark" ? "text-gray-300" : "text-gray-700"
+                resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"
               }`}>
                 {t("betting.withdraw.withdrawalCodeLabel")}
               </Label>
@@ -381,7 +381,7 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
                   value={withdrawalCode}
                   onChange={(e) => setWithdrawalCode(e.target.value)}
                   className={`pr-12 h-12 text-base ${
-                    theme === "dark" 
+                    resolvedTheme === "dark" 
                       ? "bg-gray-700 border-gray-600 text-white" 
                       : "bg-white border-gray-200 text-gray-900"
                   }`}
@@ -395,14 +395,14 @@ export function BettingWithdrawalScreen({ platformUid, onNavigateBack }: Betting
                   {showCode ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </Button>
               </div>
-              <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 {t("betting.withdraw.withdrawalCodeHint")}
               </p>
             </div>
 
             {/* Important Notice */}
             <Alert className={`${
-              theme === "dark" ? "bg-yellow-500/10 border-yellow-500/20" : "bg-yellow-50 border-yellow-200"
+              resolvedTheme === "dark" ? "bg-yellow-500/10 border-yellow-500/20" : "bg-yellow-50 border-yellow-200"
             }`}>
               <AlertCircle className="h-4 w-4 text-yellow-500" />
               <AlertDescription className="text-yellow-700 dark:text-yellow-300">
