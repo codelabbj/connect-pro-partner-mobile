@@ -47,7 +47,7 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
   const [activeTab, setActiveTab] = useState<"all" | "deposits" | "withdrawals">("all")
   const [detailsOpen, setDetailsOpen] = useState(false)
   const [selectedTransaction, setSelectedTransaction] = useState<BettingTransaction | null>(null)
-  
+
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { toast } = useToast()
@@ -58,7 +58,7 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
       const params: any = {
         ordering: "-created_at"
       }
-      
+
       if (statusFilter && statusFilter !== "all") params.status = statusFilter
       if (typeFilter && typeFilter !== "all") params.transaction_type = typeFilter
       if (platformFilter && platformFilter !== "all") params.platform = platformFilter
@@ -100,7 +100,7 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
   // Filter transactions based on search and tab
   const getFilteredTransactions = () => {
     if (!transactionsData) return []
-    
+
     let transactions = transactionsData.results
 
     // Filter by tab
@@ -132,10 +132,10 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
     const date = new Date(dateString)
     const now = new Date()
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
-    
+
     if (diffInHours < 1) return t("dashboard.transactions.time.justNow")
     if (diffInHours < 24) return t("dashboard.transactions.time.hours", { count: diffInHours })
-      const diffInDays = Math.floor(diffInHours / 24)
+    const diffInDays = Math.floor(diffInHours / 24)
     return t("dashboard.transactions.time.days", { count: diffInDays })
   }
 
@@ -207,9 +207,8 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
 
   if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
-      }`}>
+      <div className={`min-h-screen flex items-center justify-center ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+        }`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-sm opacity-70">{t("betting.transactions.loading")}</p>
@@ -219,9 +218,8 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
   }
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${
-      theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
-    }`}>
+    <div className={`min-h-screen transition-colors duration-300 ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+      }`}>
       {/* Header */}
       <div className="px-4 pt-12 pb-6 safe-area-inset-top">
         <div className="flex items-center justify-between mb-6">
@@ -229,11 +227,10 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
             <Button
               variant="ghost"
               size="sm"
-              className={`h-10 w-10 p-0 rounded-full ${
-                theme === "dark" 
-                  ? "text-gray-300 hover:bg-gray-700/50" 
+              className={`h-10 w-10 p-0 rounded-full ${theme === "dark"
+                  ? "text-gray-300 hover:bg-gray-700/50"
                   : "text-gray-600 hover:bg-gray-100/50"
-              }`}
+                }`}
               onClick={onNavigateBack}
             >
               <ArrowLeft className="w-5 h-5" />
@@ -250,11 +247,10 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
           <Button
             variant="ghost"
             size="sm"
-            className={`h-10 w-10 p-0 rounded-full ${
-              theme === "dark" 
-                ? "text-gray-300 hover:bg-gray-700/50" 
+            className={`h-10 w-10 p-0 rounded-full ${theme === "dark"
+                ? "text-gray-300 hover:bg-gray-700/50"
                 : "text-gray-600 hover:bg-gray-100/50"
-            }`}
+              }`}
             onClick={handleRefresh}
             disabled={refreshing}
           >
@@ -265,9 +261,8 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
         {/* Summary Cards */}
         {transactionsData && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
-            <Card className={`border-0 shadow-lg ${
-              theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
-            }`}>
+            <Card className={`border-0 shadow-lg ${theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+              }`}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
@@ -285,9 +280,8 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
               </CardContent>
             </Card>
 
-            <Card className={`border-0 shadow-lg ${
-              theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
-            }`}>
+            <Card className={`border-0 shadow-lg ${theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+              }`}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
@@ -310,28 +304,25 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
         {/* Search and Filters */}
         <div className="space-y-3 mb-6">
           <div className="relative">
-            <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${
-              theme === "dark" ? "text-gray-400" : "text-gray-500"
-            }`} />
+            <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${theme === "dark" ? "text-gray-400" : "text-gray-500"
+              }`} />
             <Input
               placeholder={t("betting.transactions.searchPlaceholder") as string}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`pl-10 ${
-                theme === "dark" 
-                  ? "bg-gray-800 border-gray-700 text-white" 
+              className={`pl-10 ${theme === "dark"
+                  ? "bg-gray-800 border-gray-700 text-white"
                   : "bg-white border-gray-200 text-gray-900"
-              }`}
+                }`}
             />
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className={`${
-                theme === "dark" 
-                  ? "bg-gray-800 border-gray-700 text-white" 
+              <SelectTrigger className={`${theme === "dark"
+                  ? "bg-gray-800 border-gray-700 text-white"
                   : "bg-white border-gray-200 text-gray-900"
-              }`}>
+                }`}>
                 <SelectValue placeholder={t("betting.transactions.filters.statusPlaceholder") as string} />
               </SelectTrigger>
               <SelectContent>
@@ -344,11 +335,10 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
             </Select>
 
             <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger className={`${
-                theme === "dark" 
-                  ? "bg-gray-800 border-gray-700 text-white" 
+              <SelectTrigger className={`${theme === "dark"
+                  ? "bg-gray-800 border-gray-700 text-white"
                   : "bg-white border-gray-200 text-gray-900"
-              }`}>
+                }`}>
                 <SelectValue placeholder={t("betting.transactions.filters.typePlaceholder") as string} />
               </SelectTrigger>
               <SelectContent>
@@ -359,11 +349,10 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
             </Select>
 
             <Select value={platformFilter} onValueChange={setPlatformFilter}>
-              <SelectTrigger className={`${
-                theme === "dark" 
-                  ? "bg-gray-800 border-gray-700 text-white" 
+              <SelectTrigger className={`${theme === "dark"
+                  ? "bg-gray-800 border-gray-700 text-white"
                   : "bg-white border-gray-200 text-gray-900"
-              }`}>
+                }`}>
                 <SelectValue placeholder={t("betting.transactions.filters.platformPlaceholder") as string} />
               </SelectTrigger>
               <SelectContent>
@@ -380,9 +369,8 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
       {/* Tabs */}
       <div className="px-4">
         <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
-          <TabsList className={`${
-            theme === "dark" ? "bg-gray-800" : "bg-gray-100"
-          } overflow-x-auto flex gap-2 rounded-lg p-1`}>
+          <TabsList className={`${theme === "dark" ? "bg-gray-800" : "bg-gray-100"
+            } overflow-x-auto flex gap-2 rounded-lg p-1`}>
             <TabsTrigger className="whitespace-nowrap flex-shrink-0" value="all">{t("betting.transactions.tabs.all")}</TabsTrigger>
             <TabsTrigger className="whitespace-nowrap flex-shrink-0" value="deposits">{t("betting.transactions.tabs.deposits")}</TabsTrigger>
             <TabsTrigger className="whitespace-nowrap flex-shrink-0" value="withdrawals">{t("betting.transactions.tabs.withdrawals")}</TabsTrigger>
@@ -393,9 +381,8 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
               {getFilteredTransactions().map((transaction) => (
                 <Card
                   key={transaction.uid}
-                  className={`border-0 shadow-lg h-full ${
-                    theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
-                  }`}
+                  className={`border-0 shadow-lg h-full ${theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+                    }`}
                   onClick={() => {
                     setSelectedTransaction(transaction)
                     setDetailsOpen(true)
@@ -406,11 +393,10 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
                   <CardContent className="p-4 sm:p-6 h-full">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                          transaction.transaction_type === "deposit"
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${transaction.transaction_type === "deposit"
                             ? "bg-green-500/20 text-green-500"
                             : "bg-red-500/20 text-red-500"
-                        }`}>
+                          }`}>
                           {transaction.transaction_type === "deposit" ? (
                             <TrendingUp className="w-5 h-5" />
                           ) : (
@@ -422,31 +408,29 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
                             {transaction.platform_name}
                           </h3>
                           <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                          {transaction.transaction_type === "deposit" ? t("betting.transactions.filters.deposit") : t("betting.transactions.filters.withdrawal")}
+                            {transaction.transaction_type === "deposit" ? t("betting.transactions.filters.deposit") : t("betting.transactions.filters.withdrawal")}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className={`text-lg font-bold ${
-                          transaction.transaction_type === "deposit"
+                        <p className={`text-lg font-bold ${transaction.transaction_type === "deposit"
                             ? "text-green-500"
                             : "text-red-500"
-                        }`}>
+                          }`}>
                           {transaction.transaction_type === "deposit" ? "+" : "-"}{formatCurrency(transaction.amount)} FCFA
                         </p>
                         <div className="flex items-center gap-2 mt-1">
                           {getStatusIcon(transaction.status)}
-                          <Badge 
-                            variant="secondary" 
-                            className={`text-xs ${
-                              transaction.status === "success"
+                          <Badge
+                            variant="secondary"
+                            className={`text-xs ${transaction.status === "success"
                                 ? "bg-green-500/20 text-green-500"
                                 : transaction.status === "pending"
-                                ? "bg-yellow-500/20 text-yellow-500"
-                                : transaction.status === "failed"
-                                ? "bg-red-500/20 text-red-500"
-                                : "bg-gray-500/20 text-gray-500"
-                            }`}
+                                  ? "bg-yellow-500/20 text-yellow-500"
+                                  : transaction.status === "failed"
+                                    ? "bg-red-500/20 text-red-500"
+                                    : "bg-gray-500/20 text-gray-500"
+                              }`}
                           >
                             {getStatusText(transaction.status)}
                           </Badge>
@@ -465,11 +449,10 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
                           </span>
                           <button
                             onClick={() => copyReference(transaction.reference)}
-                            className={`p-1 rounded transition-colors duration-200 ${
-                              theme === "dark" 
-                                ? "hover:bg-gray-600/50 text-gray-400 hover:text-gray-300" 
+                            className={`p-1 rounded transition-colors duration-200 ${theme === "dark"
+                                ? "hover:bg-gray-600/50 text-gray-400 hover:text-gray-300"
                                 : "hover:bg-gray-200/50 text-gray-500 hover:text-gray-700"
-                            }`}
+                              }`}
                             title={t("common.copy") as string}
                           >
                             <Copy className="w-3 h-3" />
@@ -558,26 +541,9 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
         open={detailsOpen}
         onOpenChange={(open) => setDetailsOpen(open)}
         transaction={selectedTransaction ? {
+          ...selectedTransaction,
           historyType: "betting",
-          reference: selectedTransaction.reference,
-          amount: selectedTransaction.amount,
-          status: selectedTransaction.status,
-          created_at: selectedTransaction.created_at,
-          betting: {
-            transaction_type: selectedTransaction.transaction_type,
-            betting_user_id: selectedTransaction.betting_user_id,
-            withdrawal_code: selectedTransaction.withdrawal_code,
-            external_transaction_id: selectedTransaction.external_transaction_id,
-            commission_rate: selectedTransaction.commission_rate,
-            commission_amount: selectedTransaction.commission_amount,
-            commission_paid: selectedTransaction.commission_paid,
-            commission_paid_at: selectedTransaction.commission_paid_at,
-            partner_balance_before: selectedTransaction.partner_balance_before,
-            partner_balance_after: selectedTransaction.partner_balance_after,
-            cancellation_requested_at: selectedTransaction.cancellation_requested_at,
-            cancelled_at: selectedTransaction.cancelled_at,
-          },
-        } as any : undefined}
+        } : null}
       />
     </div>
   )
@@ -602,9 +568,9 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
 
 //               <SelectTrigger className={`${
 
-//                 theme === "dark" 
+//                 theme === "dark"
 
-//                   ? "bg-gray-800 border-gray-700 text-white" 
+//                   ? "bg-gray-800 border-gray-700 text-white"
 
 //                   : "bg-white border-gray-200 text-gray-900"
 
@@ -632,9 +598,9 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
 
 //               <SelectTrigger className={`${
 
-//                 theme === "dark" 
+//                 theme === "dark"
 
-//                   ? "bg-gray-800 border-gray-700 text-white" 
+//                   ? "bg-gray-800 border-gray-700 text-white"
 
 //                   : "bg-white border-gray-200 text-gray-900"
 
@@ -772,9 +738,9 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
 
 //                           {getStatusIcon(transaction.status)}
 
-//                           <Badge 
+//                           <Badge
 
-//                             variant="secondary" 
+//                             variant="secondary"
 
 //                             className={`text-xs ${
 
@@ -832,9 +798,9 @@ export function BettingTransactionsScreen({ onNavigateBack }: BettingTransaction
 
 //                             className={`p-1 rounded transition-colors duration-200 ${
 
-//                               theme === "dark" 
+//                               theme === "dark"
 
-//                                 ? "hover:bg-gray-600/50 text-gray-400 hover:text-gray-300" 
+//                                 ? "hover:bg-gray-600/50 text-gray-400 hover:text-gray-300"
 
 //                                 : "hover:bg-gray-200/50 text-gray-500 hover:text-gray-700"
 

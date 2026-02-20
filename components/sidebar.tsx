@@ -19,6 +19,7 @@ import {
   User,
   LogOut,
   Smartphone,
+  Send,
 } from "lucide-react"
 import { useTheme } from "@/lib/contexts"
 import { useTranslation } from "@/lib/contexts"
@@ -63,6 +64,13 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
       id: "recharge",
       label: t("nav.recharge"),
       icon: Zap,
+      color: "text-purple-500",
+      hoverColor: "hover:bg-purple-500/10"
+    },
+    {
+      id: "transfer",
+      label: t("nav.transfer"),
+      icon: Send,
       color: "text-purple-500",
       hoverColor: "hover:bg-purple-500/10"
     },
@@ -128,20 +136,17 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
     <>
       {/* Mobile Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={onToggle}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`fixed left-0 top-0 h-full w-72 z-50 transform transition-transform duration-300 ease-in-out ${
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      } lg:translate-x-0 ${
-        theme === "dark" ? "bg-gray-900" : "bg-white"
-      } border-r ${
-        theme === "dark" ? "border-gray-700" : "border-gray-200"
-      } shadow-xl lg:shadow-none overflow-y-auto flex flex-col`}>
+      <div className={`fixed left-0 top-0 h-full w-72 z-50 transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0 ${theme === "dark" ? "bg-gray-900" : "bg-white"
+        } border-r ${theme === "dark" ? "border-gray-700" : "border-gray-200"
+        } shadow-xl lg:shadow-none overflow-y-auto flex flex-col`}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
@@ -190,20 +195,18 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
             {navigationItems.map((item) => {
               const Icon = item.icon
               const isActive = currentScreen === item.id
-              
+
               return (
                 <Button
                   key={item.id}
                   variant="ghost"
-                  className={`w-full justify-start h-14 px-4 text-base ${
-                    isActive
-                      ? theme === "dark"
-                        ? "bg-gray-800 text-white"
-                        : "bg-gray-100 text-gray-900"
-                      : `${item.hoverColor} ${
-                          theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"
-                        }`
-                  }`}
+                  className={`w-full justify-start h-14 px-4 text-base ${isActive
+                    ? theme === "dark"
+                      ? "bg-gray-800 text-white"
+                      : "bg-gray-100 text-gray-900"
+                    : `${item.hoverColor} ${theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"
+                    }`
+                    }`}
                   onClick={() => {
                     onNavigate(item.id)
                     // Close sidebar on mobile after navigation
@@ -224,11 +227,10 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <Button
             variant="ghost"
-            className={`w-full justify-start h-14 px-4 text-base ${
-              theme === "dark" 
-                ? "text-red-400 hover:bg-red-500/10 hover:text-red-300" 
-                : "text-red-600 hover:bg-red-500/10 hover:text-red-700"
-            }`}
+            className={`w-full justify-start h-14 px-4 text-base ${theme === "dark"
+              ? "text-red-400 hover:bg-red-500/10 hover:text-red-300"
+              : "text-red-600 hover:bg-red-500/10 hover:text-red-700"
+              }`}
             onClick={onLogout}
           >
             <LogOut className="w-6 h-6 mr-4" />
@@ -251,11 +253,10 @@ export function SidebarToggle({ onToggle }: SidebarToggleProps) {
     <Button
       variant="ghost"
       size="sm"
-      className={`lg:hidden h-10 w-10 p-0 rounded-full ${
-        theme === "dark" 
-          ? "text-gray-300 hover:bg-gray-700/50" 
-          : "text-gray-600 hover:bg-gray-100/50"
-      }`}
+      className={`lg:hidden h-10 w-10 p-0 rounded-full ${theme === "dark"
+        ? "text-gray-300 hover:bg-gray-700/50"
+        : "text-gray-600 hover:bg-gray-100/50"
+        }`}
       onClick={onToggle}
     >
       <Menu className="w-5 h-5" />

@@ -2,15 +2,50 @@ import { authService } from './auth'
 import { formatApiErrorMessage } from './utils'
 
 export interface TransferPayload {
-	recipient: string
+	receiver_uid: string
 	amount: string
-	note?: string
+	description: string
 }
 
 export interface TransferResponse {
 	success: boolean
 	message: string
 	transfer?: any
+}
+
+export interface TransferData {
+	uid: string
+	reference: string
+	sender: number
+	sender_name: string
+	sender_email: string
+	receiver: number
+	receiver_name: string
+	receiver_email: string
+	amount: string
+	fees: string
+	status: string
+	description: string
+	sender_balance_before: string
+	sender_balance_after: string
+	receiver_balance_before: string
+	receiver_balance_after: string
+	completed_at: string
+	failed_reason?: string
+	created_at: string
+	updated_at: string
+}
+
+export interface TransferListResponse {
+	success: boolean
+	summary: {
+		total_sent: number
+		total_received: number
+		amount_sent: number
+		amount_received: number
+	}
+	sent_transfers: TransferData[]
+	received_transfers: TransferData[]
 }
 
 export interface TransferListParams {
@@ -57,8 +92,12 @@ class TransfersService {
 		return res.json()
 	}
 
-	async myTransfers() {
-		const res = await fetch(`${this.baseUrl}/api/payments/betting/user/transfers/my_transfers`, {
+	async myTransfers(params: TransferListParams = {}): Promise<TransferListResponse> {
+		const sp = new URLSearchParams()
+		Object.entries(params).forEach(([k, v]) => { if (v) sp.append(k, v as string) })
+		const queryString = sp.toString()
+		const url = `${this.baseUrl}/api/payments/betting/user/transfers/my_transfers${queryString ? `?${queryString}` : ''}`
+		const res = await fetch(url, {
 			headers: { 'Content-Type': 'application/json', ...authService.getAuthHeaders() },
 		})
 		if (!res.ok) throw new Error(formatApiErrorMessage(await res.json()))

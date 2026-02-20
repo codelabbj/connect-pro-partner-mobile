@@ -53,6 +53,7 @@ interface DashboardScreenProps {
   onNavigateToAutoRecharge?: () => void
   onNavigateToAutoRechargeTransactions?: () => void
   onNavigateToRecharge?: () => void
+  onNavigateToTransfer?: () => void
 }
 
 export function DashboardScreen({
@@ -68,6 +69,7 @@ export function DashboardScreen({
   onNavigateToAutoRecharge,
   onNavigateToAutoRechargeTransactions,
   onNavigateToRecharge,
+  onNavigateToTransfer,
 }: DashboardScreenProps) {
   const [showBalance, setShowBalance] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -77,7 +79,7 @@ export function DashboardScreen({
   const [detailsModalOpen, setDetailsModalOpen] = useState(false)
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
-  
+
   // Pull-to-refresh state
   const [pullToRefreshState, setPullToRefreshState] = useState({
     isPulling: false,
@@ -88,7 +90,7 @@ export function DashboardScreen({
     canPull: true,
   })
   const containerRef = useRef<HTMLDivElement>(null)
-  
+
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { user, accountData, transactions, refreshTransactions, refreshAccountData, refreshRecharges } = useAuth()
@@ -181,8 +183,13 @@ export function DashboardScreen({
 
       // Add transfers
       if (transfers.status === 'fulfilled') {
-        const transfersData = Array.isArray(transfers.value) ? transfers.value : (transfers.value?.results || [])
-        transfersData.slice(0, 3).forEach((transfer: Record<string, any>) => {
+        const transfersData = transfers.value
+        // Map sent and received transfers to unified format with direction
+        const sent = (transfersData.sent_transfers || []).map((t: any) => ({ ...t, isReceived: false }))
+        const received = (transfersData.received_transfers || []).map((t: any) => ({ ...t, isReceived: true }))
+        const allTransfers = [...sent, ...received]
+
+        allTransfers.slice(0, 3).forEach((transfer: Record<string, any>) => {
           unified.push({
             ...transfer,
             historyType: 'transfer',
@@ -191,6 +198,7 @@ export function DashboardScreen({
             reference: transfer.reference || transfer.uid || '',
             status: transfer.status || 'pending',
             status_display: transfer.status_display || transfer.status || 'Pending',
+            isReceived: transfer.isReceived
           })
         })
       }
@@ -341,7 +349,7 @@ export function DashboardScreen({
     const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60))
     if (diffInHours < 1) return t("dashboard.transactions.time.justNow")
     if (diffInHours < 24) return t("dashboard.transactions.time.hours", { count: diffInHours })
-      const diffInDays = Math.floor(diffInHours / 24)
+    const diffInDays = Math.floor(diffInHours / 24)
     return t("dashboard.transactions.time.days", { count: diffInDays })
   }
 
@@ -439,11 +447,10 @@ export function DashboardScreen({
   return (
     <div
       ref={containerRef}
-      className={`min-h-screen transition-colors duration-300 ${
-        theme === "dark"
-          ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
-          : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
-      }`}
+      className={`min-h-screen transition-colors duration-300 ${theme === "dark"
+        ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
+        : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
+        }`}
       style={{
         transform: `translateY(${pullToRefreshState.pullDistance}px)`,
         transition: pullToRefreshState.isPulling ? 'none' : 'transform 0.3s ease-out',
@@ -454,12 +461,10 @@ export function DashboardScreen({
     >
       {/* Pull-to-refresh indicator */}
       {(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${
-          theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
-        }`}>
-          <RefreshCw className={`w-5 h-5 ${
-            pullToRefreshState.isRefreshing ? 'animate-spin' : ''
-          } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+          }`}>
+          <RefreshCw className={`w-5 h-5 ${pullToRefreshState.isRefreshing ? 'animate-spin' : ''
+            } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
         </div>
       )}
       {/* Header */}
@@ -496,50 +501,44 @@ export function DashboardScreen({
         {/* Balance Section */}
         <div className="relative">
           {/* Background Gradient */}
-          <div className={`absolute inset-0 rounded-3xl transition-all duration-500 ${
-            theme === "dark" 
-              ? "bg-gradient-to-br from-gray-800/80 via-gray-900/60 to-gray-800/80" 
-              : "bg-gradient-to-br from-blue-50/80 via-white/60 to-purple-50/80"
-          } backdrop-blur-xl`}></div>
-          
+          <div className={`absolute inset-0 rounded-3xl transition-all duration-500 ${theme === "dark"
+            ? "bg-gradient-to-br from-gray-800/80 via-gray-900/60 to-gray-800/80"
+            : "bg-gradient-to-br from-blue-50/80 via-white/60 to-purple-50/80"
+            } backdrop-blur-xl`}></div>
+
           {/* Decorative Elements */}
           <div className="absolute top-0 right-0 w-32 h-32 opacity-20">
-            <div className={`w-full h-full rounded-full blur-3xl ${
-              theme === "dark" ? "bg-blue-500/30" : "bg-blue-400/20"
-            }`}></div>
+            <div className={`w-full h-full rounded-full blur-3xl ${theme === "dark" ? "bg-blue-500/30" : "bg-blue-400/20"
+              }`}></div>
           </div>
           <div className="absolute bottom-0 left-0 w-24 h-24 opacity-15">
-            <div className={`w-full h-full rounded-full blur-2xl ${
-              theme === "dark" ? "bg-purple-500/30" : "bg-purple-400/20"
-            }`}></div>
+            <div className={`w-full h-full rounded-full blur-2xl ${theme === "dark" ? "bg-purple-500/30" : "bg-purple-400/20"
+              }`}></div>
           </div>
-          
+
           {/* Content */}
           <div className="relative z-10 p-8">
             <div className="flex items-center justify-between mb-4">
-              <p className={`text-base font-semibold tracking-wide uppercase ${
-                theme === "dark" ? "text-gray-400" : "text-gray-500"
-              }`}>
+              <p className={`text-base font-semibold tracking-wide uppercase ${theme === "dark" ? "text-gray-400" : "text-gray-500"
+                }`}>
                 {t("dashboard.totalBalance")}
               </p>
               <Button
                 variant="ghost"
                 size="sm"
-                className={`h-10 w-10 p-0 rounded-2xl transition-all duration-300 ${
-                  theme === "dark" 
-                    ? "hover:bg-gray-700/50 text-gray-300 hover:text-white" 
-                    : "hover:bg-gray-100/50 text-gray-600 hover:text-gray-900"
-                } hover:scale-110`}
+                className={`h-10 w-10 p-0 rounded-2xl transition-all duration-300 ${theme === "dark"
+                  ? "hover:bg-gray-700/50 text-gray-300 hover:text-white"
+                  : "hover:bg-gray-100/50 text-gray-600 hover:text-gray-900"
+                  } hover:scale-110`}
                 onClick={() => setShowBalance(!showBalance)}
               >
                 {showBalance ? <Eye className="w-5 h-5" /> : <EyeOff className="w-5 h-5" />}
               </Button>
             </div>
-            
+
             <div className="mb-8">
-              <p className={`text-5xl font-black tracking-tight mb-3 ${
-                theme === "dark" ? "text-white" : "text-gray-900"
-              }`}>
+              <p className={`text-5xl font-black tracking-tight mb-3 ${theme === "dark" ? "text-white" : "text-gray-900"
+                }`}>
                 {showBalance ? (accountData?.formatted_balance || "••••••") : "••••••"}
               </p>
               <div className="flex items-center justify-between">
@@ -554,11 +553,10 @@ export function DashboardScreen({
                     variant="ghost"
                     size="sm"
                     onClick={() => setShowRechargeModal(true)}
-                    className={`h-8 px-3 text-xs font-medium rounded-full transition-all duration-300 ${
-                      theme === "dark"
-                        ? "bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 hover:text-purple-200"
-                        : "bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 hover:text-purple-700"
-                    } hover:scale-105 active:scale-95`}
+                    className={`h-8 px-3 text-xs font-medium rounded-full transition-all duration-300 ${theme === "dark"
+                      ? "bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 hover:text-purple-200"
+                      : "bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 hover:text-purple-700"
+                      } hover:scale-105 active:scale-95`}
                   >
                     <Zap className="w-3.5 h-3.5 mr-1.5" />
                     {t("nav.recharge")}
@@ -572,60 +570,72 @@ export function DashboardScreen({
 
       {/* Action Buttons */}
       <div className="px-4 -mt-6 relative z-10">
-        <div className="grid grid-cols-2 gap-4 sm:gap-6 mb-8">
+        <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-8">
           {/* Deposit Button */}
           <Button
             onClick={onNavigateToDeposit}
-            className={`group relative h-32 flex-col gap-4 border-0 overflow-hidden transition-all duration-500 ease-out ${
-              theme === "dark" 
-                ? "bg-transparent hover:bg-blue-500/10 text-white" 
-                : "bg-transparent hover:bg-blue-500/10 text-gray-900"
-            } hover:scale-[1.03] active:scale-[0.97]`}
+            className={`group relative h-28 sm:h-32 flex-col gap-2 sm:gap-4 border-0 overflow-hidden transition-all duration-500 ease-out ${theme === "dark"
+              ? "bg-transparent hover:bg-blue-500/10 text-white"
+              : "bg-transparent hover:bg-blue-500/10 text-gray-900"
+              } hover:scale-[1.03] active:scale-[0.97] p-2`}
           >
             {/* Animated Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-2xl"></div>
-            
-            {/* Floating Particles Effect */}
-            <div className="absolute top-2 right-2 w-2 h-2 bg-blue-400/60 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100"></div>
-            <div className="absolute bottom-3 left-3 w-1.5 h-1.5 bg-blue-300/40 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 delay-200"></div>
-            
+
             {/* Icon */}
-            
-             <TrendingUp className="relative z-10 text-blue-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3" style={{ width: '32px', height: '32px' }} />
-            
+            <TrendingUp className="relative z-10 text-blue-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 w-7 h-7 sm:w-8 sm:h-8" />
+
             {/* Text */}
-            <span className="relative z-10 text-lg font-bold tracking-wide group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors duration-500">
+            <span className="relative z-10 text-xs sm:text-sm font-bold tracking-wide group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors duration-500 text-center">
               {t("dashboard.actions.deposit")}
             </span>
-            
+
             {/* Subtle border glow */}
             <div className="absolute inset-0 rounded-2xl border border-blue-500/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          </Button>
+
+          {/* Transfer UV Button */}
+          <Button
+            onClick={onNavigateToTransfer}
+            className={`group relative h-28 sm:h-32 flex-col gap-2 sm:gap-4 border-0 overflow-hidden transition-all duration-500 ease-out ${theme === "dark"
+              ? "bg-transparent hover:bg-purple-500/10 text-white"
+              : "bg-transparent hover:bg-purple-500/10 text-gray-900"
+              } hover:scale-[1.03] active:scale-[0.97] p-2`}
+          >
+            {/* Animated Background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-2xl"></div>
+
+            {/* Icon */}
+            <Send className="relative z-10 text-purple-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 w-7 h-7 sm:w-8 sm:h-8" />
+
+            {/* Text */}
+            <span className="relative z-10 text-xs sm:text-sm font-bold tracking-wide group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors duration-500 text-center">
+              Transfert UV
+            </span>
+
+            {/* Subtle border glow */}
+            <div className="absolute inset-0 rounded-2xl border border-purple-500/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           </Button>
 
           {/* Withdraw Button */}
           <Button
             onClick={onNavigateToWithdraw}
-            className={`group relative h-32 flex-col gap-4 border-0 overflow-hidden transition-all duration-500 ease-out ${
-              theme === "dark" 
-                ? "bg-transparent hover:bg-green-500/10 text-white" 
-                : "bg-transparent hover:bg-green-500/10 text-gray-900"
-            } hover:scale-[1.03] active:scale-[0.97]`}
+            className={`group relative h-28 sm:h-32 flex-col gap-2 sm:gap-4 border-0 overflow-hidden transition-all duration-500 ease-out ${theme === "dark"
+              ? "bg-transparent hover:bg-green-500/10 text-white"
+              : "bg-transparent hover:bg-green-500/10 text-gray-900"
+              } hover:scale-[1.03] active:scale-[0.97] p-2`}
           >
             {/* Animated Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 via-green-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-2xl"></div>
-            
-            {/* Floating Particles Effect */}
-            <div className="absolute top-2 right-2 w-2 h-2 bg-green-400/60 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 delay-100"></div>
-            <div className="absolute bottom-3 left-3 w-1.5 h-1.5 bg-green-300/40 rounded-full opacity-0 group-hover:opacity-100 transition-all duration-700 delay-200"></div>
-            
+
             {/* Icon */}
-            <TrendingDown className="relative z-10 text-green-500 group-hover:text-green-600 dark:group-hover:text-green-400 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-3" style={{ width: '32px', height: '32px' }} />
-            
+            <TrendingDown className="relative z-10 text-green-500 group-hover:text-green-600 dark:group-hover:text-green-400 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-3 w-7 h-7 sm:w-8 sm:h-8" />
+
             {/* Text */}
-            <span className="relative z-10 text-lg font-bold tracking-wide group-hover:text-green-600 dark:group-hover:text-green-300 transition-colors duration-500">
+            <span className="relative z-10 text-xs sm:text-sm font-bold tracking-wide group-hover:text-green-600 dark:group-hover:text-green-300 transition-colors duration-500 text-center">
               {t("dashboard.actions.withdraw")}
             </span>
-            
+
             {/* Subtle border glow */}
             <div className="absolute inset-0 rounded-2xl border border-green-500/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           </Button>
@@ -635,9 +645,8 @@ export function DashboardScreen({
       {/* Recent Activity */}
       <div className="px-3 sm:px-4 pb-6 sm:pb-8 safe-area-inset-bottom">
         <Card
-          className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
-          }`}
+          className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            }`}
         >
           <CardHeader className="pb-3 sm:pb-4 px-3 sm:px-6 pt-4 sm:pt-6">
             <div className="flex items-center justify-between gap-2">
@@ -648,9 +657,8 @@ export function DashboardScreen({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`h-10 w-10 sm:h-8 sm:w-8 p-0 rounded-full transition-all duration-300 active:scale-95 touch-manipulation ${
-                    theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-600"
-                  }`}
+                  className={`h-10 w-10 sm:h-8 sm:w-8 p-0 rounded-full transition-all duration-300 active:scale-95 touch-manipulation ${theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-600"
+                    }`}
                   onClick={handleRefreshTransactions}
                   disabled={isRefreshing}
                 >
@@ -661,24 +669,21 @@ export function DashboardScreen({
                     <Button
                       variant="ghost"
                       size="sm"
-                      className={`h-10 w-10 sm:h-8 sm:w-8 p-0 rounded-full transition-all duration-300 active:scale-95 touch-manipulation ${
-                        theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-600"
-                      }`}
+                      className={`h-10 w-10 sm:h-8 sm:w-8 p-0 rounded-full transition-all duration-300 active:scale-95 touch-manipulation ${theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-600"
+                        }`}
                       onClick={() => setShowDropdown(!showDropdown)}
                     >
                       <MoreHorizontal className="w-4 h-4 sm:w-4 sm:h-4" />
                     </Button>
                     {showDropdown && (
-                      <div className={`absolute right-0 top-12 sm:top-10 z-50 w-[calc(100vw-2rem)] sm:w-64 max-w-[280px] sm:max-w-none rounded-xl sm:rounded-2xl shadow-2xl backdrop-blur-xl ${
-                        theme === "dark" ? "bg-gray-800/95 border border-gray-700" : "bg-white/95 border border-gray-200"
-                      } overflow-hidden`}>
+                      <div className={`absolute right-0 top-12 sm:top-10 z-50 w-[calc(100vw-2rem)] sm:w-64 max-w-[280px] sm:max-w-none rounded-xl sm:rounded-2xl shadow-2xl backdrop-blur-xl ${theme === "dark" ? "bg-gray-800/95 border border-gray-700" : "bg-white/95 border border-gray-200"
+                        } overflow-hidden`}>
                         <div className="p-1.5 sm:p-2">
                           {onNavigateToTransactionHistory && (
                             <Button
                               variant="ghost"
-                              className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${
-                                theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
-                              }`}
+                              className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
+                                }`}
                               onClick={() => {
                                 onNavigateToTransactionHistory()
                                 setShowDropdown(false)
@@ -691,9 +696,8 @@ export function DashboardScreen({
                           {onNavigateToAccountHistory && (
                             <Button
                               variant="ghost"
-                              className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${
-                                theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
-                              }`}
+                              className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
+                                }`}
                               onClick={() => {
                                 onNavigateToAccountHistory()
                                 setShowDropdown(false)
@@ -706,9 +710,8 @@ export function DashboardScreen({
                           {onNavigateToRechargeHistory && (
                             <Button
                               variant="ghost"
-                              className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${
-                                theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
-                              }`}
+                              className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
+                                }`}
                               onClick={() => {
                                 onNavigateToRechargeHistory()
                                 setShowDropdown(false)
@@ -721,9 +724,8 @@ export function DashboardScreen({
                           {onNavigateToTransferHistory && (
                             <Button
                               variant="ghost"
-                              className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${
-                                theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
-                              }`}
+                              className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
+                                }`}
                               onClick={() => {
                                 onNavigateToTransferHistory()
                                 setShowDropdown(false)
@@ -736,9 +738,8 @@ export function DashboardScreen({
                           {onNavigateToBettingTransactions && (
                             <Button
                               variant="ghost"
-                              className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${
-                                theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
-                              }`}
+                              className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
+                                }`}
                               onClick={() => {
                                 onNavigateToBettingTransactions()
                                 setShowDropdown(false)
@@ -751,9 +752,8 @@ export function DashboardScreen({
                           {onNavigateToAutoRechargeTransactions && (
                             <Button
                               variant="ghost"
-                              className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${
-                                theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
-                              }`}
+                              className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
+                                }`}
                               onClick={() => {
                                 onNavigateToAutoRechargeTransactions()
                                 setShowDropdown(false)
@@ -776,35 +776,32 @@ export function DashboardScreen({
               recentHistory.map((item, index) => {
                 const TypeIcon = getTypeIcon(item)
                 const isDeposit = (item.historyType === 'transaction' && item.type === 'deposit') ||
-                                 (item.historyType === 'betting' && item.transaction_type === 'deposit') ||
-                                 (item.historyType === 'auto-recharge')
+                  (item.historyType === 'betting' && item.transaction_type === 'deposit') ||
+                  (item.historyType === 'auto-recharge')
                 const amount = item.formatted_amount || item.amount || '0'
-                
+
                 return (
                   <div
                     key={item.uid || item.reference || index}
                     onClick={() => handleItemClick(item)}
-                    className={`flex items-center justify-between py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl transition-all duration-300 cursor-pointer active:scale-[0.99] touch-manipulation ${
-                      theme === "dark" ? "hover:bg-gray-700/30 active:bg-gray-700/40" : "hover:bg-gray-100/30 active:bg-gray-100/40"
-                    } ${
-                      index !== recentHistory.length - 1
+                    className={`flex items-center justify-between py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl transition-all duration-300 cursor-pointer active:scale-[0.99] touch-manipulation ${theme === "dark" ? "hover:bg-gray-700/30 active:bg-gray-700/40" : "hover:bg-gray-100/30 active:bg-gray-100/40"
+                      } ${index !== recentHistory.length - 1
                         ? theme === "dark"
                           ? "border-b border-gray-700/50"
                           : "border-b border-gray-200/50"
                         : ""
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
                       <div
-                        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm flex-shrink-0 ${
-                          isDeposit || item.historyType === 'recharge' || item.historyType === 'auto-recharge'
-                            ? "bg-gradient-to-br from-green-500/20 to-green-500/10 text-green-500"
-                            : item.historyType === 'transfer'
-                            ? "bg-gradient-to-br from-blue-500/20 to-blue-500/10 text-blue-500"
+                        className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm flex-shrink-0 ${isDeposit || item.historyType === 'recharge' || item.historyType === 'auto-recharge' || (item.historyType === 'transfer' && item.isReceived)
+                          ? "bg-gradient-to-br from-green-500/20 to-green-500/10 text-green-500"
+                          : (item.historyType === 'transfer' && !item.isReceived)
+                            ? "bg-gradient-to-br from-red-500/20 to-red-500/10 text-red-500"
                             : theme === "dark"
                               ? "bg-gradient-to-br from-gray-700 to-gray-600 text-gray-300"
                               : "bg-gradient-to-br from-gray-200 to-gray-100 text-gray-600"
-                        }`}
+                          }`}
                       >
                         <TypeIcon className="w-5 h-5 sm:w-5 sm:h-5" />
                       </div>
@@ -833,11 +830,10 @@ export function DashboardScreen({
                                   e.stopPropagation()
                                   copyReference(item.reference)
                                 }}
-                                className={`h-7 w-7 sm:h-6 sm:w-6 p-1.5 sm:p-1 rounded transition-all duration-200 active:scale-95 touch-manipulation flex-shrink-0 ${
-                                  theme === "dark" 
-                                    ? "hover:bg-gray-600/50 active:bg-gray-600/70 text-gray-400 hover:text-gray-300" 
-                                    : "hover:bg-gray-200/50 active:bg-gray-300/70 text-gray-500 hover:text-gray-700"
-                                }`}
+                                className={`h-7 w-7 sm:h-6 sm:w-6 p-1.5 sm:p-1 rounded transition-all duration-200 active:scale-95 touch-manipulation flex-shrink-0 ${theme === "dark"
+                                  ? "hover:bg-gray-600/50 active:bg-gray-600/70 text-gray-400 hover:text-gray-300"
+                                  : "hover:bg-gray-200/50 active:bg-gray-300/70 text-gray-500 hover:text-gray-700"
+                                  }`}
                                 title={t("common.copy")}
                                 aria-label={t("common.copy")}
                               >
@@ -850,52 +846,50 @@ export function DashboardScreen({
                     </div>
                     <div className="text-right ml-2 sm:ml-3 flex-shrink-0">
                       <p
-                        className={`font-bold text-base sm:text-lg whitespace-nowrap ${
-                          isDeposit || item.historyType === 'recharge' || item.historyType === 'auto-recharge'
-                            ? "text-green-500"
-                            : item.historyType === 'transfer'
-                            ? "text-blue-500"
+                        className={`font-bold text-base sm:text-lg whitespace-nowrap ${isDeposit || item.historyType === 'recharge' || item.historyType === 'auto-recharge' || (item.historyType === 'transfer' && item.isReceived)
+                          ? "text-green-500"
+                          : (item.historyType === 'transfer' && !item.isReceived)
+                            ? "text-red-500"
                             : theme === "dark"
                               ? "text-white"
                               : "text-gray-900"
-                        }`}
+                          }`}
                       >
                         <span className="hidden sm:inline">
                           {item.historyType === 'transaction'
                             ? formatTransactionAmount(item.amount, item.type)
                             : item.historyType === 'betting'
-                            ? `${item.transaction_type === 'deposit' ? '+' : '-'}${parseFloat(item.amount).toLocaleString()}`
-                            : item.historyType === 'recharge'
-                            ? `+${parseFloat(amount).toLocaleString()}`
-                            : item.historyType === 'auto-recharge'
-                            ? item.formatted_amount ? `+${item.formatted_amount}` : `+${parseFloat(amount).toLocaleString()}`
-                            : item.historyType === 'transfer'
-                            ? `-${parseFloat(amount).toLocaleString()}`
-                            : parseFloat(amount).toLocaleString()}{' '}FCFA
+                              ? `${item.transaction_type === 'deposit' ? '+' : '-'}${parseFloat(item.amount).toLocaleString()}`
+                              : item.historyType === 'recharge'
+                                ? `+${parseFloat(item.amount).toLocaleString()}`
+                                : item.historyType === 'auto-recharge'
+                                  ? item.formatted_amount ? `+${item.formatted_amount}` : `+${parseFloat(item.amount).toLocaleString()}`
+                                  : item.historyType === 'transfer'
+                                    ? `${item.isReceived ? '+' : '-'}${parseFloat(item.amount).toLocaleString()}`
+                                    : parseFloat(item.amount).toLocaleString()}{' '}FCFA
                         </span>
                         <span className="sm:hidden">
                           {item.historyType === 'transaction'
                             ? formatTransactionAmount(item.amount, item.type)
                             : item.historyType === 'betting'
-                            ? `${item.transaction_type === 'deposit' ? '+' : '-'}${parseFloat(item.amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
-                            : item.historyType === 'recharge'
-                            ? `+${parseFloat(amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
-                            : item.historyType === 'auto-recharge'
-                            ? item.formatted_amount ? `+${item.formatted_amount}` : `+${parseFloat(amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
-                            : item.historyType === 'transfer'
-                            ? `-${parseFloat(amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
-                            : parseFloat(amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}{' '}FCFA
+                              ? `${item.transaction_type === 'deposit' ? '+' : '-'}${parseFloat(item.amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
+                              : item.historyType === 'recharge'
+                                ? `+${parseFloat(item.amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
+                                : item.historyType === 'auto-recharge'
+                                  ? item.formatted_amount ? `+${item.formatted_amount}` : `+${parseFloat(item.amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
+                                  : item.historyType === 'transfer'
+                                    ? `${item.isReceived ? '+' : '-'}${parseFloat(item.amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
+                                    : parseFloat(item.amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}{' '}FCFA
                         </span>
                       </p>
-                      <div className={`w-2 h-2 rounded-full ml-auto mt-1.5 sm:mt-2 ${
-                        item.status === "success" || item.status === "sent_to_user" || item.status === "approved" ||
+                      <div className={`w-2 h-2 rounded-full ml-auto mt-1.5 sm:mt-2 ${item.status === "success" || item.status === "sent_to_user" || item.status === "approved" ||
                         (item.historyType === 'auto-recharge' && item.status === 'completed')
-                          ? "bg-green-500"
-                          : item.status === "pending" || item.status === "proof_submitted" ||
-                            (item.historyType === 'auto-recharge' && (item.status === 'pending' || item.status === 'initiated' || item.status === 'processing'))
+                        ? "bg-green-500"
+                        : item.status === "pending" || item.status === "proof_submitted" ||
+                          (item.historyType === 'auto-recharge' && (item.status === 'pending' || item.status === 'initiated' || item.status === 'processing'))
                           ? "bg-yellow-500"
                           : "bg-red-500"
-                      }`}></div>
+                        }`}></div>
                     </div>
                   </div>
                 )
@@ -920,24 +914,21 @@ export function DashboardScreen({
 
       {/* Recharge Options Modal */}
       <Dialog open={showRechargeModal} onOpenChange={setShowRechargeModal}>
-        <DialogContent className={`max-w-md mx-auto ${
-          theme === "dark" 
-            ? "bg-gray-800 border-gray-700" 
-            : "bg-white border-gray-200"
-        }`}>
+        <DialogContent className={`max-w-md mx-auto ${theme === "dark"
+          ? "bg-gray-800 border-gray-700"
+          : "bg-white border-gray-200"
+          }`}>
           <DialogHeader>
-            <DialogTitle className={`text-xl font-bold text-center ${
-              theme === "dark" ? "text-white" : "text-gray-900"
-            }`}>
+            <DialogTitle className={`text-xl font-bold text-center ${theme === "dark" ? "text-white" : "text-gray-900"
+              }`}>
               {t("dashboard.rechargeOptions") || "Recharge Options"}
             </DialogTitle>
-            <DialogDescription className={`text-sm text-center ${
-              theme === "dark" ? "text-gray-400" : "text-gray-600"
-            }`}>
+            <DialogDescription className={`text-sm text-center ${theme === "dark" ? "text-gray-400" : "text-gray-600"
+              }`}>
               {t("dashboard.rechargeOptionsDesc") || "Choose your recharge method"}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-3 py-4">
             {onNavigateToRecharge && (
               <Button
@@ -945,28 +936,26 @@ export function DashboardScreen({
                   onNavigateToRecharge()
                   setShowRechargeModal(false)
                 }}
-                className={`w-full h-14 text-base font-semibold transition-all duration-300 ${
-                  theme === "dark"
-                    ? "bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30"
-                    : "bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 border border-purple-500/20"
-                } hover:scale-[1.02] active:scale-[0.98]`}
+                className={`w-full h-14 text-base font-semibold transition-all duration-300 ${theme === "dark"
+                  ? "bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30"
+                  : "bg-purple-500/10 hover:bg-purple-500/20 text-purple-600 border border-purple-500/20"
+                  } hover:scale-[1.02] active:scale-[0.98]`}
               >
                 <Battery className="w-5 h-5 mr-3" />
                 {t("nav.recharge")}
               </Button>
             )}
-            
+
             {onNavigateToAutoRecharge && (
               <Button
                 onClick={() => {
                   onNavigateToAutoRecharge()
                   setShowRechargeModal(false)
                 }}
-                className={`w-full h-14 text-base font-semibold transition-all duration-300 ${
-                  theme === "dark"
-                    ? "bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30"
-                    : "bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 border border-indigo-500/20"
-                } hover:scale-[1.02] active:scale-[0.98]`}
+                className={`w-full h-14 text-base font-semibold transition-all duration-300 ${theme === "dark"
+                  ? "bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/30"
+                  : "bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 border border-indigo-500/20"
+                  } hover:scale-[1.02] active:scale-[0.98]`}
               >
                 <Smartphone className="w-5 h-5 mr-3" />
                 {t("nav.autoRecharge")}

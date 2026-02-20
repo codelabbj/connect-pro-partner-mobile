@@ -23,6 +23,8 @@ import { useTheme } from "@/lib/contexts"
 import { useTranslation } from "@/lib/contexts"
 import { useAuth } from "@/lib/contexts"
 import { rechargeService, RechargeData, RechargesResponse } from "@/lib/recharge"
+import { Badge } from "@/components/ui/badge"
+import { TransactionDetailsModal } from "./transaction-details-modal"
 
 interface RechargeHistoryScreenProps {
   onNavigateBack: () => void
@@ -33,7 +35,9 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
   const [filterStatus, setFilterStatus] = useState<"all" | "approved" | "pending" | "rejected" | "proof_submitted">("all")
   const [searchTerm, setSearchTerm] = useState("")
   const [isRefreshing, setIsRefreshing] = useState(false)
-  
+  const [selectedRecharge, setSelectedRecharge] = useState<RechargeData | null>(null)
+  const [detailsOpen, setDetailsOpen] = useState(false)
+
   // Pull-to-refresh state
   const [pullToRefreshState, setPullToRefreshState] = useState({
     isPulling: false,
@@ -44,7 +48,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
     canPull: true,
   })
   const containerRef = useRef<HTMLDivElement>(null)
-  
+
   const { theme } = useTheme()
   const { t } = useTranslation()
   const { user, recharges, isLoading, refreshRecharges } = useAuth()
@@ -55,7 +59,6 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      // You could add a toast notification here if you have one
       console.log('Copied to clipboard:', text)
     } catch (err) {
       console.error('Failed to copy text: ', err)
@@ -158,13 +161,6 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // Use recharges from context instead of separate API calls
-  useEffect(() => {
-    console.log('Recharge History - User:', user)
-    console.log('Recharge History - Recharges from context:', recharges)
-    console.log('Recharge History - Total recharges:', recharges.length)
-  }, [user, recharges])
-
   // Helper function to format recharge date
   const formatRechargeDate = (dateString: string) => {
     const date = new Date(dateString)
@@ -179,7 +175,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
 
   // Helper function to format recharge amount
   const formatRechargeAmount = (amount: string) => {
-    return `${parseFloat(amount).toLocaleString('fr-FR')} €`
+    return `${parseFloat(amount).toLocaleString('fr-FR')} FCFA`
   }
 
   // Helper function to get status color and icon
@@ -226,7 +222,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
   // Filter recharges based on status and search term
   const filteredRecharges = recharges.filter(recharge => {
     const matchesStatus = filterStatus === "all" || recharge.status === filterStatus
-    const matchesSearch = searchTerm === "" || 
+    const matchesSearch = searchTerm === "" ||
       recharge.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
       recharge.formatted_amount.toLowerCase().includes(searchTerm.toLowerCase())
     return matchesStatus && matchesSearch
@@ -246,11 +242,10 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
   return (
     <div
       ref={containerRef}
-      className={`min-h-screen transition-colors duration-300 ${
-        theme === "dark"
-          ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
-          : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
-      }`}
+      className={`min-h-screen transition-colors duration-300 ${theme === "dark"
+        ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
+        : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
+        }`}
       style={{
         transform: `translateY(${pullToRefreshState.pullDistance}px)`,
         transition: pullToRefreshState.isPulling ? 'none' : 'transform 0.3s ease-out',
@@ -261,12 +256,10 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
     >
       {/* Pull-to-refresh indicator */}
       {(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${
-          theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
-        }`}>
-          <RefreshCw className={`w-5 h-5 ${
-            pullToRefreshState.isRefreshing ? 'animate-spin' : ''
-          } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+          }`}>
+          <RefreshCw className={`w-5 h-5 ${pullToRefreshState.isRefreshing ? 'animate-spin' : ''
+            } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
         </div>
       )}
       {/* Header */}
@@ -276,11 +269,10 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
             <Button
               variant="ghost"
               size="sm"
-              className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${
-                theme === "dark" 
-                  ? "hover:bg-gray-700/50 text-gray-300" 
-                  : "hover:bg-gray-100/50 text-gray-600"
-              }`}
+              className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${theme === "dark"
+                ? "hover:bg-gray-700/50 text-gray-300"
+                : "hover:bg-gray-100/50 text-gray-600"
+                }`}
               onClick={onNavigateBack}
             >
               <ArrowLeft className="w-5 h-5" />
@@ -294,113 +286,44 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               </p>
             </div>
           </div>
-          {/* <Button
-            variant="ghost"
-            size="sm"
-            className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${
-              theme === "dark" 
-                ? "hover:bg-gray-700/50 text-gray-300" 
-                : "hover:bg-gray-100/50 text-gray-600"
-            }`}
-            onClick={handleRefreshRecharges}
-            disabled={isRefreshing}
-          >
-            <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-          </Button> */}
         </div>
 
         {/* Filters and Search */}
         <div className="space-y-4 mb-6">
           {/* Search Bar */}
           <div className="relative">
-            <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${
-              theme === "dark" ? "text-gray-400" : "text-gray-500"
-            }`} />
+            <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${theme === "dark" ? "text-gray-400" : "text-gray-500"
+              }`} />
             <input
               type="text"
               placeholder={t("rechargeHistory.searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`w-full pl-10 pr-4 py-3 rounded-xl border-0 transition-colors duration-300 ${
-                theme === "dark" 
-                  ? "bg-gray-800/80 text-white placeholder-gray-400" 
-                  : "bg-white/80 text-gray-900 placeholder-gray-500"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
+              className={`w-full pl-10 pr-4 py-3 rounded-xl border-0 transition-colors duration-300 ${theme === "dark"
+                ? "bg-gray-800/80 text-white placeholder-gray-400"
+                : "bg-white/80 text-gray-900 placeholder-gray-500"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
             />
           </div>
 
           {/* Filter Buttons */}
           <div className="flex gap-2 overflow-x-auto pb-2">
-            <Button
-              variant={filterStatus === "all" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterStatus("all")}
-              className={`whitespace-nowrap ${
-                filterStatus === "all" 
-                  ? "bg-blue-500 text-white" 
-                  : theme === "dark" 
-                    ? "border-gray-600 text-gray-300" 
+            {["all", "approved", "pending", "rejected", "proof_submitted"].map((status) => (
+              <Button
+                key={status}
+                variant={filterStatus === status ? "default" : "outline"}
+                size="sm"
+                onClick={() => setFilterStatus(status as any)}
+                className={`whitespace-nowrap ${filterStatus === status
+                  ? status === "approved" ? "bg-green-500 text-white" : status === "pending" ? "bg-yellow-500 text-white" : status === "rejected" ? "bg-red-500 text-white" : "bg-blue-500 text-white"
+                  : theme === "dark"
+                    ? "border-gray-600 text-gray-300"
                     : "border-gray-300 text-gray-700"
-              }`}
-            >
-              {t("rechargeHistory.filters.all")}
-            </Button>
-            <Button
-              variant={filterStatus === "approved" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterStatus("approved")}
-              className={`whitespace-nowrap ${
-                filterStatus === "approved" 
-                  ? "bg-green-500 text-white" 
-                  : theme === "dark" 
-                    ? "border-gray-600 text-gray-300" 
-                    : "border-gray-300 text-gray-700"
-              }`}
-            >
-              {t("rechargeHistory.filters.approved")}
-            </Button>
-            <Button
-              variant={filterStatus === "pending" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterStatus("pending")}
-              className={`whitespace-nowrap ${
-                filterStatus === "pending" 
-                  ? "bg-yellow-500 text-white" 
-                  : theme === "dark" 
-                    ? "border-gray-600 text-gray-300" 
-                    : "border-gray-300 text-gray-700"
-              }`}
-            >
-              {t("rechargeHistory.filters.pending")}
-            </Button>
-            <Button
-              variant={filterStatus === "rejected" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterStatus("rejected")}
-              className={`whitespace-nowrap ${
-                filterStatus === "rejected" 
-                  ? "bg-red-500 text-white" 
-                  : theme === "dark" 
-                    ? "border-gray-600 text-gray-300" 
-                    : "border-gray-300 text-gray-700"
-              }`}
-            >
-              {t("rechargeHistory.filters.rejected")}
-            </Button>
-            <Button
-              variant={filterStatus === "proof_submitted" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterStatus("proof_submitted")}
-              className={`whitespace-nowrap ${
-                filterStatus === "proof_submitted" 
-                  ? "bg-blue-500 text-white" 
-                  : theme === "dark" 
-                    ? "border-gray-600 text-gray-300" 
-                    : "border-gray-300 text-gray-700"
-              }`}
-            >
-              {t("rechargeHistory.filters.proofSubmitted")}
-            </Button>
+                  }`}
+              >
+                {t(`rechargeHistory.filters.${status === "all" ? "all" : status === "approved" ? "approved" : status === "pending" ? "pending" : status === "rejected" ? "rejected" : "proofSubmitted"}`)}
+              </Button>
+            ))}
           </div>
         </div>
       </div>
@@ -408,49 +331,26 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
       {/* Recharges List */}
       <div className="px-4 pb-8">
         <Card
-          className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
-          }`}
+          className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            }`}
         >
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
               <CardTitle className={`text-lg font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
                 Recharges ({filteredRecharges.length})
               </CardTitle>
-              <div className="flex gap-2">
-                {/* <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`h-8 w-8 p-0 rounded-full transition-colors duration-300 ${
-                    theme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${theme === "dark"
+                  ? "hover:bg-gray-700/50 text-gray-300"
+                  : "hover:bg-gray-100/50 text-gray-600"
                   }`}
-                  onClick={refreshRecharges}
-                >
-                  <Search className="w-4 h-4" />
-                </Button> */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${
-                    theme === "dark" 
-                      ? "hover:bg-gray-700/50 text-gray-300" 
-                      : "hover:bg-gray-100/50 text-gray-600"
-                  }`}
-                  onClick={handleRefreshRecharges}
-                  disabled={isRefreshing}
-                >
-                  <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-                </Button>
-                {/* <Button
-                  variant="ghost"
-                  size="sm"
-                  className={`h-8 w-8 p-0 rounded-full transition-colors duration-300 ${
-                    theme === "dark" ? "hover:bg-gray-700/50 text-gray-300" : "hover:bg-gray-100/50 text-gray-600"
-                  }`}
-                >
-                  <Download className="w-4 h-4" />
-                </Button> */}
-              </div>
+                onClick={handleRefreshRecharges}
+                disabled={isRefreshing}
+              >
+                <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
+              </Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-1">
@@ -464,76 +364,67 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               currentRecharges.map((recharge, index) => {
                 const statusInfo = getStatusInfo(recharge.status)
                 const StatusIcon = statusInfo.icon
-                
+
                 return (
-                <div
-                  key={recharge.uid}
-                  className={`py-3 px-2 rounded-lg transition-colors duration-300 ${
-                    theme === "dark" ? "hover:bg-gray-700/30" : "hover:bg-gray-100/30"
-                  } ${
-                    index !== currentRecharges.length - 1
-                      ? theme === "dark"
-                        ? "border-b border-gray-700/50"
-                        : "border-b border-gray-200/50"
-                      : ""
-                  }`}
-                >
-                  {/* Header Row */}
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 ${statusInfo.bgColor}`}>
-                        <Battery className={`w-3.5 h-3.5 ${statusInfo.color}`} />
+                  <div
+                    key={recharge.uid}
+                    onClick={() => {
+                      setSelectedRecharge(recharge)
+                      setDetailsOpen(true)
+                    }}
+                    className={`py-3 px-2 rounded-lg transition-all duration-200 cursor-pointer active:scale-[0.98] ${theme === "dark" ? "hover:bg-gray-700/50" : "hover:bg-gray-100/50"
+                      } ${index !== currentRecharges.length - 1
+                        ? theme === "dark" ? "border-b border-gray-700/50" : "border-b border-gray-200/50"
+                        : ""
+                      }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm flex-shrink-0 ${statusInfo.bgColor}`}>
+                          <Battery className={`w-5 h-5 ${statusInfo.color}`} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className={`font-bold text-base ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                            {recharge.formatted_amount}
+                          </p>
+                          <p className={`text-xs ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`}>
+                            {formatRechargeDate(recharge.created_at)}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className={`font-medium text-sm ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-                          {recharge.formatted_amount}
-                        </p>
-                        <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                          {formatRechargeDate(recharge.created_at)}
-                        </p>
+                      <div className="text-right">
+                        <Badge className={`px-2 py-0 text-[10px] uppercase font-bold border ${statusInfo.bgColor} ${statusInfo.color} border-current/20`}>
+                          {statusInfo.text}
+                        </Badge>
                       </div>
                     </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className={`font-bold text-sm ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-                        {recharge.formatted_amount}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  {/* Details Row */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
+
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <p className={`text-xs ${theme === "dark" ? "text-gray-500" : "text-gray-500"}`}>
-                          <span className="font-medium">{t("rechargeHistory.reference")}:</span> {recharge.reference}
+                        <p className={`text-xs ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`}>
+                          Ref: <span className="font-mono">{recharge.reference}</span>
                         </p>
                         <Button
                           variant="ghost"
-                          size="sm"
-                          className={`h-6 w-6 p-0 hover:bg-gray-200 dark:hover:bg-gray-700`}
-                          onClick={() => copyToClipboard(recharge.reference)}
+                          size="icon"
+                          className="h-6 w-6"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            copyToClipboard(recharge.reference)
+                          }}
                         >
                           <Copy className="w-3 h-3" />
                         </Button>
                       </div>
                       {recharge.is_expired && (
-                        <p className="text-xs text-red-500">
-                          <span className="font-medium">{t("rechargeHistory.status")}:</span> {t("rechargeHistory.expired")}
-                        </p>
+                        <p className="text-[10px] text-red-500 font-bold uppercase">EXPIRÉ</p>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <StatusIcon className={`w-3 h-3 ${statusInfo.color}`} />
-                      <p className={`text-xs ${statusInfo.color}`}>
-                        {statusInfo.text}
-                      </p>
-                    </div>
                   </div>
-                </div>
                 )
               })
             ) : (
-              <div className="text-center py-8">
+              <div className="text-center py-10">
                 <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   {t("rechargeHistory.noRecharges")}
                 </p>
@@ -550,46 +441,32 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               size="sm"
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className={`${
-                theme === "dark" 
-                  ? "border-gray-600 text-gray-300 disabled:text-gray-600" 
-                  : "border-gray-300 text-gray-700 disabled:text-gray-400"
-              }`}
+              className={`${theme === "dark"
+                ? "border-gray-600 text-gray-300 disabled:text-gray-600"
+                : "border-gray-300 text-gray-700 disabled:text-gray-400"
+                }`}
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
               {t("rechargeHistory.previous")}
             </Button>
-            
-            <div className="flex items-center gap-2">
+
+            <div className="flex gap-1">
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = currentPage - 2 + i;
-                }
-                
+                let pageNum = totalPages <= 5 ? i + 1 : (currentPage <= 3 ? i + 1 : (currentPage >= totalPages - 2 ? totalPages - 4 + i : currentPage - 2 + i))
                 return (
                   <Button
                     key={pageNum}
                     variant={currentPage === pageNum ? "default" : "outline"}
                     size="sm"
                     onClick={() => setCurrentPage(pageNum)}
-                    className={`w-10 h-10 p-0 ${
-                      currentPage === pageNum 
-                        ? "bg-blue-500 text-white" 
-                        : theme === "dark" 
-                          ? "border-gray-600 text-gray-300" 
-                          : "border-gray-300 text-gray-700"
-                    }`}
+                    className={`w-9 h-9 p-0 ${currentPage === pageNum
+                      ? "bg-blue-500 text-white"
+                      : theme === "dark" ? "border-gray-700 text-gray-400" : "border-gray-200 text-gray-600"
+                      }`}
                   >
                     {pageNum}
                   </Button>
-                );
+                )
               })}
             </div>
 
@@ -598,17 +475,22 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
               size="sm"
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className={`${
-                theme === "dark" 
-                  ? "border-gray-600 text-gray-300 disabled:text-gray-600" 
-                  : "border-gray-300 text-gray-700 disabled:text-gray-400"
-              }`}
+              className={`${theme === "dark"
+                ? "border-gray-600 text-gray-300 disabled:text-gray-600"
+                : "border-gray-300 text-gray-700 disabled:text-gray-400"
+                }`}
             >
               {t("rechargeHistory.next")}
               <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
         )}
+
+        <TransactionDetailsModal
+          open={detailsOpen}
+          onOpenChange={setDetailsOpen}
+          transaction={selectedRecharge ? { ...selectedRecharge, historyType: 'recharge' } : null}
+        />
       </div>
     </div>
   )
