@@ -31,7 +31,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
   const [confirmNewPassword, setConfirmNewPassword] = useState("")
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { login, isLoading } = useAuth()
   const { toast } = useToast()
@@ -381,7 +381,7 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
   return (
     <div
       className={`min-h-screen flex flex-col items-center justify-center p-4 safe-area-inset ${
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
           : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
       }`}

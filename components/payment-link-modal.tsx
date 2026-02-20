@@ -25,7 +25,7 @@ export function PaymentLinkModal({
   paymentLink,
   onContinue
 }: PaymentLinkModalProps) {
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
 
   const handleContinueTransaction = () => {
@@ -37,18 +37,18 @@ export function PaymentLinkModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`max-w-md mx-auto ${
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "bg-gray-800 border-gray-700"
           : "bg-white border-gray-200"
       }`}>
         <DialogHeader>
           <DialogTitle className={`text-2xl font-bold text-center ${
-            theme === "dark" ? "text-white" : "text-gray-900"
+            resolvedTheme === "dark" ? "text-white" : "text-gray-900"
           }`}>
             {t("paymentLink.title")}
           </DialogTitle>
           <DialogDescription className={`text-base text-center ${
-            theme === "dark" ? "text-gray-400" : "text-gray-600"
+            resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"
           }`}>
             {t("paymentLink.description")}
           </DialogDescription>
@@ -58,7 +58,7 @@ export function PaymentLinkModal({
           <Button
             onClick={handleContinueTransaction}
             className={`w-full h-16 text-lg font-semibold transition-all duration-300 ${
-              theme === "dark"
+              resolvedTheme === "dark"
                 ? "bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30"
                 : "bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 border border-blue-500/20"
             } hover:scale-[1.02] active:scale-[0.98]`}
@@ -68,7 +68,7 @@ export function PaymentLinkModal({
           </Button>
 
           <p className={`text-base text-center ${
-            theme === "dark" ? "text-gray-500" : "text-gray-500"
+            resolvedTheme === "dark" ? "text-gray-500" : "text-gray-500"
           }`}>
             {t("paymentLink.newTabNote")}
           </p>

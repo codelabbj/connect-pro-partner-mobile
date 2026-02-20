@@ -46,7 +46,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
   })
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { user, transactions, isLoading, refreshTransactions } = useAuth()
 
@@ -151,7 +151,7 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
   useEffect(() => setCurrentPage(1), [filterType, searchTerm])
 
   return (
-    <div ref={containerRef} className={`min-h-screen transition-colors duration-300 ${theme === "dark" ? "bg-gray-900" : "bg-blue-50"}`}
+    <div ref={containerRef} className={`min-h-screen transition-colors duration-300 ${resolvedTheme === "dark" ? "bg-gray-900" : "bg-blue-50"}`}
       style={{ transform: `translateY(${pullToRefreshState.pullDistance}px)`, transition: pullToRefreshState.isPulling ? 'none' : 'transform 0.3s' }}
       onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
 

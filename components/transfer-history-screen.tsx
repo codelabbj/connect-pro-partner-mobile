@@ -18,39 +18,25 @@ import {
 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useTheme } from "@/lib/contexts"
-import { useTranslation } from "@/lib/contexts"
-import { useToast } from "@/hooks/use-toast"
-import { useAuth } from "@/lib/contexts"
-import { transfersService, TransferListParams } from "@/lib/transfers"
-import { TransactionDetailsModal } from "./transaction-details-modal"
+import { useTranslation, useAuth } from "@/lib/contexts"
+import { useToast } from "@/components/ui/use-toast"
 import { Badge } from "@/components/ui/badge"
+import { TransactionDetailsModal } from "./transaction-details-modal"
+import { transfersService } from "@/lib/transfers"
 
-interface TransferHistoryScreenProps {
-	onNavigateBack: () => void
-}
+export function TransferHistoryScreen({ onNavigateBack }: { onNavigateBack: () => void }) {
+	const { resolvedTheme } = useTheme()
+	const { t } = useTranslation()
+	const { user } = useAuth()
+	const { toast } = useToast()
 
-export function TransferHistoryScreen({ onNavigateBack }: TransferHistoryScreenProps): JSX.Element {
 	const [transfers, setTransfers] = useState<any[]>([])
 	const [isLoading, setIsLoading] = useState(true)
 	const [isRefreshing, setIsRefreshing] = useState(false)
-	const [selectedTransfer, setSelectedTransfer] = useState<any | null>(null)
-	const [detailsOpen, setDetailsOpen] = useState(false)
+	const [filters, setFilters] = useState<any>({ type: "", status: "", min_amount: "", max_amount: "", date_from: "", date_to: "" })
 	const [filtersOpen, setFiltersOpen] = useState(false)
-
-	// Filter State
-	const [filters, setFilters] = useState<TransferListParams>({
-		type: "",
-		status: "",
-		min_amount: "",
-		max_amount: "",
-		date_from: "",
-		date_to: "",
-	})
-
-	const { user } = useAuth()
-	const { theme } = useTheme()
-	const { t } = useTranslation()
-	const { toast } = useToast()
+	const [selectedTransfer, setSelectedTransfer] = useState<any>(null)
+	const [detailsOpen, setDetailsOpen] = useState(false)
 
 	// Pull-to-refresh state
 	const [pullToRefreshState, setPullToRefreshState] = useState({
@@ -150,141 +136,12 @@ export function TransferHistoryScreen({ onNavigateBack }: TransferHistoryScreenP
 	}
 
 	return (
-		<div className={`min-h-screen transition-colors duration-300 ${theme === "dark" ? "bg-gray-900" : "bg-blue-50"}`}
-			style={{ transform: `translateY(${pullToRefreshState.pullDistance}px)`, transition: pullToRefreshState.isPulling ? 'none' : 'transform 0.3s' }}
-			onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
-
-			{/* PTR Indicator */}
-			{(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
-				<div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-xl flex items-center justify-center">
-					<RefreshCw className={`w-5 h-5 ${pullToRefreshState.isRefreshing ? 'animate-spin' : ''}`} />
-				</div>
-			)}
-
-			{/* Header */}
-			<div className="px-6 pt-12 pb-4">
-				<div className="flex items-center justify-between mb-4">
-					<div className="flex items-center gap-4">
-						<Button variant="ghost" size="icon" onClick={onNavigateBack} className="rounded-full bg-white/50 dark:bg-gray-800/50 shadow-sm">
-							<ArrowLeft className="w-5 h-5" />
-						</Button>
-						<div>
-							<h1 className="text-2xl font-black">Historique Transferts</h1>
-							<p className="text-sm opacity-60 font-medium">Vos transferts entre utilisateurs</p>
-						</div>
-					</div>
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => setFiltersOpen(!filtersOpen)}
-						className={`rounded-full ${filtersOpen ? "bg-blue-500 text-white" : "bg-white/50 dark:bg-gray-800/50"}`}
-					>
-						<FilterIcon className="w-5 h-5" />
-					</Button>
-				</div>
-
-				{/* Collapsible Filters */}
-				{filtersOpen && (
-					<Card className="mb-6 border-0 shadow-xl rounded-[2rem] overflow-hidden dark:bg-gray-800 animate-in slide-in-from-top duration-300">
-						<CardContent className="p-6 space-y-4">
-							<div className="flex items-center justify-between mb-2">
-								<h3 className="font-black text-sm uppercase tracking-widest opacity-50">Filtres Avancés</h3>
-								<Button variant="ghost" size="sm" onClick={handleClearFilters} className="text-xs font-bold text-blue-500">Réinitialiser</Button>
-							</div>
-
-							<div className="grid grid-cols-2 gap-4">
-								<div className="space-y-2">
-									<label className="text-[10px] font-black uppercase opacity-40 ml-1">Direction</label>
-									<select
-										value={filters.type}
-										onChange={(e) => setFilters(prev => ({ ...prev, type: e.target.value }))}
-										className="w-full h-12 rounded-xl border-0 bg-gray-100 dark:bg-gray-900 px-4 font-bold text-sm focus:ring-2 focus:ring-blue-500"
-									>
-										<option value="">Tous</option>
-										<option value="sent">Envoyés</option>
-										<option value="received">Reçus</option>
-									</select>
-								</div>
-								<div className="space-y-2">
-									<label className="text-[10px] font-black uppercase opacity-40 ml-1">Statut</label>
-									<select
-										value={filters.status}
-										onChange={(e) => setFilters(prev => ({ ...prev, status: e.target.value }))}
-										className="w-full h-12 rounded-xl border-0 bg-gray-100 dark:bg-gray-900 px-4 font-bold text-sm focus:ring-2 focus:ring-blue-500"
-									>
-										<option value="">Tous</option>
-										<option value="completed">Complété</option>
-										<option value="pending">En attente</option>
-										<option value="failed">Échoué</option>
-									</select>
-								</div>
-							</div>
-
-							<div className="grid grid-cols-2 gap-4">
-								<div className="space-y-2">
-									<label className="text-[10px] font-black uppercase opacity-40 ml-1">Montant Min</label>
-									<Input
-										type="number"
-										placeholder="0"
-										value={filters.min_amount}
-										onChange={(e) => setFilters(prev => ({ ...prev, min_amount: e.target.value }))}
-										className="h-12 rounded-xl border-0 bg-gray-100 dark:bg-gray-900 font-bold"
-									/>
-								</div>
-								<div className="space-y-2">
-									<label className="text-[10px] font-black uppercase opacity-40 ml-1">Montant Max</label>
-									<Input
-										type="number"
-										placeholder="999999"
-										value={filters.max_amount}
-										onChange={(e) => setFilters(prev => ({ ...prev, max_amount: e.target.value }))}
-										className="h-12 rounded-xl border-0 bg-gray-100 dark:bg-gray-900 font-bold"
-									/>
-								</div>
-							</div>
-
-							<div className="grid grid-cols-2 gap-4">
-								<div className="space-y-2">
-									<label className="text-[10px] font-black uppercase opacity-40 ml-1">Du</label>
-									<div className="relative">
-										<Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
-										<Input
-											type="date"
-											value={filters.date_from}
-											onChange={(e) => setFilters(prev => ({ ...prev, date_from: e.target.value }))}
-											className="h-12 rounded-xl border-0 bg-gray-100 dark:bg-gray-900 pl-10 font-bold text-xs"
-										/>
-									</div>
-								</div>
-								<div className="space-y-2">
-									<label className="text-[10px] font-black uppercase opacity-40 ml-1">Au</label>
-									<div className="relative">
-										<Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 opacity-30" />
-										<Input
-											type="date"
-											value={filters.date_to}
-											onChange={(e) => setFilters(prev => ({ ...prev, date_to: e.target.value }))}
-											className="h-12 rounded-xl border-0 bg-gray-100 dark:bg-gray-900 pl-10 font-bold text-xs"
-										/>
-									</div>
-								</div>
-							</div>
-
-							<Button onClick={handleApplyFilters} className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-black">
-								Appliquer les filtres
-							</Button>
-						</CardContent>
-					</Card>
-				)}
-			</div>
-
-			<div className="px-6 pb-12">
-				<Card className="border-0 shadow-2xl rounded-[2.5rem] overflow-hidden dark:bg-gray-800">
-					<CardHeader className="flex flex-row items-center justify-between pb-2">
-						<CardTitle className="text-xl font-black">Transferts ({transfers.length})</CardTitle>
-						<Button variant="ghost" size="icon" onClick={handleRefresh} disabled={isRefreshing} className="rounded-full">
-							<RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-						</Button>
+		<div className={`min-h-screen p-4 ${resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}>
+			<div className="max-w-2xl mx-auto">
+				<Button variant="ghost" onClick={onNavigateBack} className="mb-4">{t("common.back")}</Button>
+				<Card>
+					<CardHeader>
+						<CardTitle>{t("transferHistory.title")}</CardTitle>
 					</CardHeader>
 					<CardContent>
 						{isLoading ? (

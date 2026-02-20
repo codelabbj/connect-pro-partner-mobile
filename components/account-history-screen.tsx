@@ -46,7 +46,7 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
   })
   const containerRef = useRef<HTMLDivElement>(null)
 
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { toast } = useToast()
 
@@ -176,9 +176,20 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
     })
   }
 
+  const getTransactionIcon = (transaction: AccountTransaction) => {
+    if (transaction.type === 'deposit') return TrendingUp
+    if (transaction.type === 'withdrawal') return TrendingDown
+    return transaction.is_credit ? TrendingUp : TrendingDown
+  }
+
+  const getStatusColor = (transaction: AccountTransaction) => {
+    return transaction.is_credit ? "text-green-500" : "text-red-500"
+  }
+
   if (isLoading && currentPage === 1) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}>
+      <div className={`min-h-screen flex items-center justify-center ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+        }`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-sm opacity-70">Loading account history...</p>
@@ -188,79 +199,212 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
   }
 
   return (
-    <div ref={containerRef} className={`min-h-screen transition-colors duration-300 ${theme === "dark" ? "bg-gray-900" : "bg-blue-50"}`}
-      style={{ transform: `translateY(${pullToRefreshState.pullDistance}px)`, transition: pullToRefreshState.isPulling ? 'none' : 'transform 0.3s' }}
-      onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd}>
-
-      {/* PTR Indicator */}
+    <div
+      ref={containerRef}
+      className={`min-h-screen transition-colors duration-300 ${theme === "dark"
+        ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
+        : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
+        }`}
+      style={{
+        transform: `translateY(${pullToRefreshState.pullDistance}px)`,
+        transition: pullToRefreshState.isPulling ? 'none' : 'transform 0.3s ease-out',
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Pull-to-refresh indicator */}
       {(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-10 h-10 rounded-full bg-white dark:bg-gray-800 shadow-xl flex items-center justify-center">
-          <RefreshCw className={`w-5 h-5 ${pullToRefreshState.isRefreshing ? 'animate-spin' : ''}`} />
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+          }`}>
+          <RefreshCw className={`w-5 h-5 ${pullToRefreshState.isRefreshing ? 'animate-spin' : ''
+            } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
         </div>
       )}
 
       {/* Header */}
-      <div className="px-6 pt-12 pb-8 safe-area-inset-top">
-        <div className="flex items-center gap-4 mb-4">
-          <Button variant="ghost" size="icon" onClick={onNavigateBack} className="rounded-full bg-white/50 dark:bg-gray-800/50 shadow-sm">
+      <div className="px-4 pt-12 pb-8 safe-area-inset-top">
+        <div className="flex items-center gap-4 mb-8">
+          <Button
+            variant="ghost"
+            size="sm"
+            className={`h-11 w-11 p-0 rounded-full ${theme === "dark"
+              ? "text-gray-300 hover:bg-gray-700/50"
+              : "text-gray-600 hover:bg-gray-100/50"
+              }`}
+            onClick={onNavigateBack}
+          >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-black">Account History</h1>
-            <p className="text-sm opacity-60 font-medium">Balance changes and history</p>
+            <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+              Account History
+            </h1>
+            <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+              View your account balance changes
+            </p>
           </div>
         </div>
       </div>
 
-      <div className="px-6 pb-12">
-        <Card className="border-0 shadow-2xl rounded-[2.5rem] overflow-hidden dark:bg-gray-800">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-xl font-black">Transactions ({totalCount})</CardTitle>
-            <Button variant="ghost" size="icon" onClick={handleRefresh} disabled={isRefreshing} className="rounded-full">
-              <RefreshCw className={`w-5 h-5 ${isRefreshing ? 'animate-spin' : ''}`} />
-            </Button>
+      {/* Content */}
+      <div className="px-4 pb-6 safe-area-inset-bottom">
+        <Card
+          className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            }`}
+        >
+          <CardHeader className="pb-3 sm:pb-4 px-3 sm:px-6 pt-4 sm:pt-6">
+            <div className="flex items-center justify-between gap-2">
+              <CardTitle className={`text-lg sm:text-xl font-bold truncate ${theme === "dark" ? "text-white" : "text-gray-900"
+                }`}>
+                Balance Transactions ({totalCount})
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`h-10 w-10 sm:h-8 sm:w-8 p-0 rounded-full transition-all duration-300 active:scale-95 touch-manipulation ${theme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-600"
+                  }`}
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+              >
+                <RefreshCw className={`w-4 h-4 sm:w-4 sm:h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             {error ? (
-              <div className="text-center py-10">
-                <p className="text-red-500 font-bold mb-4">{error}</p>
-                <Button onClick={() => loadAccountTransactions(currentPage)} variant="outline">Retry</Button>
+              <div className="text-center py-8 sm:py-10">
+                <p className={`text-sm sm:text-base ${theme === "dark" ? "text-red-400" : "text-red-600"}`}>
+                  {error}
+                </p>
+                <Button
+                  onClick={() => loadAccountTransactions(currentPage)}
+                  className="mt-4"
+                  variant="outline"
+                >
+                  Try Again
+                </Button>
               </div>
             ) : transactions.length > 0 ? (
-              <div className="space-y-4">
-                {transactions.map((tx, idx) => (
-                  <div key={tx.uid} onClick={() => { setSelectedTransaction(tx); setDetailsOpen(true); }}
-                    className="p-4 rounded-[1.5rem] bg-gray-50 dark:bg-gray-900/50 hover:scale-[1.01] active:scale-95 transition-all cursor-pointer group">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${tx.is_credit ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}`}>
-                          {tx.is_credit ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-bold text-sm truncate">{tx.type_display}</p>
-                          <p className="text-[10px] opacity-50 font-medium">{formatDate(tx.created_at)}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className={`font-black text-sm ${tx.is_credit ? 'text-green-500' : ''}`}>
-                          {tx.is_credit ? '+' : '-'}{tx.formatted_amount}
-                        </p>
-                        <p className="text-[10px] opacity-40 font-bold">Bal: {parseFloat(tx.balance_after).toLocaleString()} FCFA</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-20 text-center opacity-40 font-bold">No history available</div>
-            )}
+              <>
+                {/* Transaction List */}
+                <div className="space-y-0.5 sm:space-y-1 mb-4">
+                  {transactions.map((transaction, index) => {
+                    const TransactionIcon = getTransactionIcon(transaction)
 
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between mt-8 pt-6 border-t dark:border-gray-700">
-                <Button variant="outline" size="sm" className="rounded-full" onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))} disabled={currentPage === 1}><ChevronLeft /> Prev</Button>
-                <p className="text-xs font-black opacity-50">{currentPage} / {totalPages}</p>
-                <Button variant="outline" size="sm" className="rounded-full" onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))} disabled={currentPage === totalPages}>Next <ChevronRight /></Button>
+                    return (
+                      <div
+                        key={transaction.uid}
+                        className={`flex items-center justify-between py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl transition-all duration-300 ${theme === "dark" ? "hover:bg-gray-700/30" : "hover:bg-gray-100/30"
+                          } ${index !== transactions.length - 1
+                            ? theme === "dark"
+                              ? "border-b border-gray-700/50"
+                              : "border-b border-gray-200/50"
+                            : ""
+                          }`}
+                      >
+                        <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+                          <div
+                            className={`w-11 h-11 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-sm flex-shrink-0 ${transaction.is_credit
+                              ? "bg-gradient-to-br from-green-500/20 to-green-500/10 text-green-500"
+                              : "bg-gradient-to-br from-red-500/20 to-red-500/10 text-red-500"
+                              }`}
+                          >
+                            <TransactionIcon className="w-5 h-5 sm:w-5 sm:h-5" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1 flex-wrap">
+                              <p className={`font-semibold text-sm sm:text-base truncate ${theme === "dark" ? "text-white" : "text-gray-900"
+                                }`}>
+                                {transaction.type_display}
+                              </p>
+                            </div>
+                            <p className={`text-xs sm:text-sm truncate ${theme === "dark" ? "text-gray-400" : "text-gray-600"
+                              }`}>
+                              {formatDate(transaction.created_at)}
+                            </p>
+                            <p className={`text-xs sm:text-sm truncate mt-0.5 ${theme === "dark" ? "text-gray-500" : "text-gray-500"
+                              }`}>
+                              {transaction.description}
+                            </p>
+                            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap mt-0.5">
+                              {transaction.reference && (
+                                <>
+                                  <span className="text-[10px] sm:text-xs opacity-50 hidden xs:inline">•</span>
+                                  <span className="text-[10px] sm:text-xs font-mono opacity-70 truncate max-w-[80px] sm:max-w-none">
+                                    {transaction.reference}
+                                  </span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      copyReference(transaction.reference)
+                                    }}
+                                    className={`h-7 w-7 sm:h-6 sm:w-6 p-1.5 sm:p-1 rounded transition-all duration-200 active:scale-95 touch-manipulation flex-shrink-0 ${theme === "dark"
+                                      ? "hover:bg-gray-600/50 active:bg-gray-600/70 text-gray-400 hover:text-gray-300"
+                                      : "hover:bg-gray-200/50 active:bg-gray-300/70 text-gray-500 hover:text-gray-700"
+                                      }`}
+                                    title="Copy reference"
+                                    aria-label="Copy reference"
+                                  >
+                                    <Copy className="w-3.5 h-3.5 sm:w-3 sm:h-3" />
+                                  </button>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right ml-2 sm:ml-3 flex-shrink-0">
+                          <p className={`font-bold text-sm sm:text-base whitespace-nowrap ${getStatusColor(transaction)}`}>
+                            {transaction.formatted_amount}
+                          </p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <DollarSign className="w-3 h-3 opacity-50" />
+                            <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                              {parseFloat(transaction.balance_after).toLocaleString()} FCFA
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                      disabled={currentPage === 1 || isLoading}
+                      className="flex items-center gap-2"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                      Previous
+                    </Button>
+
+                    <span className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                      Page {currentPage} of {totalPages}
+                    </span>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                      disabled={currentPage === totalPages || isLoading}
+                      className="flex items-center gap-2"
+                    >
+                      Next
+                      <ChevronRight className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-8 sm:py-10">
+                <p className={`text-sm sm:text-base ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                  No account transactions found
+                </p>
               </div>
             )}
           </CardContent>

@@ -27,7 +27,7 @@ export function UssdModal({
   ussdCode,
   onContinue
 }: UssdModalProps) {
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { toast } = useToast()
   const [copied, setCopied] = useState(false)
@@ -90,18 +90,18 @@ export function UssdModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className={`max-w-md mx-auto ${
-        theme === "dark"
+        resolvedTheme === "dark"
           ? "bg-gray-800 border-gray-700"
           : "bg-white border-gray-200"
       }`}>
         <DialogHeader>
           <DialogTitle className={`text-2xl font-bold text-center ${
-            theme === "dark" ? "text-white" : "text-gray-900"
+            resolvedTheme === "dark" ? "text-white" : "text-gray-900"
           }`}>
             {t("ussd.title")}
           </DialogTitle>
           <DialogDescription className={`text-base text-center ${
-            theme === "dark" ? "text-gray-400" : "text-gray-600"
+            resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"
           }`}>
             {dialAttempted ? t("ussd.descriptionAttempted") : t("ussd.description")}
           </DialogDescription>
@@ -110,17 +110,17 @@ export function UssdModal({
         <div className="flex flex-col gap-6 py-6">
           {/* USSD Code Display */}
           <div className={`p-6 rounded-lg border-2 border-dashed text-center ${
-            theme === "dark"
+            resolvedTheme === "dark"
               ? "bg-gray-700/50 border-gray-600"
               : "bg-gray-50 border-gray-300"
           }`}>
             <p className={`text-base font-medium mb-3 ${
-              theme === "dark" ? "text-gray-300" : "text-gray-600"
+              resolvedTheme === "dark" ? "text-gray-300" : "text-gray-600"
             }`}>
               {t("ussd.codeLabel")}
             </p>
             <p className={`text-3xl font-bold font-mono tracking-wider ${
-              theme === "dark" ? "text-blue-400" : "text-blue-600"
+              resolvedTheme === "dark" ? "text-blue-400" : "text-blue-600"
             }`}>
               {ussdCode}
             </p>
@@ -131,7 +131,7 @@ export function UssdModal({
             <Button
               onClick={handleDialUssd}
               className={`flex-1 h-14 text-base font-semibold transition-all duration-300 ${
-                theme === "dark"
+                resolvedTheme === "dark"
                   ? "bg-green-500/20 hover:bg-green-500/30 text-green-300 border border-green-500/30"
                   : "bg-green-500/10 hover:bg-green-500/20 text-green-600 border border-green-500/20"
               } hover:scale-[1.02] active:scale-[0.98]`}
@@ -157,10 +157,10 @@ export function UssdModal({
 
           {/* Instructions */}
           <div className={`p-4 rounded-lg ${
-            theme === "dark" ? "bg-yellow-900/20 border border-yellow-800" : "bg-yellow-50 border border-yellow-200"
+            resolvedTheme === "dark" ? "bg-yellow-900/20 border border-yellow-800" : "bg-yellow-50 border border-yellow-200"
           }`}>
             <p className={`text-base ${
-              theme === "dark" ? "text-yellow-300" : "text-yellow-700"
+              resolvedTheme === "dark" ? "text-yellow-300" : "text-yellow-700"
             }`}>
               {t("ussd.instruction")}
             </p>
@@ -170,7 +170,7 @@ export function UssdModal({
           <Button
             onClick={handleContinue}
             className={`w-full h-14 text-lg font-semibold transition-all duration-300 ${
-              theme === "dark"
+              resolvedTheme === "dark"
                 ? "bg-blue-500/20 hover:bg-blue-500/30 text-blue-300 border border-blue-500/30"
                 : "bg-blue-500/10 hover:bg-blue-500/20 text-blue-600 border border-blue-500/20"
             } hover:scale-[1.02] active:scale-[0.98]`}

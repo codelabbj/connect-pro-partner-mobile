@@ -68,7 +68,7 @@ export default function Home() {
   const [bettingTransactionType, setBettingTransactionType] = useState<"deposit" | "withdraw">("deposit")
   const [splashCompleted, setSplashCompleted] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
   const { isAuthenticated, isLoading, logout, user } = useAuth()
 
   const canProcessUssd = useMemo(() => {
@@ -145,7 +145,7 @@ export default function Home() {
   // Show loading state while checking authentication after splash
   if (!splashCompleted || isLoading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+      <div className={`min-h-screen flex items-center justify-center ${resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
         }`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -162,7 +162,7 @@ export default function Home() {
 
   return (
     <ErrorBoundary>
-      <div className={`min-h-screen transition-colors duration-300 ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+      <div className={`min-h-screen transition-colors duration-300 ${resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
         }`}>
         {/* Sidebar */}
         {isAuthenticated && !["splash", "login"].includes(currentScreen) && (
@@ -177,8 +177,8 @@ export default function Home() {
 
         {/* Main Content */}
         <div className={`transition-all duration-300 ${isAuthenticated && !["splash", "login"].includes(currentScreen)
-            ? "lg:ml-72" // Add left margin on desktop when sidebar is present (updated to match sidebar width)
-            : ""
+          ? "lg:ml-72" // Add left margin on desktop when sidebar is present (updated to match sidebar width)
+          : ""
           }`}>
           {currentScreen === "dashboard" && (
             <DashboardScreen

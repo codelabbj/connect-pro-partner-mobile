@@ -34,7 +34,7 @@ interface SidebarProps {
 }
 
 export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle }: SidebarProps) {
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { user } = useAuth()
 
@@ -144,8 +144,8 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
 
       {/* Sidebar */}
       <div className={`fixed left-0 top-0 h-full w-72 z-50 transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0 ${theme === "dark" ? "bg-gray-900" : "bg-white"
-        } border-r ${theme === "dark" ? "border-gray-700" : "border-gray-200"
+        } lg:translate-x-0 ${resolvedTheme === "dark" ? "bg-gray-900" : "bg-white"
+        } border-r ${resolvedTheme === "dark" ? "border-gray-700" : "border-gray-200"
         } shadow-xl lg:shadow-none overflow-y-auto flex flex-col`}>
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
@@ -154,10 +154,10 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
               <img src="/logo.png" alt="Connect Pro Logo" className="w-full h-full object-contain" />
             </div>
             <div className="min-w-0">
-              <h2 className={`font-bold text-lg truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+              <h2 className={`font-bold text-lg truncate ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                 {t("app.name")}
               </h2>
-              <p className={`text-sm truncate ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-sm truncate ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 {t("app.subtitle")}
               </p>
             </div>
@@ -179,10 +179,10 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
               <User className="w-5 h-5 text-blue-500" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className={`font-medium text-sm truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+              <p className={`font-medium text-sm truncate ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                 {user ? `${user.first_name} ${user.last_name}` : "User"}
               </p>
-              <p className={`text-xs truncate ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-xs truncate ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 {user?.email || "user@example.com"}
               </p>
             </div>
@@ -201,10 +201,10 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
                   key={item.id}
                   variant="ghost"
                   className={`w-full justify-start h-14 px-4 text-base ${isActive
-                    ? theme === "dark"
+                    ? resolvedTheme === "dark"
                       ? "bg-gray-800 text-white"
                       : "bg-gray-100 text-gray-900"
-                    : `${item.hoverColor} ${theme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"
+                    : `${item.hoverColor} ${resolvedTheme === "dark" ? "text-gray-300 hover:text-white" : "text-gray-600 hover:text-gray-900"
                     }`
                     }`}
                   onClick={() => {
@@ -227,7 +227,7 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
         <div className="p-4 border-t border-gray-200 dark:border-gray-700">
           <Button
             variant="ghost"
-            className={`w-full justify-start h-14 px-4 text-base ${theme === "dark"
+            className={`w-full justify-start h-14 px-4 text-base ${resolvedTheme === "dark"
               ? "text-red-400 hover:bg-red-500/10 hover:text-red-300"
               : "text-red-600 hover:bg-red-500/10 hover:text-red-700"
               }`}
@@ -247,13 +247,13 @@ interface SidebarToggleProps {
 }
 
 export function SidebarToggle({ onToggle }: SidebarToggleProps) {
-  const { theme } = useTheme()
+  const { resolvedTheme } = useTheme()
 
   return (
     <Button
       variant="ghost"
       size="sm"
-      className={`lg:hidden h-10 w-10 p-0 rounded-full ${theme === "dark"
+      className={`lg:hidden h-10 w-10 p-0 rounded-full ${resolvedTheme === "dark"
         ? "text-gray-300 hover:bg-gray-700/50"
         : "text-gray-600 hover:bg-gray-100/50"
         }`}

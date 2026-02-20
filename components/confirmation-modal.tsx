@@ -46,7 +46,7 @@ export function ConfirmationModal({
   data,
   isProcessing = false
 }: ConfirmationModalProps) {
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
 
   const getTypeIcon = () => {
@@ -143,7 +143,7 @@ export function ConfirmationModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
         className={`max-w-md mx-auto ${
-          theme === "dark" 
+          resolvedTheme === "dark" 
             ? "bg-gray-800 border-gray-700" 
             : "bg-white border-gray-200"
         }`}
@@ -152,29 +152,29 @@ export function ConfirmationModal({
         <DialogHeader className="text-center">
           <div className="flex justify-center mb-4">
             <div className={`w-16 h-16 rounded-full flex items-center justify-center ${
-              theme === "dark" ? "bg-gray-700" : "bg-gray-100"
+              resolvedTheme === "dark" ? "bg-gray-700" : "bg-gray-100"
             }`}>
               {getTypeIcon()}
             </div>
           </div>
           <DialogTitle className={`text-2xl font-bold ${
-            theme === "dark" ? "text-white" : "text-gray-900"
+            resolvedTheme === "dark" ? "text-white" : "text-gray-900"
           }`}>
             {getTypeTitle()}
           </DialogTitle>
           <DialogDescription className={`text-base ${
-            theme === "dark" ? "text-gray-400" : "text-gray-600"
+            resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"
           }`}>
             {getTypeDescription()}
           </DialogDescription>
         </DialogHeader>
 
         <div className={`space-y-6 py-6 ${
-          theme === "dark" ? "text-gray-300" : "text-gray-700"
+          resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"
         }`}>
           {/* Amount */}
           <div className={`flex justify-between items-center p-4 rounded-lg ${
-            theme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
+            resolvedTheme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
           }`}>
             <span className="text-base font-medium">{t("confirmation.amount")}</span>
             <span className="text-xl font-bold text-blue-600">
@@ -185,7 +185,7 @@ export function ConfirmationModal({
           {/* Recipient Phone (for deposit and withdraw) */}
           {(data.type === "deposit" || data.type === "withdraw") && data.recipientPhone && (
             <div className={`flex justify-between items-center p-4 rounded-lg ${
-              theme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
+              resolvedTheme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
             }`}>
               <span className="text-base font-medium">{t("confirmation.recipientPhone")}</span>
               <span className="text-base font-semibold">{data.recipientPhone}</span>
@@ -195,7 +195,7 @@ export function ConfirmationModal({
           {/* Selected Network (for deposit and withdraw) */}
           {(data.type === "deposit" || data.type === "withdraw") && data.selectedNetwork && (
             <div className={`flex justify-between items-center p-4 rounded-lg ${
-              theme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
+              resolvedTheme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
             }`}>
               <span className="text-base font-medium">{t("confirmation.network")}</span>
               <div className="text-right">
@@ -208,7 +208,7 @@ export function ConfirmationModal({
           {/* Proof Description (for recharge) */}
           {data.type === "recharge" && data.proofDescription && (
             <div className={`p-4 rounded-lg ${
-              theme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
+              resolvedTheme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
             }`}>
               <div className="text-base font-medium mb-2">{t("confirmation.proofDescription")}</div>
               <div className="text-base">{data.proofDescription}</div>
@@ -218,7 +218,7 @@ export function ConfirmationModal({
           {/* Proof Image (for recharge) */}
           {data.type === "recharge" && data.proofImage && (
             <div className={`flex justify-between items-center p-3 rounded-lg ${
-              theme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
+              resolvedTheme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
             }`}>
               <span className="text-sm font-medium">{t("confirmation.proofImage")}</span>
               <span className="text-sm font-semibold">{data.proofImage.name}</span>
@@ -228,7 +228,7 @@ export function ConfirmationModal({
           {/* Phone Number (for auto-recharge) */}
           {data.type === "auto-recharge" && data.phoneNumber && (
             <div className={`flex justify-between items-center p-4 rounded-lg ${
-              theme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
+              resolvedTheme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
             }`}>
               <span className="text-base font-medium">{t("confirmation.phoneNumber")}</span>
               <span className="text-base font-semibold">{data.phoneNumber}</span>
@@ -238,7 +238,7 @@ export function ConfirmationModal({
           {/* Network (for auto-recharge) */}
           {data.type === "auto-recharge" && data.network && (
             <div className={`flex justify-between items-center p-4 rounded-lg ${
-              theme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
+              resolvedTheme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
             }`}>
               <span className="text-base font-medium">{t("confirmation.network")}</span>
               <span className="text-base font-semibold">{data.network}</span>
@@ -249,7 +249,7 @@ export function ConfirmationModal({
           {/* Fee (for auto-recharge) */}
           {/* {data.type === "auto-recharge" && data.fee && (
             <div className={`flex justify-between items-center p-3 rounded-lg ${
-              theme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
+              resolvedTheme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
             }`}>
               <span className="text-sm font-medium">{t("confirmation.fee")}</span>
               <span className="text-sm font-semibold">{formatAmount(data.fee)} FCFA</span>
@@ -259,7 +259,7 @@ export function ConfirmationModal({
           {/* Total (for auto-recharge) */}
           {/* {data.type === "auto-recharge" && data.total && (
             <div className={`flex justify-between items-center p-3 rounded-lg ${
-              theme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
+              resolvedTheme === "dark" ? "bg-gray-700/50" : "bg-gray-50"
             }`}>
               <span className="text-sm font-medium">{t("confirmation.total")}</span>
               <span className="text-lg font-bold text-purple-600">{formatAmount(data.total)} FCFA</span>
@@ -273,7 +273,7 @@ export function ConfirmationModal({
             onClick={onClose}
             disabled={isProcessing}
             className={`w-full h-14 text-base ${
-              theme === "dark"
+              resolvedTheme === "dark"
                 ? "border-gray-600 text-gray-300 hover:bg-gray-700/50"
                 : "border-gray-200 text-gray-600 hover:bg-gray-100/50"
             }`}

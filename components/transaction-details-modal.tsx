@@ -19,7 +19,7 @@ export interface TransactionDetailsModalProps {
 
 export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, transaction }: TransactionDetailsModalProps) {
 	const { t } = useTranslation()
-	const { theme } = useTheme()
+	const { resolvedTheme } = useTheme()
 	const { toast } = useToast()
 	const [mounted, setMounted] = useState(false)
 
@@ -89,11 +89,11 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 		if (value === undefined || value === null || value === "") return null
 		return (
 			<div className="flex items-center justify-between py-1">
-				<span className={`opacity-70 ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+				<span className={`opacity-70 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
 					{label}:
 				</span>
 				<div className="flex items-center gap-2 max-w-[70%]">
-					<span className={`text-right truncate ${isMono ? "font-mono text-xs" : ""} ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+					<span className={`text-right truncate ${isMono ? "font-mono text-xs" : ""} ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
 						{typeof value === 'boolean' ? (value ? 'Oui' : 'Non') : String(value)}
 					</span>
 					{isCopyable && (
@@ -107,7 +107,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 	}
 
 	const renderSectionHeader = (title: string) => (
-		<div className={`mt-4 mb-2 pb-1 border-b font-semibold text-xs uppercase tracking-wider ${theme === "dark" ? "text-gray-500 border-gray-700" : "text-gray-400 border-gray-100"}`}>
+		<div className={`mt-4 mb-2 pb-1 border-b font-semibold text-xs uppercase tracking-wider ${resolvedTheme === "dark" ? "text-gray-500 border-gray-700" : "text-gray-400 border-gray-100"}`}>
 			{title}
 		</div>
 	)
@@ -115,17 +115,17 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 	return createPortal(
 		<>
 			<div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] transition-all duration-300" onClick={handleClose} />
-			<div className={`fixed bottom-0 left-0 right-0 h-[80vh] w-full rounded-t-[2.5rem] shadow-2xl z-[101] transition-all duration-500 ease-out overflow-hidden flex flex-col ${theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}
+			<div className={`fixed bottom-0 left-0 right-0 h-[80vh] w-full rounded-t-[2.5rem] shadow-2xl z-[101] transition-all duration-500 ease-out overflow-hidden flex flex-col ${resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"}`}
 				style={{ transform: effectiveOpen ? 'translateY(0)' : 'translateY(100%)' }}>
 
 				<div className="flex justify-center pt-4 pb-2 flex-shrink-0">
-					<div className={`w-12 h-1.5 rounded-full ${theme === "dark" ? "bg-gray-700" : "bg-gray-200"}`} />
+					<div className={`w-12 h-1.5 rounded-full ${resolvedTheme === "dark" ? "bg-gray-700" : "bg-gray-200"}`} />
 				</div>
 
 				<div className="px-6 pb-4 flex items-center justify-between flex-shrink-0">
 					<div>
 						<h2 className="text-2xl font-black">{t("transactionDetails.title")}</h2>
-						<p className={`text-xs ${theme === "dark" ? "text-gray-500" : "text-gray-400"}`}>
+						<p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-500" : "text-gray-400"}`}>
 							{transaction.reference || ''}
 						</p>
 					</div>
@@ -136,7 +136,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 
 				<div className="flex-1 overflow-y-auto px-6 pb-12 space-y-6 scrollbar-hide">
 					{/* Status & Amount Highlight */}
-					<div className={`p-6 rounded-[2rem] flex flex-col items-center justify-center text-center space-y-2 ${theme === "dark" ? "bg-gray-800/50" : "bg-gray-50"}`}>
+					<div className={`p-6 rounded-[2rem] flex flex-col items-center justify-center text-center space-y-2 ${resolvedTheme === "dark" ? "bg-gray-800/50" : "bg-gray-50"}`}>
 						<Badge className={`px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest border-2 ${getStatusColor(transaction.status)}`}>
 							{transaction.status_display || transaction.status || 'N/A'}
 						</Badge>
@@ -208,7 +208,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 								{(transaction.external_response?.data?.error_message || transaction.error_message) && (
 									<>
 										{renderSectionHeader("Erreur Externe")}
-										<div className={`p-3 rounded-xl text-xs font-medium ${theme === "dark" ? "bg-red-900/20 text-red-400" : "bg-red-50 text-red-600"}`}>
+										<div className={`p-3 rounded-xl text-xs font-medium ${resolvedTheme === "dark" ? "bg-red-900/20 text-red-400" : "bg-red-50 text-red-600"}`}>
 											{transaction.external_response?.data?.error_message || transaction.error_message}
 										</div>
 									</>
@@ -233,7 +233,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 
 								{transaction.proof_image && (
 									<div className="space-y-2">
-										<span className={`text-xs font-semibold ${theme === "dark" ? "text-gray-400" : "text-gray-500"}`}>PREUVE DE PAIEMENT</span>
+										<span className={`text-xs font-semibold ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-500"}`}>PREUVE DE PAIEMENT</span>
 										<div className="relative aspect-video rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-800">
 											<img src={transaction.proof_image} alt="Preuve" className="w-full h-full object-cover" />
 											<Button variant="secondary" size="sm" className="absolute bottom-4 right-4 rounded-full shadow-lg" onClick={() => window.open(transaction.proof_image, '_blank')}>
@@ -269,7 +269,7 @@ export function TransactionDetailsModal({ open, onOpenChange, isOpen, onClose, t
 								{transaction.error_message && (
 									<>
 										{renderSectionHeader("Message d'erreur")}
-										<div className={`p-4 rounded-3xl text-xs font-bold leading-relaxed ${theme === "dark" ? "bg-red-900/20 text-red-300" : "bg-red-50 text-red-700"}`}>
+										<div className={`p-4 rounded-3xl text-xs font-bold leading-relaxed ${resolvedTheme === "dark" ? "bg-red-900/20 text-red-300" : "bg-red-50 text-red-700"}`}>
 											{transaction.error_message}
 										</div>
 									</>

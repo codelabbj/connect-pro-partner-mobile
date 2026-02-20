@@ -14,6 +14,7 @@ import {
   Copy,
   Eye,
   Loader2,
+  Smartphone,
 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useTheme } from "@/lib/contexts"
@@ -28,9 +29,9 @@ interface AutoRechargeTransactionsScreenProps {
   onNavigateToDetail?: (transactionUid: string) => void
 }
 
-export function AutoRechargeTransactionsScreen({ 
+export function AutoRechargeTransactionsScreen({
   onNavigateBack,
-  onNavigateToDetail 
+  onNavigateToDetail
 }: AutoRechargeTransactionsScreenProps): JSX.Element {
   const [currentPage, setCurrentPage] = useState(1)
   const [filterStatus, setFilterStatus] = useState<"all" | "pending" | "success" | "failed">("all")
@@ -39,7 +40,7 @@ export function AutoRechargeTransactionsScreen({
   const [isLoading, setIsLoading] = useState(true)
   const [transactions, setTransactions] = useState<AutoRechargeTransaction[]>([])
   const [totalCount, setTotalCount] = useState(0)
-  
+
   // Pull-to-refresh state
   const [pullToRefreshState, setPullToRefreshState] = useState({
     isPulling: false,
@@ -50,8 +51,8 @@ export function AutoRechargeTransactionsScreen({
     canPull: true,
   })
   const containerRef = useRef<HTMLDivElement>(null)
-  
-  const { theme } = useTheme()
+
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
 
   const itemsPerPage = 10
@@ -60,7 +61,7 @@ export function AutoRechargeTransactionsScreen({
   const loadTransactions = async () => {
     const accessToken = authService.getAccessToken()
     if (!accessToken) return
-    
+
     setIsLoading(true)
     try {
       const data = await autoRechargeService.getTransactions(accessToken, currentPage, itemsPerPage)
@@ -239,7 +240,7 @@ export function AutoRechargeTransactionsScreen({
       (filterStatus === "success" && transaction.status === 'completed') ||
       (filterStatus === "pending" && (transaction.status === 'pending' || transaction.status === 'initiated' || transaction.status === 'processing')) ||
       (filterStatus === "failed" && (transaction.status === 'failed' || transaction.status === 'cancelled' || transaction.status === 'expired'))
-    const matchesSearch = searchTerm === "" || 
+    const matchesSearch = searchTerm === "" ||
       transaction.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.phone_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.network.nom.toLowerCase().includes(searchTerm.toLowerCase())
@@ -257,11 +258,10 @@ export function AutoRechargeTransactionsScreen({
   return (
     <div
       ref={containerRef}
-      className={`min-h-screen transition-colors duration-300 ${
-        theme === "dark"
+      className={`min-h-screen transition-colors duration-300 ${resolvedTheme === "dark"
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
           : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
-      }`}
+        }`}
       style={{
         transform: `translateY(${pullToRefreshState.pullDistance}px)`,
         transition: pullToRefreshState.isPulling ? 'none' : 'transform 0.3s ease-out',
@@ -272,15 +272,13 @@ export function AutoRechargeTransactionsScreen({
     >
       {/* Pull-to-refresh indicator */}
       {(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
-        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${
-          theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
-        }`}>
-          <RefreshCw className={`w-5 h-5 ${
-            pullToRefreshState.isRefreshing ? 'animate-spin' : ''
-          } ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
+        <div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${resolvedTheme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+          }`}>
+          <RefreshCw className={`w-5 h-5 ${pullToRefreshState.isRefreshing ? 'animate-spin' : ''
+            } ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
         </div>
       )}
-      
+
       {/* Header */}
       <div className="px-4 pt-12 pb-6 safe-area-inset-top">
         <div className="flex items-center justify-between mb-6">
@@ -288,20 +286,19 @@ export function AutoRechargeTransactionsScreen({
             <Button
               variant="ghost"
               size="sm"
-              className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${
-                theme === "dark" 
-                  ? "hover:bg-gray-700/50 text-gray-300" 
+              className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${resolvedTheme === "dark"
+                  ? "hover:bg-gray-700/50 text-gray-300"
                   : "hover:bg-gray-100/50 text-gray-600"
-              }`}
+                }`}
               onClick={onNavigateBack}
             >
               <ArrowLeft className="w-5 h-5" />
             </Button>
             <div>
-              <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+              <h1 className={`text-2xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                 {t("autoRechargeTransactions.title")}
               </h1>
-              <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 {t("autoRechargeTransactions.subtitle")}
               </p>
             </div>
@@ -309,11 +306,10 @@ export function AutoRechargeTransactionsScreen({
           <Button
             variant="ghost"
             size="sm"
-            className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${
-              theme === "dark" 
-                ? "hover:bg-gray-700/50 text-gray-300" 
+            className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${resolvedTheme === "dark"
+                ? "hover:bg-gray-700/50 text-gray-300"
                 : "hover:bg-gray-100/50 text-gray-600"
-            }`}
+              }`}
             onClick={handleRefreshTransactions}
             disabled={isRefreshing}
           >
@@ -325,19 +321,17 @@ export function AutoRechargeTransactionsScreen({
         <div className="space-y-4 mb-6">
           {/* Search Bar */}
           <div className="relative">
-            <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${
-              theme === "dark" ? "text-gray-400" : "text-gray-500"
-            }`} />
+            <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-500"
+              }`} />
             <input
               type="text"
               placeholder={t("autoRechargeTransactions.searchPlaceholder")}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className={`w-full pl-10 pr-4 py-3 rounded-xl border-0 transition-colors duration-300 ${
-                theme === "dark" 
-                  ? "bg-gray-800/80 text-white placeholder-gray-400" 
+              className={`w-full pl-10 pr-4 py-3 rounded-xl border-0 transition-colors duration-300 ${resolvedTheme === "dark"
+                  ? "bg-gray-800/80 text-white placeholder-gray-400"
                   : "bg-white/80 text-gray-900 placeholder-gray-500"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
+                } focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
             />
           </div>
 
@@ -347,13 +341,12 @@ export function AutoRechargeTransactionsScreen({
               variant={filterStatus === "all" ? "default" : "outline"}
               size="sm"
               onClick={() => setFilterStatus("all")}
-              className={`whitespace-nowrap ${
-                filterStatus === "all" 
-                  ? "bg-blue-500 text-white" 
-                  : theme === "dark" 
-                    ? "border-gray-600 text-gray-300" 
+              className={`whitespace-nowrap ${filterStatus === "all"
+                  ? "bg-blue-500 text-white"
+                  : resolvedTheme === "dark"
+                    ? "border-gray-600 text-gray-300"
                     : "border-gray-300 text-gray-700"
-              }`}
+                }`}
             >
               {t("autoRechargeTransactions.filters.all")}
             </Button>
@@ -361,13 +354,12 @@ export function AutoRechargeTransactionsScreen({
               variant={filterStatus === "success" ? "default" : "outline"}
               size="sm"
               onClick={() => setFilterStatus("success")}
-              className={`whitespace-nowrap ${
-                filterStatus === "success" 
-                  ? "bg-green-500 text-white" 
-                  : theme === "dark" 
-                    ? "border-gray-600 text-gray-300" 
+              className={`whitespace-nowrap ${filterStatus === "success"
+                  ? "bg-green-500 text-white"
+                  : resolvedTheme === "dark"
+                    ? "border-gray-600 text-gray-300"
                     : "border-gray-300 text-gray-700"
-              }`}
+                }`}
             >
               {t("autoRechargeTransactions.filters.success")}
             </Button>
@@ -375,13 +367,12 @@ export function AutoRechargeTransactionsScreen({
               variant={filterStatus === "pending" ? "default" : "outline"}
               size="sm"
               onClick={() => setFilterStatus("pending")}
-              className={`whitespace-nowrap ${
-                filterStatus === "pending" 
-                  ? "bg-yellow-500 text-white" 
-                  : theme === "dark" 
-                    ? "border-gray-600 text-gray-300" 
+              className={`whitespace-nowrap ${filterStatus === "pending"
+                  ? "bg-yellow-500 text-white"
+                  : resolvedTheme === "dark"
+                    ? "border-gray-600 text-gray-300"
                     : "border-gray-300 text-gray-700"
-              }`}
+                }`}
             >
               {t("autoRechargeTransactions.filters.pending")}
             </Button>
@@ -389,13 +380,12 @@ export function AutoRechargeTransactionsScreen({
               variant={filterStatus === "failed" ? "default" : "outline"}
               size="sm"
               onClick={() => setFilterStatus("failed")}
-              className={`whitespace-nowrap ${
-                filterStatus === "failed" 
-                  ? "bg-red-500 text-white" 
-                  : theme === "dark" 
-                    ? "border-gray-600 text-gray-300" 
+              className={`whitespace-nowrap ${filterStatus === "failed"
+                  ? "bg-red-500 text-white"
+                  : resolvedTheme === "dark"
+                    ? "border-gray-600 text-gray-300"
                     : "border-gray-300 text-gray-700"
-              }`}
+                }`}
             >
               {t("autoRechargeTransactions.filters.failed")}
             </Button>
@@ -406,13 +396,12 @@ export function AutoRechargeTransactionsScreen({
       {/* Transactions List */}
       <div className="px-4 pb-8">
         <Card
-          className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${
-            theme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
-          }`}
+          className={`border-0 shadow-xl backdrop-blur-sm transition-colors duration-300 ${resolvedTheme === "dark" ? "bg-gray-800/95 text-white" : "bg-white/95 text-gray-900"
+            }`}
         >
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <CardTitle className={`text-lg font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+              <CardTitle className={`text-lg font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                 Transactions ({filteredTransactions.length})
               </CardTitle>
             </div>
@@ -421,7 +410,7 @@ export function AutoRechargeTransactionsScreen({
             {isLoading ? (
               <div className="text-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-500" />
-                <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   {t("autoRechargeTransactions.loading")}
                 </p>
               </div>
@@ -429,19 +418,17 @@ export function AutoRechargeTransactionsScreen({
               filteredTransactions.map((transaction, index) => {
                 const statusInfo = getStatusInfo(transaction.status)
                 const StatusIcon = statusInfo.icon
-                
+
                 return (
                   <div
                     key={transaction.uid}
-                    className={`py-3 px-2 rounded-lg transition-colors duration-300 ${
-                      theme === "dark" ? "hover:bg-gray-700/30" : "hover:bg-gray-100/30"
-                    } ${
-                      index !== filteredTransactions.length - 1
-                        ? theme === "dark"
+                    className={`py-3 px-2 rounded-lg transition-colors duration-300 ${resolvedTheme === "dark" ? "hover:bg-gray-700/30" : "hover:bg-gray-100/30"
+                      } ${index !== filteredTransactions.length - 1
+                        ? resolvedTheme === "dark"
                           ? "border-b border-gray-700/50"
                           : "border-b border-gray-200/50"
                         : ""
-                    }`}
+                      }`}
                   >
                     {/* Header Row */}
                     <div className="flex items-center justify-between mb-2">
@@ -449,27 +436,40 @@ export function AutoRechargeTransactionsScreen({
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center shadow-sm flex-shrink-0 ${statusInfo.bgColor}`}>
                           <StatusIcon className={`w-3.5 h-3.5 ${statusInfo.color}`} />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className={`font-medium text-sm truncate ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
-                            {transaction.network.nom}
-                          </p>
-                          <p className={`text-xs truncate ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                            {formatTransactionDate(transaction.created_at)}
-                          </p>
+                        <div className="flex items-center gap-2 min-w-0 flex-1">
+                          <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center overflow-hidden flex-shrink-0">
+                            {transaction.network.image ? (
+                              <img
+                                src={transaction.network.image}
+                                alt={transaction.network.nom}
+                                className="w-7 h-7 object-contain"
+                              />
+                            ) : (
+                              <Smartphone className="w-4 h-4 text-gray-400" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`font-medium text-sm truncate ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
+                              {transaction.network.nom}
+                            </p>
+                            <p className={`text-xs truncate ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                              {formatTransactionDate(transaction.created_at)}
+                            </p>
+                          </div>
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className={`font-bold text-sm ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                        <p className={`font-bold text-sm ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                           {formatAmount(transaction.amount)} FCFA
                         </p>
                       </div>
                     </div>
-                    
+
                     {/* Details Row */}
                     <div className="flex items-center justify-between">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className={`text-xs truncate ${theme === "dark" ? "text-gray-500" : "text-gray-500"}`}>
+                          <p className={`text-xs truncate ${resolvedTheme === "dark" ? "text-gray-500" : "text-gray-500"}`}>
                             <span className="font-medium">{t("autoRechargeTransactions.reference")}:</span> {transaction.reference}
                           </p>
                           <Button
@@ -481,7 +481,7 @@ export function AutoRechargeTransactionsScreen({
                             <Copy className="w-3 h-3" />
                           </Button>
                         </div>
-                        <p className={`text-xs ${theme === "dark" ? "text-gray-500" : "text-gray-500"}`}>
+                        <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-500" : "text-gray-500"}`}>
                           <span className="font-medium">{t("autoRechargeTransactions.phone")}:</span> {transaction.phone_number}
                         </p>
                       </div>
@@ -507,7 +507,7 @@ export function AutoRechargeTransactionsScreen({
               })
             ) : (
               <div className="text-center py-8">
-                <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   {t("autoRechargeTransactions.noTransactions")}
                 </p>
               </div>
@@ -523,16 +523,15 @@ export function AutoRechargeTransactionsScreen({
               size="sm"
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className={`${
-                theme === "dark" 
-                  ? "border-gray-600 text-gray-300 disabled:text-gray-600" 
+              className={`${resolvedTheme === "dark"
+                  ? "border-gray-600 text-gray-300 disabled:text-gray-600"
                   : "border-gray-300 text-gray-700 disabled:text-gray-400"
-              }`}
+                }`}
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
               {t("autoRechargeTransactions.previous")}
             </Button>
-            
+
             <div className="flex items-center gap-2">
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 let pageNum
@@ -545,20 +544,19 @@ export function AutoRechargeTransactionsScreen({
                 } else {
                   pageNum = currentPage - 2 + i
                 }
-                
+
                 return (
                   <Button
                     key={pageNum}
                     variant={currentPage === pageNum ? "default" : "outline"}
                     size="sm"
                     onClick={() => setCurrentPage(pageNum)}
-                    className={`w-10 h-10 p-0 ${
-                      currentPage === pageNum 
-                        ? "bg-blue-500 text-white" 
-                        : theme === "dark" 
-                          ? "border-gray-600 text-gray-300" 
+                    className={`w-10 h-10 p-0 ${currentPage === pageNum
+                        ? "bg-blue-500 text-white"
+                        : resolvedTheme === "dark"
+                          ? "border-gray-600 text-gray-300"
                           : "border-gray-300 text-gray-700"
-                    }`}
+                      }`}
                   >
                     {pageNum}
                   </Button>
@@ -571,11 +569,10 @@ export function AutoRechargeTransactionsScreen({
               size="sm"
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className={`${
-                theme === "dark" 
-                  ? "border-gray-600 text-gray-300 disabled:text-gray-600" 
+              className={`${resolvedTheme === "dark"
+                  ? "border-gray-600 text-gray-300 disabled:text-gray-600"
                   : "border-gray-300 text-gray-700 disabled:text-gray-400"
-              }`}
+                }`}
             >
               {t("autoRechargeTransactions.next")}
               <ChevronRight className="w-4 h-4 ml-1" />

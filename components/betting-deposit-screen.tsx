@@ -43,7 +43,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
   const [submitting, setSubmitting] = useState(false)
   const [showAmount, setShowAmount] = useState(false)
   
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { toast } = useToast()
   const { refreshAccountData, refreshTransactions } = useAuth()
@@ -236,7 +236,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
   if (loading) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+        resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
       }`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -249,7 +249,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
   if (!platform) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${
-        theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+        resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
       }`}>
         <div className="text-center">
           <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
@@ -263,7 +263,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
 
   return (
     <div className={`min-h-screen transition-colors duration-300 ${
-      theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+      resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
     }`}>
       {/* Header */}
       <div className="px-4 pt-16 pb-6 safe-area-inset-top">
@@ -272,7 +272,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
             variant="ghost"
             size="sm"
             className={`h-12 w-12 p-0 rounded-full ${
-              theme === "dark" 
+              resolvedTheme === "dark" 
                 ? "text-gray-300 hover:bg-gray-700/50" 
                 : "text-gray-600 hover:bg-gray-100/50"
             }`}
@@ -281,10 +281,10 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
             <ArrowLeft className="w-6 h-6" />
           </Button>
           <div>
-            <h1 className={`text-2xl font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+            <h1 className={`text-2xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
               {t("betting.deposit.title", { name: platform.name })}
             </h1>
-            <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+            <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
               {t("betting.deposit.subtitle")}
             </p>
           </div>
@@ -292,7 +292,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
 
         {/* Platform Info */}
         <Card className={`border-0 shadow-lg mb-6 ${
-          theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+          resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
         }`}>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
@@ -304,21 +304,21 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
                 )}
               </div>
               <div className="flex-1">
-                <h3 className={`font-bold ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+                <h3 className={`font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                   {platform.name}
                 </h3>
-                <p className={`text-sm ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                   {t("betting.deposit.platformInfo", { min: formatCurrency(platform.min_deposit_amount), max: formatCurrency(platform.max_deposit_amount) })}
                 </p>
                 {(platform.city || platform.street) && (
                   <div className="flex flex-wrap gap-2 mt-1">
                     {platform.city && (
-                      <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                      <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                         {t("betting.platforms.address.city", { city: platform.city })}
                       </span>
                     )}
                     {platform.street && (
-                      <span className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                      <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                         {t("betting.platforms.address.street", { street: platform.street })}
                       </span>
                     )}
@@ -333,10 +333,10 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
       {/* Form */}
       <div className="px-4">
         <Card className={`border-0 shadow-lg ${
-          theme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+          resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
         }`}>
           <CardHeader className="pb-3">
-            <CardTitle className={`text-lg ${theme === "dark" ? "text-white" : "text-gray-900"}`}>
+            <CardTitle className={`text-lg ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
               Deposit Details
             </CardTitle>
           </CardHeader>
@@ -344,7 +344,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
             {/* Betting User ID */}
             <div className="space-y-2">
               <Label htmlFor="userId" className={`text-sm font-medium ${
-                theme === "dark" ? "text-gray-300" : "text-gray-700"
+                resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"
               }`}>
                 {t("betting.deposit.userIdLabel")}
               </Label>
@@ -356,7 +356,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
                   value={bettingUserId}
                   onChange={(e) => setBettingUserId(e.target.value)}
                   className={`flex-1 h-12 text-base ${
-                    theme === "dark" 
+                    resolvedTheme === "dark" 
                       ? "bg-gray-700 border-gray-600 text-white" 
                       : "bg-white border-gray-200 text-gray-900"
                   }`}
@@ -378,7 +378,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
             {/* User Verification Status */}
             {verifiedUser && (
               <Alert className={`${
-                theme === "dark" ? "bg-green-500/10 border-green-500/20" : "bg-green-50 border-green-200"
+                resolvedTheme === "dark" ? "bg-green-500/10 border-green-500/20" : "bg-green-50 border-green-200"
               }`}>
                 <CheckCircle className="h-4 w-4 text-green-500" />
                 <AlertDescription className="text-green-700 dark:text-green-300">
@@ -390,7 +390,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
             {/* Amount */}
             <div className="space-y-2">
               <Label htmlFor="amount" className={`text-sm font-medium ${
-                theme === "dark" ? "text-gray-300" : "text-gray-700"
+                resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"
               }`}>
                 {t("betting.deposit.amountLabel")}
               </Label>
@@ -402,7 +402,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   className={`pr-12 h-12 text-base ${
-                    theme === "dark" 
+                    resolvedTheme === "dark" 
                       ? "bg-gray-700 border-gray-600 text-white" 
                       : "bg-white border-gray-200 text-gray-900"
                   }`}
@@ -416,7 +416,7 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
                   {showAmount ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </Button>
               </div>
-              <p className={`text-xs ${theme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+              <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                 {t("betting.deposit.minMaxHint", { min: formatCurrency(platform.min_deposit_amount), max: formatCurrency(platform.max_deposit_amount) })}
               </p>
             </div>
@@ -424,10 +424,10 @@ export function BettingDepositScreen({ platformUid, onNavigateBack }: BettingDep
             {/* Amount Preview */}
             {amount && showAmount && (
               <div className={`p-3 rounded-lg ${
-                theme === "dark" ? "bg-blue-500/10" : "bg-blue-50"
+                resolvedTheme === "dark" ? "bg-blue-500/10" : "bg-blue-50"
               }`}>
                 <p className={`text-sm font-medium ${
-                  theme === "dark" ? "text-blue-300" : "text-blue-700"
+                  resolvedTheme === "dark" ? "text-blue-300" : "text-blue-700"
                 }`}>
                   {t("betting.deposit.amountPreview", { amount: parseFloat(amount).toLocaleString() })}
                 </p>

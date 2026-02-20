@@ -20,7 +20,7 @@ interface UserSearchResult {
 }
 
 export function TransferScreen({ onNavigateBack }: { onNavigateBack: () => void }) {
-	const { theme } = useTheme()
+	const { resolvedTheme } = useTheme()
 	const { t } = useTranslation()
 	const { toast } = useToast()
 	const [recipientSearch, setRecipientSearch] = useState("")
@@ -207,7 +207,7 @@ export function TransferScreen({ onNavigateBack }: { onNavigateBack: () => void 
 	return (
 		<div
 			ref={containerRef}
-			className={`min-h-screen transition-all duration-300 ${theme === "dark" ? "bg-gray-900" : "bg-blue-50"}`}
+			className={`min-h-screen transition-all duration-300 ${resolvedTheme === "dark" ? "bg-gray-900" : "bg-blue-50"}`}
 			style={{
 				transform: `translateY(${pullToRefreshState.pullDistance}px)`,
 				transition: pullToRefreshState.isPulling ? 'none' : 'transform 0.3s ease-out',
@@ -218,10 +218,10 @@ export function TransferScreen({ onNavigateBack }: { onNavigateBack: () => void 
 		>
 			{/* Pull-to-refresh indicator */}
 			{(pullToRefreshState.isPulling || pullToRefreshState.isRefreshing) && (
-				<div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${theme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
+				<div className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center w-10 h-10 rounded-full backdrop-blur-xl shadow-lg ${resolvedTheme === "dark" ? "bg-gray-800/90 border border-gray-700" : "bg-white/90 border border-gray-200"
 					}`}>
 					<RefreshCw className={`w-5 h-5 ${pullToRefreshState.isRefreshing ? 'animate-spin' : ''
-						} ${theme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
+						} ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`} />
 				</div>
 			)}
 
