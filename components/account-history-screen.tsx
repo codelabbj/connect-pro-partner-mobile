@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import {
   ArrowLeft,
   ChevronLeft,
@@ -34,6 +35,8 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
   const [error, setError] = useState<string | null>(null)
   const [selectedTransaction, setSelectedTransaction] = useState<AccountTransaction | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
 
   // Pull-to-refresh state
   const [pullToRefreshState, setPullToRefreshState] = useState({
@@ -186,6 +189,20 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
     return transaction.is_credit ? "text-green-500" : "text-red-500"
   }
 
+  const filteredTransactions = transactions.filter(t => {
+    let matchesDate = true;
+    if (startDate || endDate) {
+      const txDate = new Date(t.created_at);
+      txDate.setHours(0, 0, 0, 0);
+      const s = startDate ? new Date(startDate) : new Date("1900-01-01");
+      const e = endDate ? new Date(endDate) : new Date("2100-01-01");
+      s.setHours(0, 0, 0, 0);
+      e.setHours(23, 59, 59, 999);
+      matchesDate = txDate >= s && txDate <= e;
+    }
+    return matchesDate;
+  })
+
   if (isLoading && currentPage === 1) {
     return (
       <div className={`min-h-screen flex items-center justify-center ${theme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
@@ -245,6 +262,22 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
             </p>
           </div>
         </div>
+
+        {/* Date Filters */}
+        <div className="flex gap-3 mt-4">
+          <Input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className={`flex-1 ${theme === "dark" ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-200"}`}
+          />
+          <Input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className={`flex-1 ${theme === "dark" ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-200"}`}
+          />
+        </div>
       </div>
 
       {/* Content */}
@@ -289,14 +322,14 @@ export function AccountHistoryScreen({ onNavigateBack }: AccountHistoryScreenPro
               <>
                 {/* Transaction List */}
                 <div className="space-y-0.5 sm:space-y-1 mb-4">
-                  {transactions.map((transaction, index) => {
+                  {filteredTransactions.map((transaction, index) => {
                     const TransactionIcon = getTransactionIcon(transaction)
 
                     return (
                       <div
                         key={transaction.uid}
                         className={`flex items-center justify-between py-3 sm:py-4 px-2 sm:px-3 rounded-lg sm:rounded-xl transition-all duration-300 ${theme === "dark" ? "hover:bg-gray-700/30" : "hover:bg-gray-100/30"
-                          } ${index !== transactions.length - 1
+                          } ${index !== filteredTransactions.length - 1
                             ? theme === "dark"
                               ? "border-b border-gray-700/50"
                               : "border-b border-gray-200/50"

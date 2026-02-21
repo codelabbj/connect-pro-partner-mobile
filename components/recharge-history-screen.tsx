@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import {
   Battery,
   ArrowLeft,
@@ -37,6 +38,8 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [selectedRecharge, setSelectedRecharge] = useState<RechargeData | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
 
   // Pull-to-refresh state
   const [pullToRefreshState, setPullToRefreshState] = useState({
@@ -225,7 +228,19 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
     const matchesSearch = searchTerm === "" ||
       recharge.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
       recharge.formatted_amount.toLowerCase().includes(searchTerm.toLowerCase())
-    return matchesStatus && matchesSearch
+
+    let matchesDate = true;
+    if (startDate || endDate) {
+      const txDate = new Date(recharge.created_at);
+      txDate.setHours(0, 0, 0, 0);
+      const s = startDate ? new Date(startDate) : new Date("1900-01-01");
+      const e = endDate ? new Date(endDate) : new Date("2100-01-01");
+      s.setHours(0, 0, 0, 0);
+      e.setHours(23, 59, 59, 999);
+      matchesDate = txDate >= s && txDate <= e;
+    }
+
+    return matchesStatus && matchesSearch && matchesDate
   })
 
   // Calculate pagination
@@ -237,7 +252,7 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [filterStatus, searchTerm])
+  }, [filterStatus, searchTerm, startDate, endDate])
 
   return (
     <div
@@ -324,6 +339,22 @@ export function RechargeHistoryScreen({ onNavigateBack }: RechargeHistoryScreenP
                 {t(`rechargeHistory.filters.${status === "all" ? "all" : status === "approved" ? "approved" : status === "pending" ? "pending" : status === "rejected" ? "rejected" : "proofSubmitted"}`)}
               </Button>
             ))}
+          </div>
+
+          {/* Date Filters */}
+          <div className="flex gap-3">
+            <Input
+              type="date"
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+              className={`flex-1 ${resolvedTheme === "dark" ? "bg-gray-800/80 border-gray-700 text-white" : "bg-white/80 border-gray-200 text-gray-900"}`}
+            />
+            <Input
+              type="date"
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              className={`flex-1 ${resolvedTheme === "dark" ? "bg-gray-800/80 border-gray-700 text-white" : "bg-white/80 border-gray-200 text-gray-900"}`}
+            />
           </div>
         </div>
       </div>

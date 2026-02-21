@@ -308,12 +308,20 @@ export default function Home() {
             <BettingDepositScreen
               platformUid={selectedPlatformUid}
               onNavigateBack={navigateBack}
+              onSuccess={() => {
+                setCurrentScreen("dashboard")
+                setNavigationHistory([])
+              }}
             />
           )}
           {currentScreen === "betting-withdrawal" && (
             <BettingWithdrawalScreen
               platformUid={selectedPlatformUid}
               onNavigateBack={navigateBack}
+              onSuccess={() => {
+                setCurrentScreen("dashboard")
+                setNavigationHistory([])
+              }}
             />
           )}
           {currentScreen === "auto-recharge" && (

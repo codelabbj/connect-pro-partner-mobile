@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import {
   TrendingUp,
   TrendingDown,
@@ -34,6 +35,8 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null)
   const [detailsOpen, setDetailsOpen] = useState(false)
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
 
   // Pull-to-refresh state
   const [pullToRefreshState, setPullToRefreshState] = useState({
@@ -142,13 +145,25 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
       t.display_recipient_name?.toLowerCase().includes(searchLower) ||
       t.recipient_phone?.toLowerCase().includes(searchLower) ||
       t.reference?.toLowerCase().includes(searchLower)
-    return matchesType && matchesSearch
+
+    let matchesDate = true;
+    if (startDate || endDate) {
+      const txDate = new Date(t.created_at);
+      txDate.setHours(0, 0, 0, 0);
+      const s = startDate ? new Date(startDate) : new Date("1900-01-01");
+      const e = endDate ? new Date(endDate) : new Date("2100-01-01");
+      s.setHours(0, 0, 0, 0);
+      e.setHours(23, 59, 59, 999);
+      matchesDate = txDate >= s && txDate <= e;
+    }
+
+    return matchesType && matchesSearch && matchesDate
   })
 
   const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage)
   const currentTransactions = filteredTransactions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
-  useEffect(() => setCurrentPage(1), [filterType, searchTerm])
+  useEffect(() => setCurrentPage(1), [filterType, searchTerm, startDate, endDate])
 
   return (
     <div ref={containerRef} className={`min-h-screen transition-colors duration-300 ${resolvedTheme === "dark" ? "bg-gray-900" : "bg-blue-50"}`}
@@ -189,6 +204,11 @@ export function TransactionHistoryScreen({ onNavigateBack }: TransactionHistoryS
                 {t(`transactionHistory.filters.${type === "all" ? "all" : type === "deposit" ? "deposits" : "withdrawals"}`)}
               </Button>
             ))}
+          </div>
+
+          <div className="flex gap-3">
+            <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={`flex-1 rounded-[1 rem] ${resolvedTheme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`} />
+            <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={`flex-1 rounded-[1 rem] ${resolvedTheme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`} />
           </div>
         </div>
       </div>

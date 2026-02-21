@@ -584,7 +584,7 @@ export function DashboardScreen({
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-2xl"></div>
 
             {/* Icon */}
-            <TrendingUp className="relative z-10 text-blue-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 w-14 h-14 sm:w-16 sm:h-16" />
+            <TrendingUp size={34} style={{ width: '24px', height: '24px' }} className="relative z-10 text-blue-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-all duration-500 group-hover:scale-110 group-hover:rotate-3" />
 
             {/* Text */}
             <span className="relative z-10 text-sm sm:text-base font-bold tracking-wide group-hover:text-blue-600 dark:group-hover:text-blue-300 transition-colors duration-500 text-center">
@@ -598,16 +598,16 @@ export function DashboardScreen({
           {/* Transfer UV Button */}
           <Button
             onClick={onNavigateToTransfer}
-            className={`group relative h-36 sm:h-40 flex-col gap-4 sm:gap-5 border-0 overflow-hidden transition-all duration-500 ease-out ${resolvedTheme === "dark"
+            className={`group relative h-40 flex-col gap-5 border-0 overflow-hidden transition-all duration-500 ease-out ${resolvedTheme === "dark"
               ? "bg-transparent hover:bg-purple-500/10 text-white"
               : "bg-transparent hover:bg-purple-500/10 text-gray-900"
-              } hover:scale-[1.03] active:scale-[0.97] p-2`}
+              } hover:scale-[1.03] active:scale-[0.97]`}
           >
             {/* Animated Background */}
             <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-2xl"></div>
 
             {/* Icon */}
-            <Send className="relative z-10 text-purple-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 w-14 h-14 sm:w-16 sm:h-16" />
+            <Send size={34} style={{ width: '24px', height: '24px' }} className="relative z-10 text-purple-500 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-all duration-500 group-hover:scale-110 group-hover:rotate-12" />
 
             {/* Text */}
             <span className="relative z-10 text-sm sm:text-base font-bold tracking-wide group-hover:text-purple-600 dark:group-hover:text-purple-300 transition-colors duration-500 text-center">
@@ -630,7 +630,7 @@ export function DashboardScreen({
             <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 via-green-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 rounded-2xl"></div>
 
             {/* Icon */}
-            <TrendingDown className="relative z-10 text-green-500 group-hover:text-green-600 dark:group-hover:text-green-400 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-3 w-14 h-14 sm:w-16 sm:h-16" />
+            <TrendingDown size={34} style={{ width: '24px', height: '24px' }} className="relative z-10 text-green-500 group-hover:text-green-600 dark:group-hover:text-green-400 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-3" />
 
             {/* Text */}
             <span className="relative z-10 text-sm sm:text-base font-bold tracking-wide group-hover:text-green-600 dark:group-hover:text-green-300 transition-colors duration-500 text-center">
@@ -847,10 +847,10 @@ export function DashboardScreen({
                     </div>
                     <div className="text-right ml-2 sm:ml-3 flex-shrink-0">
                       <p
-                        className={`font-bold text-base sm:text-lg whitespace-nowrap ${isDeposit || item.historyType === 'recharge' || item.historyType === 'auto-recharge'
+                        className={`font-bold text-base sm:text-lg whitespace-nowrap ${isDeposit || item.historyType === 'recharge' || item.historyType === 'auto-recharge' || (item.historyType === 'transfer' && item.isReceived)
                           ? "text-green-500"
-                          : item.historyType === 'transfer'
-                            ? "text-blue-500"
+                          : item.historyType === 'transfer' && !item.isReceived
+                            ? "text-red-500"
                             : resolvedTheme === "dark"
                               ? "text-white"
                               : "text-gray-900"
@@ -866,7 +866,7 @@ export function DashboardScreen({
                                 : item.historyType === 'auto-recharge'
                                   ? item.formatted_amount ? `+${item.formatted_amount}` : `+${parseFloat(amount).toLocaleString()}`
                                   : item.historyType === 'transfer'
-                                    ? `-${parseFloat(amount).toLocaleString()}`
+                                    ? `${item.isReceived ? '+' : '-'}${parseFloat(amount).toLocaleString()}`
                                     : parseFloat(amount).toLocaleString()}{' '}FCFA
                         </span>
                         <span className="sm:hidden">
@@ -879,7 +879,7 @@ export function DashboardScreen({
                                 : item.historyType === 'auto-recharge'
                                   ? item.formatted_amount ? `+${item.formatted_amount}` : `+${parseFloat(amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
                                   : item.historyType === 'transfer'
-                                    ? `-${parseFloat(amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
+                                    ? `${item.isReceived ? '+' : '-'}${parseFloat(amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}`
                                     : parseFloat(amount).toLocaleString('fr-FR', { maximumFractionDigits: 0 })}{' '}FCFA
                         </span>
                       </p>

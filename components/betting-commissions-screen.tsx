@@ -26,11 +26,11 @@ import { useTheme } from "@/lib/contexts"
 import { useTranslation } from "@/lib/contexts"
 import { useToast } from "@/hooks/use-toast"
 import { bettingService } from "@/lib/betting-api"
-import { 
-  BettingCommissionStats, 
-  UnpaidCommissionsResponse, 
-  CommissionRates, 
-  PaymentHistoryResponse 
+import {
+  BettingCommissionStats,
+  UnpaidCommissionsResponse,
+  CommissionRates,
+  PaymentHistoryResponse
 } from "@/lib/betting"
 
 interface BettingCommissionsScreenProps {
@@ -45,7 +45,9 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [activeTab, setActiveTab] = useState<"overview" | "unpaid" | "rates" | "history">("overview")
-  
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
+
   const { theme, resolvedTheme } = useTheme()
   const { t } = useTranslation()
   const { toast } = useToast()
@@ -54,12 +56,12 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
   const loadCommissionData = async () => {
     try {
       const [stats, unpaid, rates, history] = await Promise.all([
-        bettingService.getCommissionStats(),
+        bettingService.getCommissionStats({ date_from: startDate || undefined, date_to: endDate || undefined }),
         bettingService.getUnpaidCommissions(),
         bettingService.getCurrentRates(),
         bettingService.getPaymentHistory()
       ])
-      
+
       setCommissionStats(stats)
       setUnpaidCommissions(unpaid)
       setCommissionRates(rates)
@@ -94,7 +96,7 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
 
   useEffect(() => {
     loadCommissionData()
-  }, [])
+  }, [startDate, endDate])
 
   // Format currency
   const formatCurrency = (amount: string | number) => {
@@ -142,9 +144,8 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
 
   if (loading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${
-        resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
-      }`}>
+      <div className={`min-h-screen flex items-center justify-center ${resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+        }`}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-sm opacity-70">{t("betting.commissions.loading")}</p>
@@ -154,9 +155,8 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
   }
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${
-      resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
-    }`}>
+    <div className={`min-h-screen transition-colors duration-300 ${resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
+      }`}>
       {/* Header */}
       <div className="px-4 pt-12 pb-6 safe-area-inset-top">
         <div className="flex items-center justify-between mb-6">
@@ -164,11 +164,10 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
             <Button
               variant="ghost"
               size="sm"
-              className={`h-10 w-10 p-0 rounded-full ${
-                resolvedTheme === "dark" 
-                  ? "text-gray-300 hover:bg-gray-700/50" 
+              className={`h-10 w-10 p-0 rounded-full ${resolvedTheme === "dark"
+                  ? "text-gray-300 hover:bg-gray-700/50"
                   : "text-gray-600 hover:bg-gray-100/50"
-              }`}
+                }`}
               onClick={onNavigateBack}
             >
               <ArrowLeft className="w-5 h-5" />
@@ -185,11 +184,10 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
           <Button
             variant="ghost"
             size="sm"
-            className={`h-10 w-10 p-0 rounded-full ${
-              resolvedTheme === "dark" 
-                ? "text-gray-300 hover:bg-gray-700/50" 
+            className={`h-10 w-10 p-0 rounded-full ${resolvedTheme === "dark"
+                ? "text-gray-300 hover:bg-gray-700/50"
                 : "text-gray-600 hover:bg-gray-100/50"
-            }`}
+              }`}
             onClick={handleRefresh}
             disabled={refreshing}
           >
@@ -197,12 +195,27 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
           </Button>
         </div>
 
+        {/* Date Filters */}
+        <div className="flex gap-3 mb-6">
+          <Input
+            type="date"
+            value={startDate}
+            onChange={(e) => setStartDate(e.target.value)}
+            className={`flex-1 ${resolvedTheme === "dark" ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-200"}`}
+          />
+          <Input
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+            className={`flex-1 ${resolvedTheme === "dark" ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-200"}`}
+          />
+        </div>
+
         {/* Summary Cards */}
         {commissionStats && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            <Card className={`border-0 shadow-lg ${
-              resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
-            }`}>
+            <Card className={`border-0 shadow-lg ${resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+              }`}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
@@ -220,9 +233,8 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
               </CardContent>
             </Card>
 
-            <Card className={`border-0 shadow-lg ${
-              resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
-            }`}>
+            <Card className={`border-0 shadow-lg ${resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+              }`}>
               <CardContent className="p-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
@@ -246,9 +258,8 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
       {/* Tabs */}
       <div className="px-4">
         <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
-          <TabsList className={`${
-            resolvedTheme === "dark" ? "bg-gray-800" : "bg-gray-100"
-          } overflow-x-auto flex gap-2 rounded-lg p-1`}>
+          <TabsList className={`${resolvedTheme === "dark" ? "bg-gray-800" : "bg-gray-100"
+            } overflow-x-auto flex gap-2 rounded-lg p-1`}>
             <TabsTrigger className="whitespace-nowrap flex-shrink-0" value="overview">{t("betting.commissions.tabs.overview")}</TabsTrigger>
             <TabsTrigger className="whitespace-nowrap flex-shrink-0" value="unpaid">{t("betting.commissions.tabs.unpaid")}</TabsTrigger>
             <TabsTrigger className="whitespace-nowrap flex-shrink-0" value="rates">{t("betting.commissions.tabs.rates")}</TabsTrigger>
@@ -259,13 +270,11 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
             <div className="space-y-4">
               {/* Commission Summary */}
               {commissionStats && (
-                <Card className={`border-0 shadow-lg ${
-                  resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
-                }`}>
+                <Card className={`border-0 shadow-lg ${resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+                  }`}>
                   <CardHeader className="pb-3">
-                    <CardTitle className={`text-lg flex items-center gap-2 ${
-                      resolvedTheme === "dark" ? "text-white" : "text-gray-900"
-                    }`}>
+                    <CardTitle className={`text-lg flex items-center gap-2 ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"
+                      }`}>
                       <BarChart3 className="w-5 h-5 text-blue-500" />
                       {t("betting.commissions.summary.heading")}
                     </CardTitle>
@@ -303,13 +312,11 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
 
               {/* Commission by Platform */}
               {commissionStats && commissionStats.by_platform.length > 0 && (
-                <Card className={`border-0 shadow-lg ${
-                  resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
-                }`}>
+                <Card className={`border-0 shadow-lg ${resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+                  }`}>
                   <CardHeader className="pb-3">
-                    <CardTitle className={`text-lg flex items-center gap-2 ${
-                      resolvedTheme === "dark" ? "text-white" : "text-gray-900"
-                    }`}>
+                    <CardTitle className={`text-lg flex items-center gap-2 ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"
+                      }`}>
                       <Activity className="w-5 h-5 text-purple-500" />
                       {t("betting.commissions.summary.byPlatform")}
                     </CardTitle>
@@ -347,9 +354,8 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
                 unpaidCommissions.transactions.map((transaction) => (
                   <Card
                     key={transaction.uid}
-                    className={`border-0 shadow-lg h-full ${
-                      resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
-                    }`}
+                    className={`border-0 shadow-lg h-full ${resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+                      }`}
                   >
                     <CardContent className="p-4 sm:p-6 h-full">
                       <div className="flex items-center justify-between mb-4">
@@ -422,13 +428,11 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
           <TabsContent value="rates" className="mt-6">
             <div className="space-y-4">
               {commissionRates && (
-                <Card className={`border-0 shadow-lg ${
-                  resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
-                }`}>
+                <Card className={`border-0 shadow-lg ${resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+                  }`}>
                   <CardHeader className="pb-3">
-                    <CardTitle className={`text-lg flex items-center gap-2 ${
-                      resolvedTheme === "dark" ? "text-white" : "text-gray-900"
-                    }`}>
+                    <CardTitle className={`text-lg flex items-center gap-2 ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"
+                      }`}>
                       <Settings className="w-5 h-5 text-blue-500" />
                       {t("betting.commissions.rates.heading")}
                     </CardTitle>
@@ -456,9 +460,8 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
                     </div>
 
                     {commissionRates.message && (
-                      <div className={`p-4 rounded-lg ${
-                        resolvedTheme === "dark" ? "bg-blue-500/10" : "bg-blue-50"
-                      }`}>
+                      <div className={`p-4 rounded-lg ${resolvedTheme === "dark" ? "bg-blue-500/10" : "bg-blue-50"
+                        }`}>
                         <p className={`text-sm ${resolvedTheme === "dark" ? "text-blue-300" : "text-blue-700"}`}>
                           {commissionRates.message}
                         </p>
@@ -498,9 +501,8 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
                 paymentHistory.payments.map((payment) => (
                   <Card
                     key={payment.uid}
-                    className={`border-0 shadow-lg h-full ${
-                      resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
-                    }`}
+                    className={`border-0 shadow-lg h-full ${resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+                      }`}
                   >
                     <CardContent className="p-4 sm:p-6 h-full">
                       <div className="flex items-center justify-between mb-4">
@@ -530,7 +532,7 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
                       <div className="space-y-2">
                         <div className="flex justify-between items-center">
                           <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                          {t("betting.commissions.history.fields.paidBy")}
+                            {t("betting.commissions.history.fields.paidBy")}
                           </span>
                           <span className={`font-medium ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                             {payment.paid_by_name}
@@ -538,7 +540,7 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
                         </div>
                         <div className="flex justify-between items-center">
                           <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                          {t("betting.commissions.history.fields.period")}
+                            {t("betting.commissions.history.fields.period")}
                           </span>
                           <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                             {formatDate(payment.period_start)} - {formatDate(payment.period_end)}
@@ -546,7 +548,7 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
                         </div>
                         <div className="flex justify-between items-center">
                           <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
-                          {t("betting.commissions.history.fields.paymentDate")}
+                            {t("betting.commissions.history.fields.paymentDate")}
                           </span>
                           <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                             {formatDate(payment.created_at)}

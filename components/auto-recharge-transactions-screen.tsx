@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
 import {
   ArrowLeft,
   ChevronLeft,
@@ -40,6 +41,8 @@ export function AutoRechargeTransactionsScreen({
   const [isLoading, setIsLoading] = useState(true)
   const [transactions, setTransactions] = useState<AutoRechargeTransaction[]>([])
   const [totalCount, setTotalCount] = useState(0)
+  const [startDate, setStartDate] = useState("")
+  const [endDate, setEndDate] = useState("")
 
   // Pull-to-refresh state
   const [pullToRefreshState, setPullToRefreshState] = useState({
@@ -244,7 +247,19 @@ export function AutoRechargeTransactionsScreen({
       transaction.reference.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.phone_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       transaction.network.nom.toLowerCase().includes(searchTerm.toLowerCase())
-    return matchesStatus && matchesSearch
+
+    let matchesDate = true;
+    if (startDate || endDate) {
+      const txDate = new Date(transaction.created_at);
+      txDate.setHours(0, 0, 0, 0);
+      const s = startDate ? new Date(startDate) : new Date("1900-01-01");
+      const e = endDate ? new Date(endDate) : new Date("2100-01-01");
+      s.setHours(0, 0, 0, 0);
+      e.setHours(23, 59, 59, 999);
+      matchesDate = txDate >= s && txDate <= e;
+    }
+
+    return matchesStatus && matchesSearch && matchesDate
   })
 
   // Calculate pagination
@@ -253,14 +268,14 @@ export function AutoRechargeTransactionsScreen({
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [filterStatus, searchTerm])
+  }, [filterStatus, searchTerm, startDate, endDate])
 
   return (
     <div
       ref={containerRef}
       className={`min-h-screen transition-colors duration-300 ${resolvedTheme === "dark"
-          ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
-          : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
+        ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900"
+        : "bg-gradient-to-br from-blue-50 via-white to-blue-100"
         }`}
       style={{
         transform: `translateY(${pullToRefreshState.pullDistance}px)`,
@@ -287,8 +302,8 @@ export function AutoRechargeTransactionsScreen({
               variant="ghost"
               size="sm"
               className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${resolvedTheme === "dark"
-                  ? "hover:bg-gray-700/50 text-gray-300"
-                  : "hover:bg-gray-100/50 text-gray-600"
+                ? "hover:bg-gray-700/50 text-gray-300"
+                : "hover:bg-gray-100/50 text-gray-600"
                 }`}
               onClick={onNavigateBack}
             >
@@ -307,8 +322,8 @@ export function AutoRechargeTransactionsScreen({
             variant="ghost"
             size="sm"
             className={`h-10 w-10 p-0 rounded-full transition-colors duration-300 ${resolvedTheme === "dark"
-                ? "hover:bg-gray-700/50 text-gray-300"
-                : "hover:bg-gray-100/50 text-gray-600"
+              ? "hover:bg-gray-700/50 text-gray-300"
+              : "hover:bg-gray-100/50 text-gray-600"
               }`}
             onClick={handleRefreshTransactions}
             disabled={isRefreshing}
@@ -329,8 +344,8 @@ export function AutoRechargeTransactionsScreen({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className={`w-full pl-10 pr-4 py-3 rounded-xl border-0 transition-colors duration-300 ${resolvedTheme === "dark"
-                  ? "bg-gray-800/80 text-white placeholder-gray-400"
-                  : "bg-white/80 text-gray-900 placeholder-gray-500"
+                ? "bg-gray-800/80 text-white placeholder-gray-400"
+                : "bg-white/80 text-gray-900 placeholder-gray-500"
                 } focus:outline-none focus:ring-2 focus:ring-blue-500/50`}
             />
           </div>
@@ -342,10 +357,10 @@ export function AutoRechargeTransactionsScreen({
               size="sm"
               onClick={() => setFilterStatus("all")}
               className={`whitespace-nowrap ${filterStatus === "all"
-                  ? "bg-blue-500 text-white"
-                  : resolvedTheme === "dark"
-                    ? "border-gray-600 text-gray-300"
-                    : "border-gray-300 text-gray-700"
+                ? "bg-blue-500 text-white"
+                : resolvedTheme === "dark"
+                  ? "border-gray-600 text-gray-300"
+                  : "border-gray-300 text-gray-700"
                 }`}
             >
               {t("autoRechargeTransactions.filters.all")}
@@ -355,10 +370,10 @@ export function AutoRechargeTransactionsScreen({
               size="sm"
               onClick={() => setFilterStatus("success")}
               className={`whitespace-nowrap ${filterStatus === "success"
-                  ? "bg-green-500 text-white"
-                  : resolvedTheme === "dark"
-                    ? "border-gray-600 text-gray-300"
-                    : "border-gray-300 text-gray-700"
+                ? "bg-green-500 text-white"
+                : resolvedTheme === "dark"
+                  ? "border-gray-600 text-gray-300"
+                  : "border-gray-300 text-gray-700"
                 }`}
             >
               {t("autoRechargeTransactions.filters.success")}
@@ -368,10 +383,10 @@ export function AutoRechargeTransactionsScreen({
               size="sm"
               onClick={() => setFilterStatus("pending")}
               className={`whitespace-nowrap ${filterStatus === "pending"
-                  ? "bg-yellow-500 text-white"
-                  : resolvedTheme === "dark"
-                    ? "border-gray-600 text-gray-300"
-                    : "border-gray-300 text-gray-700"
+                ? "bg-yellow-500 text-white"
+                : resolvedTheme === "dark"
+                  ? "border-gray-600 text-gray-300"
+                  : "border-gray-300 text-gray-700"
                 }`}
             >
               {t("autoRechargeTransactions.filters.pending")}
@@ -381,14 +396,18 @@ export function AutoRechargeTransactionsScreen({
               size="sm"
               onClick={() => setFilterStatus("failed")}
               className={`whitespace-nowrap ${filterStatus === "failed"
-                  ? "bg-red-500 text-white"
-                  : resolvedTheme === "dark"
-                    ? "border-gray-600 text-gray-300"
-                    : "border-gray-300 text-gray-700"
+                ? "bg-red-500 text-white"
+                : resolvedTheme === "dark"
+                  ? "border-gray-600 text-gray-300"
+                  : "border-gray-300 text-gray-700"
                 }`}
             >
               {t("autoRechargeTransactions.filters.failed")}
             </Button>
+          </div>
+          <div className="flex gap-3 mt-4">
+            <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={`flex-1 rounded-[1 rem] ${resolvedTheme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`} />
+            <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={`flex-1 rounded-[1 rem] ${resolvedTheme === "dark" ? "bg-gray-800 text-white" : "bg-white text-gray-900"}`} />
           </div>
         </div>
       </div>
@@ -524,8 +543,8 @@ export function AutoRechargeTransactionsScreen({
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               className={`${resolvedTheme === "dark"
-                  ? "border-gray-600 text-gray-300 disabled:text-gray-600"
-                  : "border-gray-300 text-gray-700 disabled:text-gray-400"
+                ? "border-gray-600 text-gray-300 disabled:text-gray-600"
+                : "border-gray-300 text-gray-700 disabled:text-gray-400"
                 }`}
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
@@ -552,10 +571,10 @@ export function AutoRechargeTransactionsScreen({
                     size="sm"
                     onClick={() => setCurrentPage(pageNum)}
                     className={`w-10 h-10 p-0 ${currentPage === pageNum
-                        ? "bg-blue-500 text-white"
-                        : resolvedTheme === "dark"
-                          ? "border-gray-600 text-gray-300"
-                          : "border-gray-300 text-gray-700"
+                      ? "bg-blue-500 text-white"
+                      : resolvedTheme === "dark"
+                        ? "border-gray-600 text-gray-300"
+                        : "border-gray-300 text-gray-700"
                       }`}
                   >
                     {pageNum}
@@ -570,8 +589,8 @@ export function AutoRechargeTransactionsScreen({
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
               className={`${resolvedTheme === "dark"
-                  ? "border-gray-600 text-gray-300 disabled:text-gray-600"
-                  : "border-gray-300 text-gray-700 disabled:text-gray-400"
+                ? "border-gray-600 text-gray-300 disabled:text-gray-600"
+                : "border-gray-300 text-gray-700 disabled:text-gray-400"
                 }`}
             >
               {t("autoRechargeTransactions.next")}

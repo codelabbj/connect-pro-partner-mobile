@@ -77,7 +77,7 @@ export function TransferHistoryScreen({ onNavigateBack }: { onNavigateBack: () =
 
 	useEffect(() => {
 		loadTransfers()
-	}, [filters.type, filters.status]) // Reload on status/type change immediately
+	}, [filters.type, filters.status, filters.date_from, filters.date_to]) // Reload on status/type/date change immediately
 
 	const handleApplyFilters = () => {
 		loadTransfers()
@@ -144,6 +144,10 @@ export function TransferHistoryScreen({ onNavigateBack }: { onNavigateBack: () =
 						<CardTitle>{t("transferHistory.title")}</CardTitle>
 					</CardHeader>
 					<CardContent>
+						<div className="flex gap-3 mb-4">
+							<Input type="date" value={filters.date_from} onChange={(e) => setFilters({ ...filters, date_from: e.target.value })} className={`flex-1 ${resolvedTheme === "dark" ? "bg-gray-800 text-white border-gray-700" : "bg-white text-gray-900 border-gray-200"}`} />
+							<Input type="date" value={filters.date_to} onChange={(e) => setFilters({ ...filters, date_to: e.target.value })} className={`flex-1 ${resolvedTheme === "dark" ? "bg-gray-800 text-white border-gray-700" : "bg-white text-gray-900 border-gray-200"}`} />
+						</div>
 						{isLoading ? (
 							<div className="py-20 text-center animate-pulse font-bold">{t("common.loading")}...</div>
 						) : transfers.length > 0 ? (
