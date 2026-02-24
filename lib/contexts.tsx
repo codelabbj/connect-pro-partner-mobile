@@ -81,22 +81,22 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const t = (key: string, params?: Record<string, any>): string => {
     const keys = key.split('.')
     let value: any = translations[language]
-    
+
     for (const k of keys) {
       value = value?.[k]
     }
-    
+
     if (value === undefined) {
       value = translations.en
       for (const k of keys) {
         value = value?.[k]
       }
     }
-    
+
     if (typeof value === 'string') {
       return params ? value.replace(/\{\{(\w+)\}\}/g, (_, param) => params[param] || '') : value
     }
-    
+
     return key
   }
 
@@ -149,10 +149,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const checkAuth = async () => {
       try {
         // Add timeout to prevent hanging
-        const timeoutPromise = new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Authentication check timeout')), 10000)
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Authentication check timeout')), 30000)
         )
-        
+
         const authPromise = (async () => {
           if (authService.isAuthenticated()) {
             const isValid = await authService.validateToken()
@@ -160,7 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               // Get user profile from API
               const userProfile = await authService.getUserProfile()
               setUser(userProfile)
-              
+
               // Get account data and transactions
               const accessToken = authService.getAccessToken()
               if (accessToken) {
@@ -170,21 +170,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 } catch (error) {
                   console.error('Failed to fetch account data:', error)
                 }
-                
+
                 try {
                   const transactionsData = await transactionsService.getTransactions(accessToken, 1, 10)
                   setTransactions(transactionsData.results)
                 } catch (error) {
                   console.error('Failed to fetch transactions:', error)
                 }
-              
+
                 try {
                   const networksData = await networksService.getNetworks(accessToken)
                   setNetworks(networksData.results)
                 } catch (error) {
                   console.error('Failed to fetch networks:', error)
                 }
-                
+
                 try {
                   const rechargesData = await rechargeService.getRecharges(accessToken, 1, 10)
                   setRecharges(rechargesData.results)
@@ -192,14 +192,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                   console.error('Failed to fetch recharges:', error)
                 }
               }
-              
+
               setIsAuthenticated(true)
             } else {
               authService.logout()
             }
           }
         })()
-        
+
         await Promise.race([authPromise, timeoutPromise])
       } catch (error) {
         console.error('Auth check failed:', error)
@@ -216,11 +216,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true)
       await authService.login(identifier, password)
-      
+
       // Get user profile after successful login
       const userProfile = await authService.getUserProfile()
       setUser(userProfile)
-      
+
       // Get account data and transactions
       const accessToken = authService.getAccessToken()
       if (accessToken) {
@@ -230,21 +230,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         } catch (error) {
           console.error('Failed to fetch account data:', error)
         }
-        
+
         try {
           const transactionsData = await transactionsService.getTransactions(accessToken, 1, 10)
           setTransactions(transactionsData.results)
         } catch (error) {
           console.error('Failed to fetch transactions:', error)
         }
-        
+
         try {
           const networksData = await networksService.getNetworks(accessToken)
           setNetworks(networksData.results)
         } catch (error) {
           console.error('Failed to fetch networks:', error)
         }
-        
+
         try {
           const rechargesData = await rechargeService.getRecharges(accessToken, 1, 10)
           setRecharges(rechargesData.results)
@@ -252,7 +252,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           console.error('Failed to fetch recharges:', error)
         }
       }
-      
+
       setIsAuthenticated(true)
     } catch (error) {
       console.error('Login failed:', error)
@@ -367,16 +367,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ 
-      user, 
+    <AuthContext.Provider value={{
+      user,
       accountData,
       transactions,
       networks,
       recharges,
-      isAuthenticated, 
-      isLoading, 
-      login, 
-      logout, 
+      isAuthenticated,
+      isLoading,
+      login,
+      logout,
       refreshToken,
       refreshAccountData,
       refreshTransactions,

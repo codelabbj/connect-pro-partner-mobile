@@ -20,6 +20,7 @@ import {
   LogOut,
   Smartphone,
   Send,
+  FileSpreadsheet,
 } from "lucide-react"
 import { useTheme } from "@/lib/contexts"
 import { useTranslation } from "@/lib/contexts"
@@ -52,6 +53,13 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
       icon: TrendingUp,
       color: "text-green-500",
       hoverColor: "hover:bg-green-500/10"
+    },
+    {
+      id: "bulk-payment",
+      label: t("bulkPayment.title"),
+      icon: FileSpreadsheet,
+      color: "text-blue-600",
+      hoverColor: "hover:bg-blue-600/10"
     },
     {
       id: "withdraw",

@@ -32,6 +32,7 @@ import { AutoRechargeTransactionsScreen } from "@/components/auto-recharge-trans
 import { AutoRechargeTransactionDetailScreen } from "@/components/auto-recharge-transaction-detail-screen"
 import { AccountHistoryScreen } from "@/components/account-history-screen"
 import { ChangePasswordScreen } from "@/components/change-password-screen"
+import { BulkPaymentPage } from "@/components/bulk-payment-page"
 
 export default function Home() {
   const [currentScreen, setCurrentScreen] = useState<
@@ -61,6 +62,7 @@ export default function Home() {
     | "auto-recharge"
     | "auto-recharge-transactions"
     | "auto-recharge-transaction-detail"
+    | "bulk-payment"
   >("splash")
   const [navigationHistory, setNavigationHistory] = useState<string[]>([])
   const [selectedPlatformUid, setSelectedPlatformUid] = useState<string>("")
@@ -239,6 +241,7 @@ export default function Home() {
               onNavigateBack={navigateBack}
               onSelectMobileMoney={() => navigateTo(bettingTransactionType === "deposit" ? "deposit" : "withdraw")}
               onSelectBetting={() => navigateTo("betting-platforms")}
+              onSelectBulkPayment={() => navigateTo("bulk-payment")}
             />
           )}
           {currentScreen === "settings" && (
@@ -340,6 +343,11 @@ export default function Home() {
             <AutoRechargeTransactionDetailScreen
               transactionUid={selectedAutoRechargeTransactionUid}
               onNavigateBack={navigateBack}
+            />
+          )}
+          {currentScreen === "bulk-payment" && (
+            <BulkPaymentPage
+              onBack={() => navigateBack()}
             />
           )}
         </div>
