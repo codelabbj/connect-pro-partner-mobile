@@ -68,6 +68,7 @@ export default function Home() {
   const [selectedPlatformUid, setSelectedPlatformUid] = useState<string>("")
   const [selectedAutoRechargeTransactionUid, setSelectedAutoRechargeTransactionUid] = useState<string>("")
   const [bettingTransactionType, setBettingTransactionType] = useState<"deposit" | "withdraw">("deposit")
+  const [bulkPaymentInitialView, setBulkPaymentInitialView] = useState<'list' | 'create'>('list')
   const [splashCompleted, setSplashCompleted] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const { resolvedTheme } = useTheme()
@@ -83,7 +84,11 @@ export default function Home() {
     return (user as any)?.can_use_mobcash_betting !== false
   }, [user])
 
-  const navigateTo = (screen: typeof currentScreen) => {
+  const navigateTo = (screen: typeof currentScreen, bulkView?: 'list' | 'create') => {
+    if (screen === 'bulk-payment') {
+      // Use provided view or default to 'create' (for sidebar/general)
+      setBulkPaymentInitialView(bulkView || 'create')
+    }
     setNavigationHistory((prev) => [...prev, String(currentScreen)])
     setCurrentScreen(screen)
   }
@@ -209,9 +214,9 @@ export default function Home() {
               onNavigateToTransferHistory={() => navigateTo("transfer-history")}
               onNavigateToBettingTransactions={() => navigateTo("betting-transactions")}
               onNavigateToAutoRecharge={() => navigateTo("auto-recharge")}
-              onNavigateToAutoRechargeTransactions={() => navigateTo("auto-recharge-transactions")}
               onNavigateToRecharge={() => navigateTo("recharge")}
               onNavigateToTransfer={() => navigateTo("transfer")}
+              onNavigateToBulkPaymentHistory={() => navigateTo("bulk-payment", 'list')}
             />
           )}
           {currentScreen === "deposit" && (
@@ -241,7 +246,7 @@ export default function Home() {
               onNavigateBack={navigateBack}
               onSelectMobileMoney={() => navigateTo(bettingTransactionType === "deposit" ? "deposit" : "withdraw")}
               onSelectBetting={() => navigateTo("betting-platforms")}
-              onSelectBulkPayment={() => navigateTo("bulk-payment")}
+              onSelectBulkPayment={() => navigateTo("bulk-payment", 'create')}
             />
           )}
           {currentScreen === "settings" && (
@@ -348,6 +353,7 @@ export default function Home() {
           {currentScreen === "bulk-payment" && (
             <BulkPaymentPage
               onBack={() => navigateBack()}
+              initialView={bulkPaymentInitialView}
             />
           )}
         </div>

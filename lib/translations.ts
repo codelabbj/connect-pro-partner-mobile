@@ -308,6 +308,11 @@ export const translations = {
       ok: "OK",
       copied: "Copied",
       notAuthorized: "Not Authorized",
+      allStatus: "All Statuses",
+      allNetworks: "All Networks",
+      clearFilters: "Clear Filters",
+      from: "From",
+      to: "To",
     },
 
     // Navigation Labels
@@ -1167,6 +1172,11 @@ export const translations = {
       ok: "OK",
       copied: "Copié",
       notAuthorized: "Non Autorisé",
+      allStatus: "Tous les statuts",
+      allNetworks: "Tous les réseaux",
+      clearFilters: "Réinitialiser les filtres",
+      from: "Du",
+      to: "Au",
     },
 
     // Libellés de Navigation

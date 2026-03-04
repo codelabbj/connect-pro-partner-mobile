@@ -16,6 +16,9 @@ export interface User {
   contact_method: string;
   created_at: string;
   updated_at: string;
+  can_process_momo: boolean;
+  can_process_mobcash: boolean;
+  can_process_bulk_payment: boolean;
 }
 
 export interface AuthResponse {

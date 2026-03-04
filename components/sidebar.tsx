@@ -39,6 +39,10 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
   const { t } = useTranslation()
   const { user } = useAuth()
 
+  const canMobile = (user as any)?.can_process_momo !== false
+  const canBetting = (user as any)?.can_process_mobcash !== false
+  const canBulk = (user as any)?.can_process_bulk_payment !== false
+
   const navigationItems = [
     {
       id: "dashboard",
@@ -48,25 +52,12 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
       hoverColor: "hover:bg-blue-500/10"
     },
     {
-      id: "deposit",
-      label: t("nav.deposit"),
-      icon: TrendingUp,
-      color: "text-green-500",
-      hoverColor: "hover:bg-green-500/10"
-    },
-    {
       id: "bulk-payment",
       label: t("bulkPayment.title"),
       icon: FileSpreadsheet,
       color: "text-blue-600",
-      hoverColor: "hover:bg-blue-600/10"
-    },
-    {
-      id: "withdraw",
-      label: t("nav.withdraw"),
-      icon: TrendingDown,
-      color: "text-red-500",
-      hoverColor: "hover:bg-red-500/10"
+      hoverColor: "hover:bg-blue-600/10",
+      hidden: !canBulk
     },
     {
       id: "recharge",
@@ -138,7 +129,7 @@ export function Sidebar({ currentScreen, onNavigate, onLogout, isOpen, onToggle 
       color: "text-gray-500",
       hoverColor: "hover:bg-gray-500/10"
     }
-  ]
+  ].filter(item => !item.hidden)
 
   return (
     <>

@@ -25,8 +25,9 @@ export function TransactionTypeSelectionScreen({
 	const { theme, resolvedTheme } = useTheme()
 	const { user } = useAuth()
 	const { t } = useTranslation()
-	const canMobile = (user as any)?.can_use_momo_pay !== false && (user as any)?.can_process_ussd_transaction !== false
-	const canBetting = (user as any)?.can_use_mobcash_betting !== false
+	const canMobile = (user as any)?.can_process_momo !== false
+	const canBetting = (user as any)?.can_process_mobcash !== false
+	const canBulk = (user as any)?.can_process_bulk_payment !== false
 
 	return (
 		<div className={`min-h-screen ${resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"}`}>
@@ -64,7 +65,7 @@ export function TransactionTypeSelectionScreen({
 					</Card>
 
 					{transactionType === 'deposit' && onSelectBulkPayment && (
-						<Card className={`${resolvedTheme === 'dark' ? 'bg-gray-800/95' : 'bg-white/95'}`}>
+						<Card className={`${resolvedTheme === 'dark' ? 'bg-gray-800/95' : 'bg-white/95'} ${!canBulk ? 'opacity-60' : ''}`}>
 							<CardContent className="p-4 flex items-center gap-4">
 								<div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
 									<FileSpreadsheet className="w-6 h-6 text-orange-500" />
@@ -73,13 +74,13 @@ export function TransactionTypeSelectionScreen({
 									<p className="font-semibold">{t("bulkPayment.title")}</p>
 									<p className="text-xs opacity-80">{t("bulkPayment.subtitle")}</p>
 								</div>
-								<Button onClick={onSelectBulkPayment} className="ml-auto">{t("common.select")}</Button>
+								<Button onClick={onSelectBulkPayment} disabled={!canBulk} className="ml-auto">{t("common.select")}</Button>
 							</CardContent>
 						</Card>
 					)}
 				</div>
 
-				{!canMobile && !canBetting && (
+				{((transactionType === 'deposit' && !canMobile && !canBetting && !canBulk) || (transactionType === 'withdraw' && !canMobile && !canBetting)) && (
 					<div className={`mt-6 p-4 rounded-xl flex items-start gap-3 ${resolvedTheme === 'dark' ? 'bg-gray-800/60' : 'bg-gray-100/80'}`}>
 						<Ban className="w-5 h-5 text-yellow-500 mt-0.5" />
 						<div>

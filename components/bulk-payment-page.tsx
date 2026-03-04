@@ -76,11 +76,16 @@ interface DraftTransaction {
     errors: Record<string, string>;
 }
 
-export function BulkPaymentPage({ onBack }: { onBack: () => void }) {
+interface BulkPaymentPageProps {
+    onBack: () => void
+    initialView?: 'list' | 'create'
+}
+
+export function BulkPaymentPage({ onBack, initialView = 'list' }: BulkPaymentPageProps) {
     const { t, language } = useTranslation()
     const { user } = useAuth()
     const { resolvedTheme } = useTheme()
-    const [viewState, setViewState] = useState<ViewState>('list')
+    const [viewState, setViewState] = useState<ViewState>(initialView)
     const [batches, setBatches] = useState<BulkBatch[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [currentPage, setCurrentPage] = useState(1)
@@ -97,6 +102,13 @@ export function BulkPaymentPage({ onBack }: { onBack: () => void }) {
     const [batchTransactions, setBatchTransactions] = useState<BulkTransaction[]>([])
     const [batchDetailLoading, setBatchDetailLoading] = useState(false)
     const [confirmDialogOpen, setConfirmDialogOpen] = useState(false)
+    const [filters, setFilters] = useState({
+        status: 'all',
+        search: '',
+        date_from: '',
+        date_to: '',
+        network: 'all'
+    })
 
     const accessToken = useMemo(() => authService?.getAccessToken?.() || null, [user])
 
@@ -116,17 +128,25 @@ export function BulkPaymentPage({ onBack }: { onBack: () => void }) {
     useEffect(() => {
         if (viewState === 'list') {
             loadBatches()
+            loadNetworks()
         } else if (viewState === 'create') {
             loadNetworks()
             if (rows.length === 0) initEmptyRows()
         }
-    }, [viewState, currentPage])
+    }, [viewState, currentPage, filters])
 
     const loadBatches = async () => {
         if (!accessToken) return
         setIsLoading(true)
         try {
-            const response = await bulkPaymentService.getBatches(accessToken, currentPage)
+            const apiFilters: Record<string, string> = {}
+            if (filters.status !== 'all') apiFilters.status = filters.status
+            if (filters.search) apiFilters.search = filters.search
+            if (filters.date_from) apiFilters.date_from = filters.date_from
+            if (filters.date_to) apiFilters.date_to = filters.date_to
+            if (filters.network !== 'all') apiFilters.network = filters.network
+
+            const response = await bulkPaymentService.getBatches(accessToken, currentPage, apiFilters)
             setBatches(response.results)
             setTotalPages(Math.ceil(response.count / 10))
         } catch (error) {
@@ -134,6 +154,11 @@ export function BulkPaymentPage({ onBack }: { onBack: () => void }) {
         } finally {
             setIsLoading(false)
         }
+    }
+
+    const handleFilterChange = (key: string, value: any) => {
+        setFilters(prev => ({ ...prev, [key]: value }))
+        setCurrentPage(1) // Reset to page 1 on filter change
     }
 
     const loadNetworks = async () => {
@@ -266,8 +291,9 @@ export function BulkPaymentPage({ onBack }: { onBack: () => void }) {
                 }))
             })
             toast.success(t("bulkPayment.success"))
-            setViewState('list')
-            setRows([])
+            setViewState('list') // Redirect to history
+            loadBatches() // Refresh history
+            initEmptyRows()
         } catch (error) {
             toast.error(t("common.error"))
         } finally {
@@ -280,7 +306,7 @@ export function BulkPaymentPage({ onBack }: { onBack: () => void }) {
     const renderListView = () => (
         <div className="space-y-6 pb-12">
             <div className={`p-6 rounded-[2.5rem] bg-gradient-to-br ${resolvedTheme === 'dark' ? 'from-blue-900/40 to-purple-900/40 text-white' : 'from-blue-600 to-blue-500 text-white shadow-xl shadow-blue-500/20'}`}>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
                         <Button
                             onClick={onBack}
@@ -297,11 +323,91 @@ export function BulkPaymentPage({ onBack }: { onBack: () => void }) {
                     <Button
                         onClick={() => setViewState('create')}
                         size="icon"
-                        className="rounded-2xl h-14 w-14 bg-white/20 hover:bg-white/30 backdrop-blur-md border-0 text-white transition-all active:scale-90"
+                        className="rounded-2xl h-14 w-14 bg-white hover:bg-white/90 shadow-xl text-blue-600 transition-all active:scale-90"
                     >
                         <Plus className="w-8 h-8" />
                     </Button>
                 </div>
+            </div>
+
+            {/* Filter Section */}
+            <div className="space-y-4 px-1">
+                <div className="relative group">
+                    <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
+                        <Search className="w-5 h-5 opacity-20 group-focus-within:opacity-100 group-focus-within:text-blue-500 transition-all" />
+                    </div>
+                    <Input
+                        placeholder={t("common.search") || "Rechercher par UID..."}
+                        className="pl-12 h-14 rounded-2xl border-0 bg-white dark:bg-gray-800 shadow-lg shadow-gray-200/50 dark:shadow-none font-bold focus:ring-2 focus:ring-blue-500/50 transition-all"
+                        value={filters.search}
+                        onChange={(e) => handleFilterChange('search', e.target.value)}
+                    />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                    <Select value={filters.status} onValueChange={(val) => handleFilterChange('status', val)}>
+                        <SelectTrigger className="h-12 rounded-2xl border-0 bg-white dark:bg-gray-800 shadow-md font-bold text-xs uppercase tracking-tight">
+                            <SelectValue placeholder="STATUT" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-2xl border-0 shadow-2xl p-2">
+                            <SelectItem value="all" className="rounded-xl my-1">{t("common.allStatus") || "TOUS LES STATUTS"}</SelectItem>
+                            <SelectItem value="pending" className="rounded-xl my-1">{t("common.pending")?.toUpperCase() || "EN ATTENTE"}</SelectItem>
+                            <SelectItem value="processing" className="rounded-xl my-1">{t("common.processing")?.toUpperCase() || "EN COURS"}</SelectItem>
+                            <SelectItem value="completed" className="rounded-xl my-1">{t("common.completed")?.toUpperCase() || "TERMINÉ"}</SelectItem>
+                            <SelectItem value="failed" className="rounded-xl my-1">{t("common.failed")?.toUpperCase() || "ÉCHOUÉ"}</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Select value={filters.network} onValueChange={(val) => handleFilterChange('network', val)}>
+                        <SelectTrigger className="h-12 rounded-2xl border-0 bg-white dark:bg-gray-800 shadow-md font-bold text-xs uppercase tracking-tight">
+                            <SelectValue placeholder="RÉSEAU" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-2xl border-0 shadow-2xl p-2">
+                            <SelectItem value="all" className="rounded-xl my-1">{t("common.allNetworks") || "TOUS LES RÉSEAUX"}</SelectItem>
+                            {networks.map(n => (
+                                <SelectItem key={n.uid} value={n.uid} className="rounded-xl my-1">
+                                    <div className="flex items-center gap-2">
+                                        {n.image && <img src={n.image} className="w-4 h-4 rounded-full" />}
+                                        <span>{n.nom}</span>
+                                    </div>
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="relative">
+                        <Input
+                            type="date"
+                            className="h-12 rounded-2xl border-0 bg-white dark:bg-gray-800 shadow-md font-bold text-xs"
+                            value={filters.date_from}
+                            onChange={(e) => handleFilterChange('date_from', e.target.value)}
+                        />
+                        <span className="absolute -top-2 left-4 px-1 bg-white dark:bg-gray-900 text-[8px] font-black opacity-40 rounded uppercase tracking-widest">{t("common.from") || "Du"}</span>
+                    </div>
+                    <div className="relative">
+                        <Input
+                            type="date"
+                            className="h-12 rounded-2xl border-0 bg-white dark:bg-gray-800 shadow-md font-bold text-xs"
+                            value={filters.date_to}
+                            onChange={(e) => handleFilterChange('date_to', e.target.value)}
+                        />
+                        <span className="absolute -top-2 left-4 px-1 bg-white dark:bg-gray-900 text-[8px] font-black opacity-40 rounded uppercase tracking-widest">{t("common.to") || "Au"}</span>
+                    </div>
+                </div>
+
+                {(filters.status !== 'all' || filters.search || filters.date_from || filters.date_to || filters.network !== 'all') && (
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-[10px] font-black uppercase opacity-60 hover:opacity-100 p-0 h-auto"
+                        onClick={() => setFilters({ status: 'all', search: '', date_from: '', date_to: '', network: 'all' })}
+                    >
+                        <Trash2 className="w-3 h-3 mr-1" />
+                        {t("common.clearFilters") || "Réinitialiser les filtres"}
+                    </Button>
+                )}
             </div>
 
             <div className="space-y-4 px-1">

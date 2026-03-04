@@ -18,6 +18,7 @@ import {
   Activity,
   Smartphone,
   Zap,
+  FileSpreadsheet,
 } from "lucide-react"
 import { useState, useEffect, useRef } from "react"
 import { useTheme } from "@/lib/contexts"
@@ -30,6 +31,7 @@ import { transactionsService } from "@/lib/transactions"
 import { rechargeService } from "@/lib/recharge"
 import { transfersService } from "@/lib/transfers"
 import { autoRechargeService } from "@/lib/auto-recharge"
+import { bulkPaymentService } from "@/lib/bulk-payment"
 import { formatAmount } from "@/lib/utils"
 import { TransactionDetailsModal } from "@/components/transaction-details-modal"
 import { Badge } from "@/components/ui/badge"
@@ -55,6 +57,7 @@ interface DashboardScreenProps {
   onNavigateToAutoRechargeTransactions?: () => void
   onNavigateToRecharge?: () => void
   onNavigateToTransfer?: () => void
+  onNavigateToBulkPaymentHistory?: () => void
 }
 
 export function DashboardScreen({
@@ -71,6 +74,7 @@ export function DashboardScreen({
   onNavigateToAutoRechargeTransactions,
   onNavigateToRecharge,
   onNavigateToTransfer,
+  onNavigateToBulkPaymentHistory,
 }: DashboardScreenProps) {
   const [showBalance, setShowBalance] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -96,6 +100,10 @@ export function DashboardScreen({
   const { t } = useTranslation()
   const { user, accountData, transactions, refreshTransactions, refreshAccountData, refreshRecharges } = useAuth()
   const { toast } = useToast()
+
+  const canMobile = (user as any)?.can_process_momo !== false
+  const canBetting = (user as any)?.can_process_mobcash !== false
+  const canBulk = (user as any)?.can_process_bulk_payment !== false
 
   // Copy reference to clipboard
   const copyReference = async (reference: string) => {
@@ -138,12 +146,13 @@ export function DashboardScreen({
     if (!accessToken) return
 
     try {
-      const [accountTx, bettingTx, recharges, transfers, autoRecharges] = await Promise.allSettled([
+      const [accountTx, bettingTx, recharges, transfers, autoRecharges, bulkBatches] = await Promise.allSettled([
         transactionsService.getTransactions(accessToken, 1, 3),
         bettingService.getBettingTransactions({ page: 1, ordering: '-created_at' }),
         rechargeService.getRecharges(accessToken, 1, 3),
         transfersService.myTransfers(),
         autoRechargeService.getTransactions(accessToken, 1, 3),
+        bulkPaymentService.getBatches(accessToken, 1),
       ])
 
       const unified: any[] = []
@@ -220,7 +229,21 @@ export function DashboardScreen({
         })
       }
 
-      // Sort by date (newest first) and limit to top 5
+      // Add bulk payment batches
+      if (bulkBatches.status === 'fulfilled') {
+        bulkBatches.value.results.slice(0, 3).forEach((batch: any) => {
+          unified.push({
+            ...batch,
+            historyType: 'bulk-payment',
+            created_at: batch.created_at,
+            amount: batch.total_amount,
+            reference: batch.uid,
+            status: batch.status,
+            status_display: batch.status_display || batch.status,
+            total_count: batch.total_count,
+          })
+        })
+      }
       unified.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
       setRecentHistory(unified.slice(0, 5))
     } catch (error) {
@@ -377,6 +400,7 @@ export function DashboardScreen({
       case "rejected":
       case "expired":    // Auto-recharge expired
       case "cancelled":  // Auto-recharge cancelled
+      case "error":      // Bulk payment error
         return "text-red-500"
       default:
         return "text-gray-500"
@@ -396,6 +420,8 @@ export function DashboardScreen({
         return Send
       case 'auto-recharge':
         return Smartphone
+      case 'bulk-payment':
+        return FileSpreadsheet
       default:
         return Activity
     }
@@ -414,6 +440,8 @@ export function DashboardScreen({
         return t("nav.transfer")
       case 'auto-recharge':
         return t("nav.autoRecharge")
+      case 'bulk-payment':
+        return t("bulkPayment.title")
       default:
         return t("common.all")
     }
@@ -435,6 +463,9 @@ export function DashboardScreen({
     }
     if (item.historyType === 'auto-recharge') {
       return item.network?.nom || item.phone_number || t("nav.autoRecharge")
+    }
+    if (item.historyType === 'bulk-payment') {
+      return `${item.total_count} Transactions`
     }
     return t("common.all")
   }
@@ -575,6 +606,7 @@ export function DashboardScreen({
           {/* Deposit Button */}
           <Button
             onClick={onNavigateToDeposit}
+            disabled={!canMobile && !canBetting && !canBulk}
             className={`group relative h-40 flex-col gap-5 border-0 overflow-hidden transition-all duration-500 ease-out ${resolvedTheme === "dark"
               ? "bg-transparent hover:bg-blue-500/10 text-white"
               : "bg-transparent hover:bg-blue-500/10 text-gray-900"
@@ -621,6 +653,7 @@ export function DashboardScreen({
           {/* Withdraw Button */}
           <Button
             onClick={onNavigateToWithdraw}
+            disabled={!canMobile && !canBetting}
             className={`group relative h-40 flex-col gap-5 border-0 overflow-hidden transition-all duration-500 ease-out ${resolvedTheme === "dark"
               ? "bg-transparent hover:bg-green-500/10 text-white"
               : "bg-transparent hover:bg-green-500/10 text-gray-900"
@@ -763,6 +796,20 @@ export function DashboardScreen({
                             >
                               <Smartphone className="w-5 h-5 mr-2 sm:mr-3 text-indigo-500 flex-shrink-0" />
                               <span className="truncate">{t("nav.autoRechargeHistory")}</span>
+                            </Button>
+                          )}
+                          {onNavigateToBulkPaymentHistory && (user as any)?.can_process_bulk_payment !== false && (
+                            <Button
+                              variant="ghost"
+                              className={`w-full justify-start h-12 sm:h-12 px-3 sm:px-4 text-sm sm:text-base active:scale-[0.98] touch-manipulation ${resolvedTheme === "dark" ? "hover:bg-gray-700/50 active:bg-gray-700/70 text-gray-300" : "hover:bg-gray-100/50 active:bg-gray-200/70 text-gray-700"
+                                }`}
+                              onClick={() => {
+                                onNavigateToBulkPaymentHistory()
+                                setShowDropdown(false)
+                              }}
+                            >
+                              <FileSpreadsheet className="w-5 h-5 mr-2 sm:mr-3 text-blue-600 flex-shrink-0" />
+                              <span className="truncate">{t("bulkPayment.title")}</span>
                             </Button>
                           )}
                         </div>
@@ -966,6 +1013,6 @@ export function DashboardScreen({
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   )
 }
