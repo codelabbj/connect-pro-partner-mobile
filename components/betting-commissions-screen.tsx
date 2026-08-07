@@ -99,7 +99,8 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
   }, [startDate, endDate])
 
   // Format currency
-  const formatCurrency = (amount: string | number) => {
+  const formatCurrency = (amount: string | number | null | undefined) => {
+    if (amount === null || amount === undefined) return "0"
     return parseFloat(amount.toString()).toLocaleString()
   }
 
@@ -158,8 +159,8 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
     <div className={`min-h-screen transition-colors duration-300 ${resolvedTheme === "dark" ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-900"
       }`}>
       {/* Header */}
-      <div className="px-4 pt-12 pb-6 safe-area-inset-top">
-        <div className="flex items-center justify-between mb-6">
+      <div className="px-4 pt-10 pb-4 safe-area-inset-top">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -196,38 +197,39 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
         </div>
 
         {/* Date Filters */}
-        <div className="flex gap-3 mb-6">
+        <div className="flex flex-col xs:flex-row gap-2 xs:gap-3 mb-6">
           <Input
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
-            className={`flex-1 ${resolvedTheme === "dark" ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-200"}`}
+            className={`flex-1 text-sm ${resolvedTheme === "dark" ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-200"}`}
           />
           <Input
             type="date"
             value={endDate}
             onChange={(e) => setEndDate(e.target.value)}
-            className={`flex-1 ${resolvedTheme === "dark" ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-200"}`}
+            className={`flex-1 text-sm ${resolvedTheme === "dark" ? "bg-gray-800 border-gray-700 text-white" : "bg-white border-gray-200"}`}
           />
         </div>
 
         {/* Summary Cards */}
         {commissionStats && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          <div className="grid grid-cols-2 gap-3 mb-6">
             <Card className={`border-0 shadow-lg ${resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
               }`}>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-                    <DollarSign className="w-5 h-5 text-green-500" />
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                    <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
                   </div>
-                  <div>
-                    <p className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                  <div className="min-w-0">
+                    <p className={`text-xs sm:text-sm font-medium truncate ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                       {t("betting.commissions.summary.totalCommission")}
                     </p>
-                    <p className={`text-xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
-                      {formatCurrency(commissionStats.total_commission)} FCFA
+                    <p className={`text-sm sm:text-xl font-bold truncate ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
+                      {formatCurrency(commissionStats.total_commission)}
                     </p>
+                    <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-500" : "text-gray-500"}`}>FCFA</p>
                   </div>
                 </div>
               </CardContent>
@@ -235,18 +237,19 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
 
             <Card className={`border-0 shadow-lg ${resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
               }`}>
-              <CardContent className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-yellow-500" />
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                    <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
                   </div>
-                  <div>
-                    <p className={`text-sm font-medium ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                  <div className="min-w-0">
+                    <p className={`text-xs sm:text-sm font-medium truncate ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                       {t("betting.commissions.summary.unpaidCommission")}
                     </p>
-                    <p className={`text-xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
-                      {formatCurrency(commissionStats.unpaid_commission)} FCFA
+                    <p className={`text-sm sm:text-xl font-bold truncate ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
+                      {formatCurrency(commissionStats.unpaid_commission)}
                     </p>
+                    <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-500" : "text-gray-500"}`}>FCFA</p>
                   </div>
                 </div>
               </CardContent>
@@ -256,14 +259,14 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
       </div>
 
       {/* Tabs */}
-      <div className="px-4">
+      <div className="px-4 pb-8">
         <Tabs value={activeTab} onValueChange={(value: any) => setActiveTab(value)}>
           <TabsList className={`${resolvedTheme === "dark" ? "bg-gray-800" : "bg-gray-100"
-            } overflow-x-auto flex gap-2 rounded-lg p-1`}>
-            <TabsTrigger className="whitespace-nowrap flex-shrink-0" value="overview">{t("betting.commissions.tabs.overview")}</TabsTrigger>
-            <TabsTrigger className="whitespace-nowrap flex-shrink-0" value="unpaid">{t("betting.commissions.tabs.unpaid")}</TabsTrigger>
-            <TabsTrigger className="whitespace-nowrap flex-shrink-0" value="rates">{t("betting.commissions.tabs.rates")}</TabsTrigger>
-            <TabsTrigger className="whitespace-nowrap flex-shrink-0" value="history">{t("betting.commissions.tabs.history")}</TabsTrigger>
+            } w-full overflow-x-auto flex gap-1 rounded-lg p-1 no-scrollbar`}>
+            <TabsTrigger className="whitespace-nowrap flex-1 text-xs sm:text-sm px-2 py-1.5" value="overview">{t("betting.commissions.tabs.overview")}</TabsTrigger>
+            <TabsTrigger className="whitespace-nowrap flex-1 text-xs sm:text-sm px-2 py-1.5" value="unpaid">{t("betting.commissions.tabs.unpaid")}</TabsTrigger>
+            <TabsTrigger className="whitespace-nowrap flex-1 text-xs sm:text-sm px-2 py-1.5" value="rates">{t("betting.commissions.tabs.rates")}</TabsTrigger>
+            <TabsTrigger className="whitespace-nowrap flex-1 text-xs sm:text-sm px-2 py-1.5" value="history">{t("betting.commissions.tabs.history")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="mt-6">
@@ -280,28 +283,30 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="grid grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 xs:grid-cols-3 gap-4">
                       <div className="text-center">
-                        <p className={`text-2xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
+                        <p className={`text-xl sm:text-2xl font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                           {commissionStats.total_transactions}
                         </p>
-                        <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        <p className={`text-xs sm:text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                           {t("betting.commissions.summary.totalTransactions")}
                         </p>
                       </div>
                       <div className="text-center">
-                        <p className={`text-2xl font-bold text-green-500`}>
-                          {formatCurrency(commissionStats.paid_commission)} FCFA
+                        <p className={`text-base sm:text-xl font-bold text-green-500 truncate`}>
+                          {formatCurrency(commissionStats.paid_commission)}
                         </p>
-                        <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-500" : "text-gray-500"}`}>FCFA</p>
+                        <p className={`text-xs sm:text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                           {t("betting.commissions.summary.paidCommission")}
                         </p>
                       </div>
                       <div className="text-center">
-                        <p className={`text-2xl font-bold text-yellow-500`}>
-                          {formatCurrency(commissionStats.unpaid_commission)} FCFA
+                        <p className={`text-base sm:text-xl font-bold text-yellow-500 truncate`}>
+                          {formatCurrency(commissionStats.unpaid_commission)}
                         </p>
-                        <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-500" : "text-gray-500"}`}>FCFA</p>
+                        <p className={`text-xs sm:text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                           {t("betting.commissions.summary.unpaidCommission")}
                         </p>
                       </div>
@@ -323,20 +328,20 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
                   </CardHeader>
                   <CardContent className="space-y-3">
                     {commissionStats.by_platform.map((platform, index) => (
-                      <div key={index} className="flex justify-between items-center p-3 rounded-lg bg-gray-100/50 dark:bg-gray-700/50">
-                        <div>
-                          <p className={`font-medium ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
+                      <div key={index} className="flex flex-col xs:flex-row xs:justify-between xs:items-center gap-1 xs:gap-0 p-3 rounded-lg bg-gray-100/50 dark:bg-gray-700/50">
+                        <div className="min-w-0">
+                          <p className={`font-medium truncate ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                             {platform.platform__name}
                           </p>
-                          <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                          <p className={`text-xs sm:text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                             {t("betting.commissions.summary.platformTransactions", { count: platform.count })}
                           </p>
                         </div>
-                        <div className="text-right">
-                          <p className={`font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
+                        <div className="xs:text-right">
+                          <p className={`font-bold text-sm sm:text-base ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                             {formatCurrency(platform.total_commission)} FCFA
                           </p>
-                          <p className={`text-sm text-yellow-500`}>
+                          <p className={`text-xs text-yellow-500`}>
                             {t("betting.commissions.summary.unpaidLabel", { amount: formatCurrency(platform.unpaid_commission) })}
                           </p>
                         </div>
@@ -349,61 +354,61 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
           </TabsContent>
 
           <TabsContent value="unpaid" className="mt-6">
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {unpaidCommissions && Array.isArray(unpaidCommissions.transactions) && unpaidCommissions.transactions.length > 0 ? (
                 unpaidCommissions.transactions.map((transaction) => (
                   <Card
                     key={transaction.uid}
-                    className={`border-0 shadow-lg h-full ${resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+                    className={`border-0 shadow-lg ${resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
                       }`}
                   >
-                    <CardContent className="p-4 sm:p-6 h-full">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center">
-                            <Clock className="w-5 h-5 text-yellow-500" />
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-4 gap-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 rounded-xl bg-yellow-500/20 flex items-center justify-center flex-shrink-0">
+                            <Clock className="w-4 h-4 text-yellow-500" />
                           </div>
-                          <div>
-                            <h3 className={`font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
+                          <div className="min-w-0">
+                            <h3 className={`font-bold text-sm truncate ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                               {transaction.platform_name}
                             </h3>
-                            <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                            <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                               {transaction.transaction_type === "deposit" ? t("betting.commissions.unpaid.deposit") : t("betting.commissions.unpaid.withdrawal")}
                             </p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className={`text-lg font-bold text-yellow-500`}>
+                        <div className="text-right flex-shrink-0">
+                          <p className={`text-sm font-bold text-yellow-500 whitespace-nowrap`}>
                             {formatCurrency(transaction.commission_amount)} FCFA
                           </p>
-                          <Badge variant="secondary" className="text-xs bg-yellow-500/20 text-yellow-500">
+                          <Badge variant="secondary" className="text-xs bg-yellow-500/20 text-yellow-500 mt-1">
                             {t("betting.commissions.unpaid.unpaidBadge")}
                           </Badge>
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        <div className="flex justify-between items-center gap-2">
+                          <span className={`text-xs flex-shrink-0 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                             {t("betting.commissions.unpaid.fields.reference")}
                           </span>
-                          <span className={`font-mono text-sm ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                          <span className={`font-mono text-xs truncate ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                             {transaction.reference}
                           </span>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        <div className="flex justify-between items-center gap-2">
+                          <span className={`text-xs flex-shrink-0 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                             {t("betting.commissions.unpaid.fields.amount")}
                           </span>
-                          <span className={`font-medium ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
+                          <span className={`font-medium text-xs whitespace-nowrap ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                             {formatCurrency(transaction.amount)} FCFA
                           </span>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        <div className="flex flex-col gap-0.5">
+                          <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                             {t("betting.commissions.unpaid.fields.date")}
                           </span>
-                          <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                          <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                             {formatDate(transaction.created_at)}
                           </span>
                         </div>
@@ -412,7 +417,7 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
                   </Card>
                 ))
               ) : (
-                <div className="text-center py-8 col-span-2">
+                <div className="text-center py-12 col-span-full">
                   <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
                   <h3 className={`text-lg font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"} mb-2`}>
                     {t("betting.commissions.unpaid.emptyTitle")}
@@ -496,67 +501,71 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
           </TabsContent>
 
           <TabsContent value="history" className="mt-6">
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {paymentHistory && Array.isArray(paymentHistory.payments) && paymentHistory.payments.length > 0 ? (
                 paymentHistory.payments.map((payment) => (
                   <Card
                     key={payment.uid}
-                    className={`border-0 shadow-lg h-full ${resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
+                    className={`border-0 shadow-lg ${resolvedTheme === "dark" ? "bg-gray-800/95" : "bg-white/95"
                       }`}
                   >
-                    <CardContent className="p-4 sm:p-6 h-full">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-green-500/20 flex items-center justify-center">
-                            <CreditCard className="w-5 h-5 text-green-500" />
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-4 gap-2">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 rounded-xl bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                            <CreditCard className="w-4 h-4 text-green-500" />
                           </div>
-                          <div>
-                            <h3 className={`font-bold ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
+                          <div className="min-w-0">
+                            <h3 className={`font-bold text-sm truncate ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                               {t("betting.commissions.history.paymentHeading")}
                             </h3>
-                            <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                            <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                               {t("betting.commissions.history.transactionsCount", { count: payment.transaction_count })}
                             </p>
                           </div>
                         </div>
-                        <div className="text-right">
-                          <p className={`text-lg font-bold text-green-500`}>
+                        <div className="text-right flex-shrink-0">
+                          <p className={`text-sm font-bold text-green-500 whitespace-nowrap`}>
                             {formatCurrency(payment.total_amount)} FCFA
                           </p>
-                          <Badge variant="secondary" className="text-xs bg-green-500/20 text-green-500">
+                          <Badge variant="secondary" className="text-xs bg-green-500/20 text-green-500 mt-1">
                             {t("betting.commissions.history.paidBadge")}
                           </Badge>
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        <div className="flex justify-between items-center gap-2">
+                          <span className={`text-xs flex-shrink-0 ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                             {t("betting.commissions.history.fields.paidBy")}
                           </span>
-                          <span className={`font-medium ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
+                          <span className={`font-medium text-xs truncate ${resolvedTheme === "dark" ? "text-white" : "text-gray-900"}`}>
                             {payment.paid_by_name}
                           </span>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        <div className="flex flex-col gap-0.5">
+                          <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                             {t("betting.commissions.history.fields.period")}
                           </span>
-                          <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
-                            {formatDate(payment.period_start)} - {formatDate(payment.period_end)}
+                          <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                            {formatDate(payment.period_start)}
+                          </span>
+                          <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-500" : "text-gray-500"}`}>→</span>
+                          <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                            {formatDate(payment.period_end)}
                           </span>
                         </div>
-                        <div className="flex justify-between items-center">
-                          <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
+                        <div className="flex flex-col gap-0.5">
+                          <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-400" : "text-gray-600"}`}>
                             {t("betting.commissions.history.fields.paymentDate")}
                           </span>
-                          <span className={`text-sm ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                          <span className={`text-xs ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                             {formatDate(payment.created_at)}
                           </span>
                         </div>
                         {payment.notes && (
                           <div className="mt-3 p-3 rounded-lg bg-gray-100/50 dark:bg-gray-700/50">
-                            <p className={`text-sm ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
+                            <p className={`text-xs ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"}`}>
                               {payment.notes}
                             </p>
                           </div>
@@ -566,7 +575,7 @@ export function BettingCommissionsScreen({ onNavigateBack }: BettingCommissionsS
                   </Card>
                 ))
               ) : (
-                <div className="text-center py-8 col-span-2">
+                <div className="text-center py-12 col-span-full">
                   <History className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className={`text-lg font-medium ${resolvedTheme === "dark" ? "text-gray-300" : "text-gray-700"} mb-2`}>
                     {t("betting.commissions.history.emptyTitle")}
